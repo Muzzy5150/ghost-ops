@@ -1,0 +1,85 @@
+import { randomUUID } from "node:crypto";
+import type { Prisma } from "@/generated/prisma/client";
+import type { AgentAction, Counts, Permissions } from "@/lib/schemas";
+import { actionSchema } from "@/lib/schemas";
+import { credentialDigest, secureEqual } from "./config";
+import { hash, verifySignature } from "./memory";
+import { behavioralSignals, permissionDecision, resources } from "./policy";
+import { correlate, recordEvent } from "./investigation";
+
+export class ConflictError extends Error {}
+export type GatewayResult = { requestId: string; allowed: boolean; reason: string; output: string | null; incidentId: string | null; replayed: boolean };
+
+export async function gateway(tx: Prisma.TransactionClient, rawAction: AgentAction, credential: string, runId?: string): Promise<GatewayResult> {
+  const action = actionSchema.parse(rawAction);
+  const fingerprint = hash(JSON.stringify([action, credentialDigest(credential)]));
+  const previous = await tx.toolRequest.findUnique({ where: { id: action.requestId } });
+  if (previous) {
+    if (previous.fingerprint !== fingerprint) throw new ConflictError("Request ID already used for a different request or credential");
+    return { ...(previous.result as Omit<GatewayResult, "replayed">), replayed: true };
+  }
+  const agent = await tx.agent.findUnique({ where: { id: action.actorId }, include: { profile: true } });
+  const session = await tx.session.findUnique({ where: { id: action.sessionId } });
+  const storedCredential = await tx.credential.findUnique({ where: { digest: credentialDigest(credential) } });
+  let reason: string | null = null;
+  if (!agent) reason = "UNKNOWN_IDENTITY";
+  else if (!storedCredential || storedCredential.agentId !== agent.id || !secureEqual(storedCredential.digest, credentialDigest(credential))) reason = "INVALID_CREDENTIAL";
+  else if (agent.status === "quarantined") reason = "AGENT_QUARANTINED";
+  else if (storedCredential.revoked || agent.status === "revoked") reason = "CREDENTIAL_REVOKED";
+  else if (!session || session.agentId !== agent.id || session.credentialId !== storedCredential.id || !session.active) reason = "SESSION_MISMATCH";
+  const authenticated = !reason;
+  let source = null;
+  if (authenticated && action.sourceId) {
+    source = await tx.sourceDocument.findUnique({ where: { id: action.sourceId } });
+    if (!source || action.tool !== "documents" || action.operation !== "ingest" || action.resource !== "docs/untrusted") reason = "INVALID_SOURCE_CONTEXT";
+  }
+  if (!reason && agent) reason = permissionDecision(action, agent.permissions as Permissions);
+  if (!reason && action.tool === "memory" && action.operation === "read") {
+    const memory = await tx.memoryVersion.findFirst({ where: { ownerId: action.actorId }, orderBy: { version: "desc" } });
+    if (!memory || !verifySignature(memory)) reason = "MEMORY_INTEGRITY_FAILURE";
+  }
+  const allowed = !reason;
+  const effectiveReason = reason ?? "AUTHORIZED";
+  // Only the bounded synthetic catalogue can produce a result. There is no filesystem,
+  // command interpreter, arbitrary-code evaluator, MCP runtime, or outbound HTTP executor.
+  let output: string | null = allowed ? resources[action.resource].content : null;
+  if (allowed && action.tool === "memory") output = (await tx.memoryVersion.findFirst({ where: { ownerId: action.actorId }, orderBy: { version: "desc" } }))!.content;
+  await tx.toolRequest.create({ data: { id: action.requestId, fingerprint, actorId: action.actorId, sessionId: action.sessionId, tool: action.tool, operation: action.operation, resource: action.resource, destination: action.destination, sourceId: action.sourceId ?? session?.sourceId, runId, allowed, reason: effectiveReason, result: {} } });
+  await tx.policyDecision.create({ data: { id: randomUUID(), requestId: action.requestId, allowed, rule: effectiveReason, reasons: [effectiveReason] } });
+  const base = { actorId: action.actorId, sessionId: action.sessionId, requestId: action.requestId, runId };
+  await recordEvent(tx, { ...base, module: "Gateway", kind: allowed ? "TOOL_EXECUTED" : "TOOL_BLOCKED", severity: "info", message: `${action.tool}:${action.operation} → ${action.resource} ${allowed ? "executed in local simulation" : `blocked (${effectiveReason})`}.`, details: { tool: action.tool, operation: action.operation, resource: action.resource, allowed, decision: effectiveReason, ...(action.destination ? { destination: action.destination } : {}) } });
+  if (reason && !["PROTECTED_MEMORY_WRITE_REQUIRES_ADMIN", "MEMORY_INTEGRITY_FAILURE"].includes(reason)) {
+    await recordEvent(tx, { ...base, module: "ShadowWatch", kind: reason, severity: ["UNKNOWN_IDENTITY", "INVALID_CREDENTIAL", "SESSION_MISMATCH", "CREDENTIAL_REVOKED"].includes(reason) ? "high" : "medium", message: reason === "UNKNOWN_IDENTITY" ? "Unregistered actor denied. Unknown identity does not establish a compromised registered agent." : `Identity or permission boundary enforced: ${reason}.`, details: { claimedIdentity: action.actorId, authenticated, resource: action.resource }, finding: { rule: reason, explanation: `No sensitive operation executed: ${reason}.` } });
+  }
+  // A denied request can touch a decoy as an observation, without receiving its contents.
+  const trap = await tx.honeypot.findUnique({ where: { resource: action.resource } });
+  if (trap?.active) {
+    const event = await recordEvent(tx, { ...base, module: "GhostTrap", kind: "DECOY_INTERACTION", severity: "low", message: `${action.actorId} attempted ${action.operation} on ${trap.name}. Investigative signal; not proof of intent.`, details: { trapId: trap.id, resource: trap.resource, operation: action.operation, executionAllowed: allowed }, finding: { rule: "DECOY_INTERACTION", explanation: "Synthetic decoy interaction correlates with other evidence; no production secret exists." } });
+    await tx.trapInteraction.create({ data: { id: randomUUID(), trapId: trap.id, actorId: action.actorId, sessionId: action.sessionId, requestId: action.requestId, eventId: event.id, operation: action.operation } });
+  }
+  if (authenticated && agent?.profile) {
+    const recent = await tx.toolRequest.findMany({ where: { actorId: agent.id, sessionId: action.sessionId, id: { not: action.requestId } }, orderBy: { createdAt: "desc" }, take: 5 });
+    const recentCount = await tx.toolRequest.count({ where: { actorId: agent.id, createdAt: { gte: new Date(Date.now() - 60_000) } } });
+    const profile = { observations: agent.profile.observations, tools: agent.profile.tools as Counts, resources: agent.profile.resources as Counts, destinations: agent.profile.destinations as Counts };
+    const signals = behavioralSignals(action, profile, { untrusted: session?.sourceTrust === "untrusted", recentTools: recent.map(r => `${r.tool}:${r.operation}`), recentCount });
+    for (const signal of signals) await recordEvent(tx, { ...base, module: "AgentDNA", kind: signal.rule, severity: "medium", message: signal.explanation, details: { baselineObservations: profile.observations, tool: action.tool, resource: action.resource, sourceDocumentId: session?.sourceId ?? null }, finding: signal });
+    // Baseline learning only from permitted, trusted activity; freeze after the normal scenario.
+    if (allowed && !agent.profile.frozen && session?.sourceTrust !== "untrusted" && !source) {
+      const increment = (counts: Counts, key: string) => ({ ...counts, [key]: (counts[key] ?? 0) + 1 });
+      const sequence = `${recent[0] ? `${recent[0].tool}:${recent[0].operation}` : "start"} → ${action.tool}:${action.operation}`;
+      await tx.profile.update({ where: { agentId: agent.id }, data: { observations: { increment: 1 }, tools: increment(profile.tools, `${action.tool}:${action.operation}`), resources: increment(profile.resources, action.resource), destinations: action.destination ? increment(profile.destinations, action.destination) : profile.destinations, sequences: increment(agent.profile.sequences as Counts, sequence) } });
+    }
+  }
+  if (authenticated && action.tool === "memory" && action.operation === "write") {
+    await recordEvent(tx, { ...base, module: "MemoryGuard", kind: "PROTECTED_MEMORY_WRITE_BLOCKED", severity: "high", message: "Protected policy update rejected: agent credentials cannot authorize system policy changes.", details: { sourceDocumentId: session?.sourceId ?? null, sourceTrust: session?.sourceTrust ?? "trusted", attemptedContentHash: hash(action.content ?? ""), resource: action.resource, authorization: "denied" }, finding: { rule: "PROTECTED_MEMORY_WRITE_BLOCKED", explanation: "A persistent policy write requires independent local administrative authority. Untrusted document instructions grant no authority." } });
+  }
+  if (reason === "MEMORY_INTEGRITY_FAILURE") await recordEvent(tx, { ...base, module: "MemoryGuard", kind: "INTEGRITY_TAMPER", severity: "high", message: "Memory read blocked because its signed content or provenance does not verify.", finding: { rule: "INTEGRITY_TAMPER", explanation: "Stored content and signed provenance failed HMAC verification." } });
+  if (allowed && source) {
+    await tx.session.update({ where: { id: action.sessionId }, data: { sourceId: source.id, sourceTrust: source.trust } });
+    await recordEvent(tx, { ...base, module: "MemoryGuard", kind: "UNTRUSTED_DOCUMENT_INGESTED", severity: "info", message: `Ingested ${source.name} as untrusted data; instructions are never evaluated.`, details: { sourceDocumentId: source.id, contentHash: source.contentHash, trust: source.trust } });
+  }
+  const incident = await correlate(tx, action.actorId, action.sessionId);
+  const result = { requestId: action.requestId, allowed, reason: effectiveReason, output, incidentId: incident?.id ?? null };
+  await tx.toolRequest.update({ where: { id: action.requestId }, data: { result } });
+  return { ...result, replayed: false };
+}

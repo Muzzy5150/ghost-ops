@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/generated/prisma"
+}
+datasource db {
+  provider = "sqlite"
+}
+model Agent {
+  id String @id
+  name String
+  role String
+  permissions Json
+  status String @default("active")
+  trust String @default("authorized")
+  simulated Boolean @default(true)
+  createdAt DateTime @default(now())
+  credentials Credential[]
+  sessions Session[]
+  profile Profile?
+  memories MemoryVersion[]
+}
+model Credential {
+  id String @id
+  agentId String
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  digest String @unique
+  revoked Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+model Session {
+  id String @id
+  agentId String
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  credentialId String
+  sourceId String?
+  sourceTrust String @default("trusted")
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+}
+model Profile {
+  agentId String @id
+  agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  observations Int @default(0)
+  tools Json
+  resources Json
+  destinations Json
+  sequences Json
+  frozen Boolean @default(false)
+  updatedAt DateTime @updatedAt
+}
+model ToolRequest {
+  id String @id
+  fingerprint String
+  actorId String
+  sessionId String
+  tool String
+  operation String
+  resource String
+  destination String?
+  sourceId String?
+  runId String?
+  allowed Boolean
+  reason String
+  result Json
+  simulated Boolean @default(true)
+  createdAt DateTime @default(now())
+  decision PolicyDecision?
+  events SecurityEvent[]
+  @@index([actorId, createdAt])
+}
+model PolicyDecision {
+  id String @id
+  requestId String @unique
+  request ToolRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  allowed Boolean
+  rule String
+  reasons Json
+  createdAt DateTime @default(now())
+}
+model SecurityEvent {
+  id String @id
+  actorId String
+  sessionId String?
+  requestId String?
+  request ToolRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  runId String?
+  module String
+  kind String
+  severity String
+  message String
+  details Json
+  incidentId String?
+  incident Incident? @relation(fields: [incidentId], references: [id], onDelete: SetNull)
+  simulated Boolean @default(true)
+  createdAt DateTime @default(now())
+  findings Finding[]
+  evidence Evidence[]
+  @@index([actorId, createdAt])
+}
+model Finding {
+  id String @id
+  eventId String
+  event SecurityEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  module String
+  rule String
+  explanation String
+}
+model Incident {
+  id String @id
+  correlationKey String @unique
+  actorId String
+  sessionId String?
+  title String
+  severity String
+  status String @default("investigating")
+  reasons Json
+  explanation String
+  recommendation String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  events SecurityEvent[]
+  evidence Evidence[]
+  actions ContainmentAction[]
+}
+model Evidence {
+  id String @id
+  incidentId String
+  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  eventId String @unique
+  event SecurityEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  summary String
+  createdAt DateTime @default(now())
+}
+model MemoryVersion {
+  id String @id
+  ownerId String
+  owner Agent @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  key String
+  version Int
+  content String
+  contentHash String
+  signature String
+  parentId String?
+  sourceId String
+  sourceTrust String
+  sessionId String?
+  authorization String
+  protected Boolean @default(true)
+  integrity String @default("verified")
+  restoredFromId String?
+  createdAt DateTime @default(now())
+  @@unique([ownerId, key, version])
+}
+model Honeypot {
+  id String @id
+  name String
+  resource String @unique
+  tool String
+  category String
+  description String
+  active Boolean @default(true)
+  interactions TrapInteraction[]
+}
+model TrapInteraction {
+  id String @id
+  trapId String
+  trap Honeypot @relation(fields: [trapId], references: [id], onDelete: Cascade)
+  actorId String
+  sessionId String
+  requestId String @unique
+  eventId String
+  incidentId String?
+  operation String
+  createdAt DateTime @default(now())
+}
+model ContainmentAction {
+  id String @id
+  dedupeKey String @unique
+  actorId String
+  incidentId String?
+  incident Incident? @relation(fields: [incidentId], references: [id], onDelete: SetNull)
+  action String
+  reason String
+  operator String
+  createdAt DateTime @default(now())
+}
+model SimulationRun {
+  id String @id
+  scenario String
+  status String
+  results Json
+  startedAt DateTime @default(now())
+  finishedAt DateTime?
+}
+model Command {
+  id String @id
+  fingerprint String
+  action String
+  result Json
+  createdAt DateTime @default(now())
+}
+model SourceDocument {
+  id String @id
+  name String
+  trust String
+  content String
+  contentHash String
+}

@@ -1,0 +1,28 @@
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+function loadSecret() {
+  if (process.env.GHOSTOPS_SIGNING_SECRET) {
+    if (process.env.GHOSTOPS_SIGNING_SECRET.length < 32) throw new Error("Signing secret requires at least 32 characters");
+    return process.env.GHOSTOPS_SIGNING_SECRET;
+  }
+  const dir = resolve(process.cwd(), ".ghostops");
+  mkdirSync(dir, { recursive: true, mode: 0o700 });
+  const file = resolve(dir, "integrity.key");
+  if (!existsSync(file)) {
+    try { writeFileSync(file, randomBytes(48).toString("hex"), { mode: 0o600, flag: "wx" }); }
+    catch (error) { if (!existsSync(file)) throw error; }
+  }
+  return readFileSync(file, "utf8").trim();
+}
+const secret = loadSecret();
+export function mac(value: string) { return createHmac("sha256", secret).update(value).digest("hex"); }
+export function secureEqual(a: string, b: string) {
+  const x = Buffer.from(a), y = Buffer.from(b);
+  return x.length === y.length && timingSafeEqual(x, y);
+}
+export function credentialFor(id: string) { return mac(`agent-credential:${id}`); }
+export function credentialDigest(value: string) { return mac(`credential-digest:${value}`); }
+export function adminSession() { return mac("local-admin-session:v1"); }
+export function csrfToken() { return mac("local-admin-csrf:v1"); }
