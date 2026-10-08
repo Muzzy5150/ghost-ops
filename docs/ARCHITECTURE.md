@@ -1,0 +1,63 @@
+# Ghost Ops architecture
+
+## Deployment and authority
+
+One local Node process runs Next.js App Router on `127.0.0.1`. `scripts/server.ts` verifies the actual socket, rejects inbound proxy/attestation headers, and inserts a domain-separated HMAC transport attestation before Next handles the request. Routes check that attestation, exact loopback Host, Origin and fetch metadata. Direct `next start` fails closed.
+
+The local OS operator is trusted. Bootstrap creates a random, signed administrative session with a server-checked eight-hour expiry; management additionally requires a CSRF token bound to that exact session. This is not independent human administrator authentication. Agent ingestion uses a separate credential digest and credential-bound session. No cloud, model API or real effect executor is installed.
+
+## Event and response path
+
+```text
+strict bounded action + credential
+  → current identity/session/status checks (including cached output)
+  → catalogue + tool/operation/resource/destination policy
+  → allowed synthetic result OR denial without output
+  → persisted request, policy decision and ordinal events
+       ├─ AgentDNA: verified history, trusted baseline, rule deviations
+       ├─ ShadowWatch: identity and permission evidence
+       ├─ MemoryGuard: protected writes, provenance, signed versions
+       └─ GhostTrap: inert decoy attempts, including denied claims
+  → correlation namespace [verified-or-claimed, actor, session]
+  → incident + evidence + recorded correlation decision
+  → verified multi-signal automatic containment
+  → revoked credentials + disabled sessions + audited response
+```
+
+`src/server/db.ts` serializes mutations in-process. Ingestion and each management command use a SQLite transaction. A guided story commits each step separately; all ten step receipts and its cursor live in `SimulationRun.results`. `expectedStep` and persistent command fingerprints prevent concurrent advance/replay from executing a step twice. Refresh or application restart does not lose progress. No autonomous background executor is needed.
+
+## Attribution and idempotency
+
+`identityVerified` requires both credential-to-actor and session-to-actor/credential bindings. It does not imply permission or active authority: a correctly bound revoked credential still supplies attributable post-containment denials. Invalid credentials and foreign sessions remain unverified claims, isolated from authenticated correlation and AgentDNA history. Administrative memory verification/restoration and operator response events are explicitly authorized operator attribution, not agent execution.
+
+Correlation uses JSON tuple encoding, not delimiter concatenation. Automatic critical response requires verified attribution plus AgentDNA, MemoryGuard and GhostTrap signals. Unknown identity is distinct from suspected compromise. Correlation creation/escalation, enforcement and restoration are actual stored events. Event ordinals preserve transaction order even when timestamps coincide. Ordinals rely on the supported single-process mutation queue; they are not a distributed ordering service.
+
+Exact request retry never executes the tool again. Before returning historical output, the gateway rechecks current credentials, session, status, policy and memory integrity. Withdrawn authority receives `allowed:false`, `output:null`, and an idempotently recorded replay denial; the original receipt stays unchanged. Management command replay returns its prior receipt. Reset preserves command receipts so an old reset cannot erase newer activity.
+
+## Provenance and memory
+
+The catalogue determines `docs/untrusted` → `untrusted-paper`; omitting or substituting source metadata cannot keep the session trusted. The server verifies the source content hash and records successful ingestion/provenance in the same transaction. Content remains inert data. Untrusted activity never trains the trusted baseline.
+
+`src/server/memory.ts` signs content, hash, owner, key, version, parent, source identity/trust, session, authorization, protection state, restoration source and timestamp. Restore verifies history and appends a new signed snapshot, keeping altered records. Restoring an agent checks the latest snapshot of every owned key, rotates credentials and disables predecessor sessions. All memory append paths enforce the 1,000-version capacity.
+
+## Dashboard and data
+
+`snapshot()` returns complete counters and bounded recent collections, with full timelines for returned incidents and safe selected policy-request fields. Credentials/digests, signing material, request fingerprints and memory signatures are never projected. React escapes observed strings. No raw HTML rendering or evaluation is used.
+
+The eight sections share expandable event evidence and targeted investigation navigation. Investigations separates facts from interpretation, filters severity/status/engine, shows recorded stages, and links agent history and related memory diffs. AgentDNA charts verified gateway requests in real minute buckets. Deception displays all five synthetic resources. Live polling avoids overlapping interval requests and ignores obsolete responses; uncertain command retries reuse the same ID. These code-level behaviors are tested where possible; browser interaction/visual layout remains unverified because of the saved tool permission.
+
+## Key implementation files
+
+| Concern | Files |
+| --- | --- |
+| Schema, migration | `prisma/schema.prisma`, `prisma/migrations/20261008010000_verified_attribution/migration.sql` |
+| Enforcement | `src/server/gateway.ts`, `policy.ts`, `config.ts`, `http.ts` |
+| Evidence and response | `src/server/investigation.ts`, `service.ts` |
+| Signed memory | `src/server/memory.ts`, `simulation.ts` |
+| Persisted ten-step demonstration | `src/server/demo.ts`, `src/components/demo-story.tsx` |
+| Investigation UI | `src/components/investigations.tsx`, `overview.tsx`, `sections.tsx`, `console.tsx` |
+| Adversarial and real restart verification | `tests/adversarial.test.ts`, `scripts/verify-restart.ts`, `scripts/verify-api.ts` |
+
+The additive migration preserves existing records and deliberately leaves their attribution unverified. It does not repair historical ambiguous/mixed incidents or infer old credential proof. Reset the disposable demonstration after upgrading to generate fully attributed evidence.
+
+Future MCP/Codex/Cursor/OpenAI/OpenTelemetry/cloud/memory-store adapters remain contracts and roadmap only. Production integration requires independent admin identity, enrollment, per-environment credential lifecycle, durable concurrency controls, sandboxed effects and externally anchored evidence.

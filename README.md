@@ -35,6 +35,10 @@ The default database is `prisma/ghostops.db`. First startup creates a private ra
 
 ## Two-minute demonstration
 
+**Phase 2 recommended path:** open **Demo Control → New guided demo → Reset & start**, then click **Execute step 1** through **Execute step 10**. Each click commits a genuine gateway/verification transaction and updates a persisted story cursor. Steps show normal agents, a blocked rogue actor, untrusted ingestion, behavior escalation, protected-memory denial, successful legitimate research, correlated decoy-triggered containment, an otherwise permitted task denied, detected test-memory tampering, and verified restoration. Refresh or restart to resume. Inspect the critical incident and its linked memory diff. The clean guided story ends at **27 requests, 6 blocked, 2 investigations, 1 quarantined agent, 3 trap interactions**, with latest memory verified. Its replay includes the child normal/rogue runs and never executes effects again.
+
+The original independent A/B/C/D scenarios remain available:
+
 Open **Demo Control**. Reset the synthetic environment if it contains prior activity, then run these in order:
 
 1. **Normal operation**: 18 permitted tasks; three agents each learn six trusted observations. No incidents or anomalies.
@@ -59,7 +63,7 @@ Local Node transport → Next.js API → strict Zod schema
     → polling dashboard (2.5 seconds)
 ```
 
-Mutation commands are serialized in the local server process and committed in SQLite transactions. A simulation uses the exact gateway used by `/api/ingest`. Request and command IDs have persistent fingerprint receipts: identical replay returns the original receipt; altered reuse returns `409`. Replayed receipts describe the original decision and do not re-execute an action. Read-only timeline replay also never re-executes effects.
+Mutation commands are serialized in the local server process and committed in SQLite transactions. A simulation uses the exact gateway used by `/api/ingest`. Request and command IDs have persistent fingerprint receipts; altered reuse returns `409`. Request replay rechecks current identity/session/status/policy/memory integrity before disclosing cached output: withdrawn authority receives `allowed:false` and `output:null`, while the original receipt remains unchanged and the tool never executes twice. Exact management replay returns its historical receipt. Read-only timeline replay never re-executes effects. Guided steps additionally require the persisted expected cursor.
 
 | Engine | Implemented method |
 | --- | --- |
@@ -68,9 +72,11 @@ Mutation commands are serialized in the local server process and committed in SQ
 | MemoryGuard | SHA-256 content hashes, server-held HMAC over content and provenance, version history, protected write denial, live integrity validation, restoration into a new signed version |
 | GhostTrap | Five inert local catalogue resources; interactions record actor, session, operation, request, event, and linked incident |
 
-Critical correlation requires **behavior deviation + memory manipulation + decoy interaction for the same actor/session**. Unknown identity or credential violations generate high-severity investigations; memory plus behavior is high. Other findings create medium investigations. The incident severity never decreases automatically. A decoy interaction alone creates a reviewable signal; it never proves malicious intent or automatically quarantines an actor. The exact rules live in `src/server/investigation.ts`.
+Critical correlation requires **verified identity attribution + behavior deviation + memory manipulation + decoy interaction for the same actor/session**. Unverified claims have their own unambiguous correlation namespace and cannot supply signals to contain a registered victim. Unknown identity or credential violations generate high-severity investigations; memory plus behavior is high. Other findings create medium investigations. Severity never decreases automatically. Decoy interest alone never proves malicious intent or automatically quarantines an actor. The exact rules live in `src/server/investigation.ts`.
 
 All eight sections work: Overview, Agent Registry, AgentDNA, ShadowWatch, MemoryGuard, GhostTrap, Investigations, and Demo Control. Controls initialize/reset, run scenarios, inspect actual receipts, filter/search recent activity, verify/restore snapshots, quarantine/revoke/restore agents, expand evidence, and replay stored timelines.
+
+Phase 2 adds readable eight-metric overview/enforcement feeds, expandable evidence throughout, truthful identity/status labels, minute-bucket behavioral activity, all five decoys, severity/status/engine investigation filters, recorded detection-to-restoration stages, facts versus interpretation, linked agent/memory inspection, source-derived ingestion provenance, and server-enforced administrative expiry. See [ARCHITECTURE.md](docs/ARCHITECTURE.md) and [SECURITY_MODEL.md](docs/SECURITY_MODEL.md).
 
 Key files:
 
@@ -78,6 +84,8 @@ Key files:
 - `src/server/gateway.ts`, `policy.ts`: credential/session checks, permission enforcement, synthetic dispatch, behavior analysis.
 - `src/server/memory.ts`, `simulation.ts`: signed versions, verification, restoration, fault injection, and four real demo workflows.
 - `src/server/investigation.ts`, `service.ts`: correlation, auditable containment, transactions, management, and dashboard snapshot.
+- `src/server/demo.ts`, `src/components/demo-story.tsx`: ten-step persisted demonstration and compare-and-advance protection.
+- `src/components/investigations.tsx`: linked investigation workflow and expandable policy evidence.
 - `scripts/server.ts`, `src/server/http.ts`, `src/app/api/`: local transport, administrative session, CSRF, body limits, and API boundaries.
 - `src/components/`, `src/app/globals.css`: responsive graphite/green operations console.
 - `src/lib/integration-contracts.ts`: future adapter contracts, not implemented integrations.
@@ -97,6 +105,7 @@ npm run test:unit
 npm run test:integration
 npm test
 npm run build
+npm run test:restart
 ```
 
 Vitest uses isolated temporary SQLite databases and applies the committed migration. Tests do not modify the running demo database. The suite covers authorized tasks, unknown identities, invalid credentials, impersonation, session mismatch, permissions, destination denial, protected memory, provenance tampering, signed restore, baseline deviations, quarantine/revocation, rotated credentials, concurrent duplicate ingestion, deterministic reset, command replay, secret redaction, and component rendering against actual incident records.
@@ -109,11 +118,11 @@ GHOSTOPS_TEST_URL=http://127.0.0.1:3210 npm run test:api
 
 This verification **resets disposable demonstration data**, exercises A/B/C/D over actual HTTP, verifies containment and old-credential denial, tests management/session/CSRF/host/proxy/schema/body-size boundaries, and leaves a completed demo state. It only accepts loopback targets. API verification reads the same private local key as the server, so run both from this project with the same environment.
 
-Typecheck, lint, Vitest, production build, and production HTTP scenarios have passed. Browser access was declined by the browser tool, so desktop/mobile visual inspection and live browser interaction are **not verified**. Responsive styles and all eight section renders are covered by code/component checks; use [docs/VERIFICATION.md](docs/VERIFICATION.md) for the remaining manual checks.
+Phase 2 typecheck, lint, **52 Vitest tests**, production build, production HTTP scenarios and fresh-process restart verification pass. `test:restart` starts isolated loopback production processes with a disposable SQLite database and separate signing key; it verifies persistent quarantine/revocation, replay denial, omitted-source provenance, forged-identity isolation, unauthorized rollback denial, story resume and verified restoration. Run it after building; it does not reset the presenter's database. Browser access remains blocked by a saved tool permission despite explicit retry authorization, so desktop/mobile visual inspection and live browser interaction are **not verified**. Static rendering and HTTP do not replace visual checks; see [docs/VERIFICATION.md](docs/VERIFICATION.md).
 
 ## Trust boundaries and limitations
 
-Read [docs/SECURITY.md](docs/SECURITY.md) before changing exposure or integrating a real runtime.
+Read [docs/SECURITY.md](docs/SECURITY.md) and [docs/SECURITY_MODEL.md](docs/SECURITY_MODEL.md) before changing exposure or integrating a real runtime. Upgrade with `npm run setup`, then reset disposable demo data: the additive migration preserves history but deliberately does not infer verified identity attribution for legacy observations or repair old mixed incidents.
 
 - Agent task sequences, documents, tools, infrastructure, endpoints, and all decoy keys are synthetic. Credential verification, policy denial, audit records, deterministic correlation, quarantine, revocation, signed memory validation, and restoration are genuinely enforced in backend code.
 - No LLM runs in this MVP. The simulator explicitly submits adversarial attempted actions after ingestion; it does not claim a prompt actually compromised a real model. No shell, arbitrary code, real filesystem tool, or outbound network executor exists.
@@ -122,7 +131,7 @@ Read [docs/SECURITY.md](docs/SECURITY.md) before changing exposure or integratin
 - Baselines use straightforward counts and deterministic rules, not statistically validated machine learning. Burst detection uses a conservative 60-second request threshold; sequence evidence uses the last five requests. Baselines freeze after normal simulation; authorized policy changes need deliberate relearning/reset.
 - Correlation is by actor and session, not an arbitrary cross-session attribution claim. Unknown actors are denied, not enrolled or declared confirmed compromised.
 - Dashboard views intentionally bound recent data (180 events, 50 incidents, 80 memory versions/interactions, 20 runs, 30 sessions); headline counters query complete stored data. Detailed timelines include the actual events of each returned incident.
-- The demo bounds requests at 2,000, administrative command receipts at 10,000, and administrative memory history at 1,000 versions; reset clears synthetic activity while retaining command receipts to prevent old reset replay. Restarting with a new key/database is an operator decision once receipt capacity is reached.
+- The demo bounds requests at 2,000, administrative command receipts at 10,000, and all memory append paths at 1,000 versions; reset clears synthetic activity while retaining command receipts to prevent old reset replay. Reset explicitly reenrolls deterministic initial synthetic credentials/sessions; it is not production credential rotation. Ordinary restoration keeps old credentials revoked across restart. A new environment/database is an operator decision once receipt capacity is reached.
 - Full dependency audit currently retains a high-severity unpatched `braces` advisory in development ESLint tooling; production dependency audit is clean. Prisma CLI transitive overrides are pinned and tested. Do not run lint against untrusted recursive glob patterns.
 
 ## Future integration roadmap

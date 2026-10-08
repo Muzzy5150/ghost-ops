@@ -1,5 +1,32 @@
 # Verification record
 
+## Phase 2 independently verified results
+
+2026-10-07, macOS, Node 24.10.0 / npm 11.19.0. Previous claims were independently checked before changes: 26 tests, typecheck and lint passed. Seven new regressions then failed on the original implementation, establishing the defects before correction.
+
+| Check | Actual result |
+| --- | --- |
+| `npm run db:generate`, `npm run db:migrate` | Pass; additive attribution/ordinal migration applied without deleting legacy data |
+| `npm run typecheck` | Pass |
+| `npm run lint` | Pass, zero errors/warnings |
+| `npm test` | 52 pass: 18 existing security, 25 adversarial, 7 integration, 2 rendering |
+| Targeted unit / integration | 18 / 7 pass |
+| `npm run build` | Pass, optimized Next.js 16.4 production build with four API routes |
+| Production `test:api` on 3210 | Pass A/B/C/D and HTTP security negatives; 31 requests / 8 denied / 3 investigations / 1 quarantined |
+| `npm run test:restart` | Pass with separate temporary SQLite/key, actual production HTTP and multiple fresh server processes |
+| Guided ten-step scenario | Pass: clean story 27 requests / 6 denied / 2 investigations / 1 quarantined / 3 traps; latest memory verified |
+| `npm audit --omit=dev` | Zero advisories |
+| Full dependency audit | Five high entries, one unpatched development-only braces chain; no nonbreaking published fix |
+| Desktop/mobile browser | Not executed: saved browser permission blocked access despite explicit user authorization; no workaround |
+
+The restart verifier additionally checks omitted-source ingestion provenance, missing/invalid credentials, an impersonator's decoy request not completing victim correlation, agent-only rollback returning 401, cached replay denial after quarantine and credential rotation, persisted tamper evidence, story cursor resume, authorized historical restoration, and duplicate-command idempotency. Its extra old-session denial deliberately creates one additional genuine investigation: that probe's final totals are 28 requests / 7 denied / 3 investigations. It cleans up only its own temporary directory and does not alter the presenter database.
+
+Adversarial tests also cover both collision arrival orders, forged frequency history, active-session/permission/integrity withdrawal on replay, source substitution, cross-agent memory read/write denial, eleven signed provenance fields, every latest memory key before restoration, admin expiry/signature modification/session-bound CSRF, each story step's replay and cursor conflict, stable timeline ordinals, and escaped untrusted render content. Original tests cover normal-workflow false positives, actual containment, snapshot restoration, secret redaction, concurrent ingestion and deterministic reset without an OpenAI key.
+
+The independent pre-change canonical security report contains four validated families (three medium, one low). All four have corresponding implemented fixes and regression coverage; the sealed baseline report is not a post-fix scan. See SECURITY_MODEL.md for the disposition and trust boundaries. Legacy observations remain unverified rather than receiving inferred attribution.
+
+## Historical Phase 1 verification (retained)
+
 Verified in Node v24.10.0 / npm 11.19.0 on macOS, 2026-10-07.
 
 ## Completed
@@ -30,7 +57,7 @@ The browser tool refused access to the local application, reporting that site pe
 
 Manual checklist for the presenter:
 
-- Desktop at 1440×900: confirm navigation, six metrics, network topology, engine links, and recent activity are readable without clipped content.
+- Desktop at 1440×900: confirm navigation, eight metrics, all five decoys, engine links, enforcement decisions and recent activity are readable without clipped content.
 - Mobile at 390×844: open/close menu, confirm heading controls fit, inspect two-column metrics and stacked panels, scroll wide tables horizontally, and verify no page-wide horizontal overflow.
 - Run A/B/C/D using actual dashboard buttons; polling should update counts within 2.5 seconds.
 - Search activity; change agent tabs; filter critical investigations; expand an evidence event.
@@ -38,6 +65,7 @@ Manual checklist for the presenter:
 - Restore the contained ResearchAgent; verify status active and run normal operation again.
 - Open timeline replay and scrub with next/previous and the range slider; counts/actions should remain unchanged.
 - Verify keyboard focus and reduced-motion preference; confirm the trust-boundary explanation opens and closes.
+- Start a new guided demo; execute all ten steps, refresh midway and check cursor resume. Open a linked investigation from an expanded event, filter severity/status/engine, and follow linked agent and memory evidence.
 
 ## Known dependency limitation
 

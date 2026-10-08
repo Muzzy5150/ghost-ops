@@ -9,36 +9,48 @@ npm run build
 npm start -- --port 3210
 ```
 
-Open `http://127.0.0.1:3210`. Use Demo Control → Reset environment → Reset demo records. Reset deletes only disposable synthetic records, then reseeds three agents, five traps, and two verified policy versions. Command receipts and the private signing key remain. Verify the overview shows no observed requests.
+Open http://127.0.0.1:3210. In **Demo Control**, click **New guided demo → Reset & start**. This privileged reset removes disposable observations/history and reenrolls three synthetic agents, five traps and two signed policy versions; command receipts and signing key remain. Verify zero requests. No model key or external service is needed.
 
-Keep the viewport at least 1280px wide for the live presentation. No API key, login provider, or Internet service is needed once dependencies are installed.
+Desktop/mobile visuals have not been browser-verified because the tool's saved site permission still blocked access after authorization. Before presenting, manually check 1440×900 and 390×844 using the checklist in VERIFICATION.md.
 
-## Exact flow and narration
+## Recommended guided flow
 
-| Time | Action | Narration / proof |
+Each Execute button commits one real backend transaction. The completed marker means a persisted receipt exists, not an invented alert. Open “Inspect actual step receipts” for actual allowed/blocked decisions.
+
+| Time | Exact action | Narration / evidence |
 | --- | --- | --- |
-| 0:00–0:20 | Demo Control → Run normal operation. Briefly open Overview. | “These three authorized agents do their actual synthetic tasks through a enforcing gateway. Eighteen operations are permitted. Their baselines contain six trusted observations each; no incident occurs.” |
-| 0:20–0:35 | Demo Control → Run rogue scenario. | “An unknown actor reaches for a fake credential vault. Identity verification blocks execution, while the decoy interaction records the actor, session, request, and evidence. Unknown is distinct from compromised.” |
-| 0:35–0:55 | Run memory poisoning. Inspect latest backend receipt. | “An untrusted document tries to rewrite persistent policy and request a deployment. Both are rejected. The research summary still succeeds. A deliberately altered test snapshot fails integrity validation and is restored from a verified version.” |
-| 0:55–1:15 | Run full investigation. | “Now the registered research identity shows linked behavioral deviation, memory manipulation, and honeypot interest. The deterministic rule correlates them into one critical investigation and automatically quarantines the agent.” |
-| 1:15–1:40 | Investigations → select critical Correlated agent compromise. Scroll its timeline and expand the blocked summary event. | “The complete sequence is recorded here, including the source document and policy decisions. This otherwise authorized summary receives AGENT_QUARANTINED. Containment actually disables credentials and sessions.” |
-| 1:40–2:00 | MemoryGuard → select latest verified version, then tampered version, then latest again. Click Verify integrity on latest. | “The altered snapshot remains as evidence. Restoration appended a new signed version from verified history. The content and provenance now verify. Detect the rogue. Trace the behavior. Protect the memory.” |
+| 0:00–0:15 | Execute step 1 | “Three registered agents perform 18 permitted tasks. Each learns six trusted baseline observations; no incident.” |
+| 0:15–0:25 | Execute step 2 | “RogueAgent is unknown. Both decoy operations are denied; interest is recorded, not treated as proof of compromise.” |
+| 0:25–0:35 | Execute step 3 | “Research receives an untrusted document. The server establishes source provenance even without caller-supplied source metadata.” |
+| 0:35–0:45 | Execute step 4 | “An unusual deployment request deviates from the research baseline and is denied by policy.” |
+| 0:45–0:55 | Execute step 5 | “An attempted protected-policy rewrite is rejected. No policy or permission changes.” |
+| 0:55–1:00 | Execute step 6 | “The legitimate research summary still completes. Suspicion alone has not quarantined this agent.” |
+| 1:00–1:10 | Execute step 7 | “Verified behavior, memory and decoy signals now correlate into one critical suspected-compromise investigation. Backend containment revokes credentials and disables sessions.” |
+| 1:10–1:15 | Execute step 8 | “The same formerly permitted summary now returns AGENT_QUARANTINED. This proves enforcement.” |
+| 1:15–1:20 | Execute step 9 | “Authorized test fault injection alters a synthetic snapshot. Integrity validation records valid:false.” |
+| 1:20–1:25 | Execute step 10 | “A verified historical snapshot is restored into a new signed version. The altered history remains.” |
+| 1:25–1:45 | Inspect investigation; expand blocked summary and restoration events | Show verified attribution, facts versus interpretation, recorded correlation decision, chronological ordinals, actual policy receipt and auditable containment. |
+| 1:45–2:00 | Linked memory snapshot → inspect latest v4 and altered v3; Verify integrity on latest | Show source provenance, before/after comparison, verified restoration source and valid:true receipt. “Detect the rogue. Trace the behavior. Protect the memory.” |
 
-Final counts after A → B → C → D: **31 requests, 8 blocked, 3 investigations, 1 registered agent quarantined**, 3 decoy interactions, and a verified latest memory version. An active high-severity poisoning investigation is intentionally distinct from the contained critical compromise investigation.
+Clean guided-story totals: **27 requests, 6 blocked, 2 investigations, 1 registered agent quarantined, 3 decoy interactions**. Latest memory is **v4 verified**; altered v3 stays in history. The rogue and critical incidents are contained. No extra poisoning incident is created: the authenticated stages share one attributed session.
 
-## Show stronger proof if asked
+Refresh or restart while paused: Demo Control resumes the stored cursor. Steps cannot advance out of order; duplicate command receipt replay never duplicates effects. If a command response is uncertain, retrying the same control retains its command ID. Guided run history replay includes its child normal/rogue runs and is read-only.
 
-- Demo Control → latest Full Compromise receipt: last request is `allowed: false`, `reason: AGENT_QUARANTINED`; `tamperDetected` and `restorationVerified` are true.
-- Investigations → expand events: full evidence IDs, request/session IDs, rules, source-document references, and synthetic resource names are actual persisted data.
-- Agent Registry → ResearchAgent: status quarantined; trusted baseline still frozen; sessions disabled.
-- MemoryGuard: tampered v5 stays in history; verified restoration v6 is appended when executing the complete A/B/C/D sequence from reset.
-- ShadowWatch → Restore ResearchAgent: a new credential and session are created. Prior credentials stay revoked. Use API verification for the explicit old-credential denial assertion.
-- Demo Control → Run history → Replay: scrub stored evidence one event at a time. This is read-only and does not repeat tool effects or containment.
+## Original A/B/C/D alternative
 
-## Recovery
+From Reset environment, run **Normal operation → Rogue agent → Memory poisoning → Full compromise**. These independently recorded scenarios still finish at **31 requests, 8 blocked, 3 investigations, 1 quarantined agent, 3 trap interactions**, with altered v5 retained and verified restoration v6. The poisoning scenario intentionally allows legitimate research to complete and leaves its high-severity investigation distinct from the contained critical incident.
 
-If ResearchAgent is already contained before presentation, reset the disposable environment. If port 3210 is occupied, use another explicit local port. If the UI reports database initialization errors, stop the server, run `npm run setup`, and restart. If signing material changed, the old protected memory cannot verify; preserve any desired evidence and reset this synthetic environment.
+## Stronger proof if asked
 
-## Honest demonstration boundaries
+- Inspect actual guided step receipts: step 6 allows the summary, step 8 denies it, step 9 has valid:false, step 10 has valid:true.
+- Investigations: unverified impersonation cannot contribute to another identity's verified critical correlation. Anomaly and decoy interest do not individually establish malicious intent.
+- Agent Registry: ResearchAgent remains registered, status quarantined; credentials revoked and sessions disabled. Restore agent rotates credentials after checking every latest owned memory key.
+- MemoryGuard: restore is disabled for altered snapshots; restoration only accepts verified history. A stolen signing key defeats integrity.
+- `npm run test:restart` after a production build starts disposable production servers and verifies quarantine/replay denial, tamper detection, cursor persistence and restoration across actual process restarts.
+- `GHOSTOPS_TEST_URL=http://127.0.0.1:3210 npm run test:api` resets the presenter's synthetic data and runs the original A/B/C/D HTTP verification. Do not run it in the middle of a presentation.
 
-The security checks and persistence are real. Agent runtimes, tool effects, documents, infrastructure, and decoys are simulated. The fault injection intentionally modifies only test memory. No prompt is evaluated by a real model, no external system is scanned or attacked, and honeypot interest alone does not prove malicious intent.
+## Recovery and boundaries
+
+If the agent is already contained or the story is inconsistent with other manually executed scenarios, start a new guided demo with an explicit reset. If port 3210 is occupied, choose another loopback port. For initialization errors, stop, run setup and restart. If the signing key changed, preserve evidence if needed and reset the disposable environment; the old key is required to verify old history.
+
+Agents, documents, tools, infrastructure and fault injection are simulated. Credential/session checks, permission denial, persistence, correlation, containment and signed-memory validation/restoration are genuinely enforced. No real model follows the document, no external system is contacted or attacked, and no production-monitoring capability is claimed.
