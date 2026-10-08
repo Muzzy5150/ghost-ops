@@ -4,6 +4,35 @@ Detect the rogue. Trace the behavior. Protect the memory.
 
 Ghost Ops monitors isolated local agents through an authenticated MCP tool gateway. Four engines correlate identity, behavioral deviation, signed memory and synthetic deception into evidence-backed investigations. The dashboard uses SQLite records; permissions, quarantine and revocation are enforced before bounded local tools run. The original synthetic demonstration remains available.
 
+## Phase 6: Security Lab and bounded model execution
+
+Security Lab adds a fourteenth workspace tool and dedicated preset (Alt+3), with six persisted experiments: normal research, prompt injection, protected-memory manipulation, impersonation, synthetic honeypots and quarantine verification. Runs expose actual decisions, ordered evidence, incident links, cancellation, read-only comparison and restart interruption without replaying effects. Original Operations/Incident Room layouts, graph, thirteen tools and demos remain available.
+
+Choose **OFFLINE SIMULATION** for scripted synthetic effects or **LIVE LOCAL AGENT** for scripted decisions with actual MCP handlers. Optional **MODEL-DRIVEN AGENT** requires server enablement, an operator-selected OpenAI model, project-scoped credentials and per-run cost consent. The official Agents SDK uses the same gateway, finite budgets, disabled retries/tracing and minimized invocation receipts. **No real-provider inference ran during verification**; SDK fixture tests are not inference.
+
+Verified implementation `2eb5b03`: **175 tests**, typecheck, zero-warning lint, fresh-checkout installation/setup/build, 12 A–F local/offline production HTTP experiments, actual MCP/agent CLI, restart containment, signed restoration and guided demos. An additive-migration clone test preserves all 17 original table payloads. Production audit is clean; five existing development-only advisories remain. Visual QA remains pending and was not attempted in Phase 6.
+
+The running 3210 presenter was **not restarted, migrated, rebuilt or reset**. To activate Phase 6, first stop the old process normally and preserve the database with its matching signing key, then:
+
+```sh
+cd /Users/muzzy5150/Documents/ChatGPT/GhostOps
+npm ci
+npm run db:migrate
+npm run build
+npm start -- --port 3210
+```
+
+After activation:
+
+```sh
+GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario normal --mode local
+GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario memory-poisoning --mode local
+GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario containment --mode local
+GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --list
+```
+
+Default to **New isolated identity**. Quarantining an existing identity requires consent and is not automatically undone. Cancellation stops at safe boundaries, not by undoing committed effects. Model token limits are application controls, not guaranteed billing ceilings. See [Security Lab](docs/SECURITY_LAB.md), [model setup/cost limits](docs/MODEL_EXECUTION.md), [architecture](docs/PHASE6_ARCHITECTURE.md), [verification](docs/PHASE6_VERIFICATION.md) and [exact demo](docs/PHASE6_DEMO_SCRIPT.md).
+
 ## Phase 5: network-first node editor
 
 Phase 5.5 independently reran the full 140-test/security/build verification while preserving the running presenter process. Actual visual access remains blocked by the saved localhost denial; no screenshots or speculative visual fixes were produced. See the [final visual review attempt](docs/PHASE5_FINAL_VISUAL_REVIEW.md) and [review package status](artifacts/ghost-ops-visual-review/README.md). Correcting the saved site permission allows automated capture to resume.
@@ -157,6 +186,8 @@ npm test
 npm run build
 npm run test:restart
 npm run test:runtime
+npm run test:lab
+npm run test:lab:migration
 ```
 
 Vitest uses isolated temporary SQLite databases and applies the committed migration. Tests do not modify the running demo database. The suite covers authorized tasks, unknown identities, invalid credentials, impersonation, session mismatch, permissions, destination denial, protected memory, provenance tampering, signed restore, baseline deviations, quarantine/revocation, rotated credentials, concurrent duplicate ingestion, deterministic reset, command replay, secret redaction, and component rendering against actual incident records.

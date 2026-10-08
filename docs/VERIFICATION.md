@@ -1,5 +1,11 @@
 # Verification record
 
+## Phase 6 Security Lab
+
+The independently checked 140-test baseline expands to **175 passing tests across 13 files**. Typecheck, zero-warning lint, immutable `2eb5b03` clean installation/setup/build, A–F local/offline lab HTTP/MCP scenarios, prior runtime/HTTP demos and fresh-process quarantine/memory/guided restart verifiers pass. A read-only clone proves all 17 existing table payloads survive the additive migration. Production audit remains clean; the same five development-only lint-chain entries remain.
+
+The lab persists observations/model receipts, safely cancels/interrupts at boundaries, separates scripted decisions from actual handlers/inference, and links verified containment to its investigation. Official SDK loop tests use mocked responses; **no real-provider inference ran**. Browser verification is expressly out of scope. The 3210 presenter/database/build/process remain unchanged; activation requires an operator-managed migration/build/restart. Full evidence and regression: [PHASE6_VERIFICATION.md](PHASE6_VERIFICATION.md).
+
 ## Phase 5.5 visual review attempt
 
 Independently reran **140 tests**, typecheck and zero-warning lint in the existing workspace. An isolated archive of `fe8c685` passed fresh npm ci, production build, real MCP/agent-process/HTTP A/B/C/D verification, fresh-process quarantine/revocation/replay and guided memory restoration, and zero-production-vulnerability audit. No app implementation/dependency change was made. Presenter PID 68163 was not restarted; page/snapshot/ten assets return 200 and totals remain 4 agents / 41 requests / 5 incidents / 10 memory versions / 10 runtime requests / 2 quarantined.

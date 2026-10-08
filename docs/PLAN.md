@@ -7,13 +7,17 @@
 - [x] Additive SQLite experiment/invocation/observation records, single active lease, idempotent commands, private per-run authority, safe-boundary cancellation and interrupted-worker recovery (no automatic replay).
 - [x] Six isolated A–F scenarios; offline fixtures versus actual local MCP effects; model decisions separated from deterministic enforcement probes and interpretation.
 - [x] Add Security Lab workbench tool, read-only comparison and complete persisted evidence navigation; preserve existing thirteen-window preferences and demos.
-- [x] Nonvisual unit/integration/SDK-fixture tests, typecheck and lint progressively executed; production/HTTP/restart verification pending below.
-- [ ] Isolated clean-checkout production build and existing plus new HTTP/MCP/restart tests.
-- [ ] Final architecture, model/cost limits, lab/demo documentation and verified commits.
+- [x] Nonvisual unit/integration/SDK-fixture tests, typecheck and lint: **175 tests** (140 existing + 35 new).
+- [x] Immutable `2eb5b03` clean-checkout install/setup/typecheck/lint/tests/build; 12 A–F local/offline HTTP experiments, actual MCP/CLI, original runtime/HTTP scenarios and restart/guided/signed restoration pass. Production audit zero; five development-only advisories remain.
+- [x] Read-only consistent database clone: all 17 original table payloads unchanged by additive migration; no signing key accessed by clone verifier.
+- [x] Strengthened regression proves then fixes contained case missing action/status; verified denied handler links the actual response to the correct case.
+- [x] Architecture, model/cost limits, lab/demo/verification documentation; implementation commits `b9294b4`, `2eb5b03`.
 - [ ] Real-provider inference: project environment has no configured model, enablement or API key. No paid call authorized or attempted automatically.
 - [ ] Visual sign-off remains pending. Browser QA explicitly out of scope for this phase; no troubleshooting or workaround.
 
 Presenter at 3210 is not restarted, migrated, reset or modified. Verification uses disposable state and a separate checkout/build so its serving artifacts remain intact.
+
+Final health: original PID 68163 serves 200 page/authenticated state with 4 registered agents / 41 requests / 5 incidents / 2 quarantined. Presenter activation is deferred to operator stop + additive migration + build + restart. No real model or visual sign-off claim; see PHASE6_VERIFICATION.md.
 
 ## Phase 5.5 — actual visual QA attempt
 

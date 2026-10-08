@@ -1,5 +1,13 @@
 # Ghost Ops architecture
 
+## Phase 6 Security Lab
+
+The existing authenticated gateway remains the only runtime tool execution path. A bounded official Agents SDK adapter adds configurable OpenAI model, call/tool/time/token limits, disabled retries/tracing and minimized invocation receipts. No actual remote inference has been verified. Local scripted execution and SDK provider fixtures are distinguished from genuine model responses.
+
+Three additive SQLite tables persist experiments, ordered observations and invocation metadata. Start/cancel use existing local administration and CSRF; one active lease prevents concurrent lab scenarios. Restart interrupts rather than resumes work, private run authority closes, and comparisons never replay effects. Default isolated identities preserve existing agents. Simulation reset excludes lab history. Containment is verified only after a persisted attributable quarantine denial without handler execution; its response action is linked to the same investigation.
+
+Security Lab is the fourteenth window and third preset, preserving prior thirteen-window preferences and Operations/Incident Room. Historical lab evidence can open the existing inspector beyond the global recent feed. Visual QA remains pending; no browser workaround was attempted. Details: [PHASE6_ARCHITECTURE.md](PHASE6_ARCHITECTURE.md), [SECURITY_LAB.md](SECURITY_LAB.md), [MODEL_EXECUTION.md](MODEL_EXECUTION.md).
+
 ## Phase 5 presentation boundary
 
 The backend remains unchanged. A pinned Dagre layout module and `graph-explorer.ts` add bounded, evidence-backed neighborhood exploration and readable automatic placement to the existing React Flow projection. Custom 304×218 nodes live in `security-node.tsx`; ordinary telemetry updates do not reposition established nodes. Exact request/evidence matching links timeline selection to the canvas. Ownership/case/session edge clicks resolve stored entities rather than nonexistent events.
