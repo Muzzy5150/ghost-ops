@@ -1,25 +1,25 @@
 import { z } from "zod";
 
-export const windowIds = ["network", "events", "inspector", "evidence", "overview", "registry", "dna", "shadow", "memory", "traps", "investigations", "runtime", "demo"] as const;
+export const windowIds = ["network", "events", "inspector", "evidence", "overview", "registry", "dna", "shadow", "memory", "traps", "investigations", "runtime", "demo", "lab"] as const;
 export type WindowId = typeof windowIds[number];
 export type Bounds = { width: number; height: number };
 export type Rect = { x: number; y: number; width: number; height: number };
 export type WindowState = Rect & { id: WindowId; open: boolean; minimized: boolean; maximized: boolean; z: number };
-export type Preset = "operations" | "incident";
+export type Preset = "operations" | "incident" | "lab";
 export type Preferences = { version: 2; preset: Preset; bounds: Bounds; windows: WindowState[]; positions: Record<string, { x: number; y: number }>; animations: boolean; navigationExpanded: boolean };
 export const storageKey = "ghostops.workspace.v2";
 export const legacyStorageKey = "ghostops.workspace.v1";
 export const titles: Record<WindowId, string> = {
   network: "Agent network", events: "Live events", inspector: "Agent inspector", evidence: "Evidence inspector",
   overview: "System overview", registry: "Agent Registry", dna: "AgentDNA", shadow: "ShadowWatch", memory: "MemoryGuard",
-  traps: "GhostTrap", investigations: "Investigations", runtime: "Runtime sessions", demo: "Demo Control"
+  traps: "GhostTrap", investigations: "Investigations", runtime: "Runtime sessions", demo: "Demo Control", lab: "Security Lab"
 };
 const finite = z.number().finite();
 const rectSchema = { x: finite.min(0).max(10000), y: finite.min(0).max(10000), width: finite.min(1).max(10000), height: finite.min(1).max(10000) };
 const preferencesSchema = z.object({
-  version: z.literal(2), preset: z.enum(["operations", "incident"]),
+  version: z.literal(2), preset: z.enum(["operations", "incident", "lab"]),
   bounds: z.object({ width: finite.min(1).max(10000), height: finite.min(1).max(10000) }).strict(),
-  windows: z.array(z.object({ ...rectSchema, id: z.enum(windowIds), open: z.boolean(), minimized: z.boolean(), maximized: z.boolean(), z: z.number().int().min(0).max(100) }).strict()).length(windowIds.length),
+  windows: z.array(z.object({ ...rectSchema, id: z.enum(windowIds), open: z.boolean(), minimized: z.boolean(), maximized: z.boolean(), z: z.number().int().min(0).max(100) }).strict()).min(windowIds.length - 1).max(windowIds.length),
   positions: z.record(z.string().regex(/^n-[a-f0-9]{16}$/), z.object({ x: finite.min(-10000).max(10000), y: finite.min(-10000).max(10000) }).strict()).refine(p => Object.keys(p).length <= 200),
   animations: z.boolean(), navigationExpanded: z.boolean()
 }).strict();
@@ -34,9 +34,13 @@ export function defaultLayout(bounds: Bounds, preset: Preset = "operations"): Pr
   const top = Math.max(220, Math.min(Math.floor((bounds.height - gap) * .72), bounds.height - 220 - gap)), bottom = bounds.height - gap - top;
   const placements: Partial<Record<WindowId, Rect>> = preset === "operations" ? {
     network: { x: 0, y: 0, width: bounds.width, height: bounds.height < 650 ? bounds.height : top }, events: { x: 0, y: top + gap, width: bounds.width, height: bottom }
-  } : {
+  } : preset === "incident" ? {
     network: { x: 0, y: 0, width: left, height: bounds.height }, investigations: { x: left + gap, y: 0, width: right, height: top },
     memory: { x: left + gap, y: top + gap, width: right, height: bottom }
+  } : {
+    lab: { x: 0, y: 0, width: Math.floor(bounds.width * .68) - gap, height: bounds.height },
+    network: { x: Math.floor(bounds.width * .68), y: 0, width: bounds.width - Math.floor(bounds.width * .68), height: top },
+    events: { x: Math.floor(bounds.width * .68), y: top + gap, width: bounds.width - Math.floor(bounds.width * .68), height: bottom }
   };
   const contextual = (id: WindowId): Rect => ["inspector", "evidence"].includes(id) ? { x: bounds.width - 450, y: 32, width: 430, height: Math.min(570, bounds.height - 48) } : { x: 45 + iOffset(id), y: 24 + iOffset(id), width: Math.min(1000, bounds.width * .86), height: Math.min(730, bounds.height * .9) };
   return { version: 2, preset, bounds, positions: {}, animations: false, navigationExpanded: false, windows: windowIds.map((id, i) => ({
@@ -50,11 +54,15 @@ export function parsePreferences(raw: string | null, bounds: Bounds): Preference
     const input = JSON.parse(raw);
     if (input?.version === 1) {
       const legacy = preferencesSchema.omit({ navigationExpanded: true }).extend({ version: z.literal(1) }).strict().parse(input);
-      if (new Set(legacy.windows.map(w => w.id)).size !== windowIds.length) return defaultLayout(bounds);
+      if (new Set(legacy.windows.map(w => w.id)).size !== legacy.windows.length || (legacy.windows.length === windowIds.length - 1 && legacy.windows.some(w => w.id === "lab"))) return defaultLayout(bounds);
       // New visual defaults replace v1 window placements; preserve valid manual node positions.
       return { ...defaultLayout(bounds, legacy.preset), positions: legacy.positions, animations: legacy.animations };
     }
     const parsed = preferencesSchema.parse(input);
+    if (parsed.windows.length === windowIds.length - 1 && !parsed.windows.some(w => w.id === "lab") && new Set(parsed.windows.map(w => w.id)).size === windowIds.length - 1 && new Set(parsed.windows.map(w => w.z)).size === windowIds.length - 1) {
+      // Add the lab parked, preserving all thirteen existing positions and graph preferences.
+      parsed.windows.push({ ...defaultLayout(parsed.bounds).windows.find(w => w.id === "lab")!, z: Math.max(...parsed.windows.map(w => w.z)) + 1 });
+    }
     if (new Set(parsed.windows.map(w => w.id)).size !== windowIds.length || new Set(parsed.windows.map(w => w.z)).size !== windowIds.length) return defaultLayout(bounds);
     return resizeLayout(parsed, bounds);
   } catch { return defaultLayout(bounds); }

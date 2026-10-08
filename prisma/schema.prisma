@@ -213,3 +213,52 @@ model SourceDocument {
   content String
   contentHash String
 }
+model ExperimentRun {
+  id String @id
+  commandId String @unique
+  fingerprint String
+  scenario String
+  mode String
+  actorId String
+  sessionId String?
+  credentialId String?
+  status String @default("queued")
+  slot String? @unique
+  workerId String
+  cancelRequested Boolean @default(false)
+  budgets Json
+  results Json
+  startedAt DateTime @default(now())
+  finishedAt DateTime?
+  observations ExperimentObservation[]
+  invocations ModelInvocation[]
+}
+model ExperimentObservation {
+  id String @id
+  runId String
+  run ExperimentRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  kind String
+  ordinal Int @default(0)
+  phase String
+  requestId String?
+  eventId String?
+  details Json
+  createdAt DateTime @default(now())
+  @@index([runId, createdAt])
+}
+model ModelInvocation {
+  id String @id
+  runId String
+  run ExperimentRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  provider String
+  model String
+  status String
+  responseId String?
+  latencyMs Int?
+  inputTokens Int?
+  outputTokens Int?
+  totalTokens Int?
+  startedAt DateTime @default(now())
+  finishedAt DateTime?
+  @@index([runId, startedAt])
+}

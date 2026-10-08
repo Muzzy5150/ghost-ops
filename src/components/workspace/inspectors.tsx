@@ -6,6 +6,7 @@ import type { SectionProps } from "../console";
 import { Badge, DetailRow, Empty, shortId, time } from "../ui";
 import type { Entity } from "@/lib/workspace-graph";
 import type { Permissions, Counts } from "@/lib/schemas";
+import type { Incident } from "@/lib/view-types";
 
 export function AgentInspector(props: SectionProps) {
   const agent = props.state.agents.find(a => a.id === props.focusId) ?? props.state.agents[0];
@@ -35,12 +36,12 @@ function SelectedAgent({ state, control, busy, navigate, focusId, inspectEvent }
     {tab === "Events" && <div className="inspector-section"><h4>Recent verified observations</h4>{eventRows(20)}</div>}
   </div>;
 }
-export function EvidenceInspector({ state, focusId, navigate, entity }: Pick<SectionProps, "state" | "focusId" | "navigate"> & { entity?: Entity }) {
-  const event = state.events.find(e => e.id === focusId) ?? state.incidents.flatMap(i => i.events).find(e => e.id === focusId);
+export function EvidenceInspector({ state, focusId, navigate, entity, eventRecord }: Pick<SectionProps, "state" | "focusId" | "navigate"> & { entity?: Entity; eventRecord?: Incident["events"][number] }) {
+  const event = state.events.find(e => e.id === focusId) ?? state.incidents.flatMap(i => i.events).find(e => e.id === focusId) ?? (eventRecord?.id === focusId ? eventRecord : undefined);
   const request = state.runtimeRequests.find(r => r.id === focusId || r.id === event?.requestId);
   if (event) {
     const incidentEvent = state.incidents.flatMap(i => i.events).find(e => e.id === event.id);
-    const receipt = request ?? incidentEvent?.request;
+    const receipt = request ?? incidentEvent?.request ?? (eventRecord && eventRecord.id === focusId ? eventRecord.request : undefined);
     const memoryId = (event.details as Record<string, unknown>).memoryId;
     return <div className="evidence-inspector"><div className="evidence-title"><Badge value={event.severity} /><code>EVENT / {shortId(event.id)}</code></div><h3>{event.kind}</h3><p>{event.message}</p><DetailRow label="Engine">{event.module}</DetailRow><DetailRow label="Provenance">{event.simulated ? "Isolated simulation" : "Actual local runtime"}</DetailRow><DetailRow label="Attribution">{event.identityVerified ? "Verified identity / authorized operator" : "Unverified claim — not registered-agent behavior"}</DetailRow><DetailRow label="Actor"><code>{event.actorId}</code>{event.identityVerified && <button className="text-button" onClick={() => navigate("Agent inspector", event.actorId)}>Inspect agent</button>}</DetailRow><DetailRow label="Session"><code>{event.sessionId ?? "Not recorded"}</code></DetailRow><DetailRow label="Time">{new Date(event.createdAt).toLocaleString()} / #{event.ordinal}</DetailRow>
       {receipt && <div className="evidence-policy"><span className="eyebrow">PERSISTED GATEWAY RECEIPT</span><Badge value={receipt.allowed && event.kind !== "REPLAY_ACCESS_DENIED" ? "authorized" : "blocked"} /><code>{receipt.tool}:{receipt.operation} → {receipt.resource}</code><p>{event.kind === "REPLAY_ACCESS_DENIED" ? event.message : receipt.reason}</p><small>{receipt.execution ? "Bounded handler receipt exists; inspect completion metadata below." : "No actual handler receipt recorded."}</small></div>}

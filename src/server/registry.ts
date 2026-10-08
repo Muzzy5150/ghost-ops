@@ -32,18 +32,25 @@ export async function seed(tx: Prisma.TransactionClient) {
   return { initialized: true, existing: false };
 }
 export async function reset(tx: Prisma.TransactionClient) {
-  const simulatedRequests = await tx.toolRequest.findMany({ where: { simulated: true }, select: { id: true } });
+  // Lab experiments are independently scoped history, including offline evaluations.
+  const labRuns = (await tx.experimentRun.findMany({ select: { id: true } })).map(r => r.id);
+  const labActors = [...new Set([
+    ...(await tx.agent.findMany({ where: { role: "Security Lab isolated research" }, select: { id: true } })).map(a => a.id),
+    ...(await tx.toolRequest.findMany({ where: { runId: { in: labRuns } }, select: { actorId: true } })).map(r => r.actorId)
+  ])];
+  const simulatedScope = { simulated: true, actorId: { notIn: labActors } };
+  const simulatedRequests = await tx.toolRequest.findMany({ where: simulatedScope, select: { id: true } });
   await tx.trapInteraction.deleteMany({ where: { requestId: { in: simulatedRequests.map(r => r.id) } } });
-  await tx.containmentAction.deleteMany({ where: { OR: [{ actorId: { in: agentSeeds.map(a => a.id) } }, { incident: { simulated: true } }] } });
-  await tx.evidence.deleteMany({ where: { event: { simulated: true } } });
-  await tx.finding.deleteMany({ where: { event: { simulated: true } } });
-  await tx.securityEvent.deleteMany({ where: { simulated: true } });
-  await tx.policyDecision.deleteMany({ where: { request: { simulated: true } } });
-  await tx.toolRequest.deleteMany({ where: { simulated: true } });
-  await tx.incident.deleteMany({ where: { simulated: true } });
+  await tx.containmentAction.deleteMany({ where: { OR: [{ actorId: { in: agentSeeds.map(a => a.id) } }, { incident: simulatedScope }] } });
+  await tx.evidence.deleteMany({ where: { event: simulatedScope } });
+  await tx.finding.deleteMany({ where: { event: simulatedScope } });
+  await tx.securityEvent.deleteMany({ where: simulatedScope });
+  await tx.policyDecision.deleteMany({ where: { request: simulatedScope } });
+  await tx.toolRequest.deleteMany({ where: simulatedScope });
+  await tx.incident.deleteMany({ where: simulatedScope });
   await tx.simulationRun.deleteMany();
   // Shared immutable decoys/source documents and all runtime records survive a demo reset.
-  await tx.agent.deleteMany({ where: { simulated: true } });
+  await tx.agent.deleteMany({ where: { simulated: true, id: { notIn: labActors } } });
   // Retain command receipts across reset: replaying an old reset must not erase new activity.
   return seed(tx);
 }

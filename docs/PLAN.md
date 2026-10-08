@@ -1,5 +1,20 @@
 # Implementation plan and verification log
 
+## Phase 6 — bounded model execution and Security Lab
+
+- [x] Independently rerun 140 baseline tests; inspect existing SDK, gateway, persistence, workspace and trust boundaries.
+- [x] Reuse official Agents SDK with operator-selected model, disabled transport/runner retries and tracing, bounded calls/tools/time/input/output, minimized invocation receipts.
+- [x] Additive SQLite experiment/invocation/observation records, single active lease, idempotent commands, private per-run authority, safe-boundary cancellation and interrupted-worker recovery (no automatic replay).
+- [x] Six isolated A–F scenarios; offline fixtures versus actual local MCP effects; model decisions separated from deterministic enforcement probes and interpretation.
+- [x] Add Security Lab workbench tool, read-only comparison and complete persisted evidence navigation; preserve existing thirteen-window preferences and demos.
+- [x] Nonvisual unit/integration/SDK-fixture tests, typecheck and lint progressively executed; production/HTTP/restart verification pending below.
+- [ ] Isolated clean-checkout production build and existing plus new HTTP/MCP/restart tests.
+- [ ] Final architecture, model/cost limits, lab/demo documentation and verified commits.
+- [ ] Real-provider inference: project environment has no configured model, enablement or API key. No paid call authorized or attempted automatically.
+- [ ] Visual sign-off remains pending. Browser QA explicitly out of scope for this phase; no troubleshooting or workaround.
+
+Presenter at 3210 is not restarted, migrated, reset or modified. Verification uses disposable state and a separate checkout/build so its serving artifacts remain intact.
+
 ## Phase 5.5 — actual visual QA attempt
 
 - [x] Inspect unchanged presenter process/HTTP health, project dependencies, installed browser inventory and existing screenshot scripts.

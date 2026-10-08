@@ -2,9 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
-import { Activity, Network, Fingerprint, Radar, ShieldCheck, Ghost, Search, Terminal, Server, LayoutGrid, ScanEye, FileSearch, CircleHelp, RotateCcw, PanelsTopLeft, Play, X } from "lucide-react";
+import { Activity, Network, Fingerprint, Radar, ShieldCheck, Ghost, Search, Terminal, Server, LayoutGrid, ScanEye, FileSearch, CircleHelp, RotateCcw, PanelsTopLeft, Play, X, FlaskConical } from "lucide-react";
 import { defaultLayout, storageKey, legacyStorageKey, titles, windowIds, workspaceReducer, type WindowId } from "@/lib/workspace-model";
 import type { Entity } from "@/lib/workspace-graph";
+import type { Incident } from "@/lib/view-types";
 import type { SectionProps } from "../console";
 import { GhostMark, Badge } from "../ui";
 import { AgentRegistry, AgentDNA, ShadowWatch, MemoryGuard, GhostTrap, DemoControl } from "../sections";
@@ -15,11 +16,12 @@ import { EventTerminal } from "./event-terminal";
 import { IncidentDesk } from "./incident-desk";
 
 const AgentGraph = dynamic(() => import("./network"), { ssr: false, loading: () => <div className="terminal-empty">Loading recorded network…</div> });
-const icons = { network: Network, events: Terminal, inspector: ScanEye, evidence: FileSearch, overview: Activity, registry: Server, dna: Fingerprint, shadow: Radar, memory: ShieldCheck, traps: Ghost, investigations: Search, runtime: Server, demo: Play };
+const SecurityLab = dynamic(() => import("./security-lab"), { ssr: false, loading: () => <div className="terminal-empty">Loading Security Lab…</div> });
+const icons = { network: Network, events: Terminal, inspector: ScanEye, evidence: FileSearch, overview: Activity, registry: Server, dna: Fingerprint, shadow: Radar, memory: ShieldCheck, traps: Ghost, investigations: Search, runtime: Server, demo: Play, lab: FlaskConical };
 const routes: Record<string, WindowId> = { Overview: "overview", "Agent network": "network", "Agent Registry": "registry", AgentDNA: "dna", ShadowWatch: "shadow", MemoryGuard: "memory", GhostTrap: "traps", Investigations: "investigations", "Demo Control": "demo", "Agent inspector": "inspector", Evidence: "evidence", "Runtime sessions": "runtime" };
-type Props = Omit<SectionProps, "navigate"> & { connected: boolean; result: unknown; setResult: (result: unknown) => void };
+type Props = Omit<SectionProps, "navigate"> & { connected: boolean; result: unknown; setResult: (result: unknown) => void; csrf?: string };
 
-export function Workspace({ state, busy, control, connected, result, setResult }: Props) {
+export function Workspace({ state, busy, control, connected, result, setResult, csrf = "" }: Props) {
   const [layout, dispatch] = useReducer(workspaceReducer, undefined, () => defaultLayout({ width: 1280, height: 760 }));
   const [mobile, setMobile] = useState(false);
   const [active, setActive] = useState<WindowId>("network");
@@ -27,6 +29,7 @@ export function Workspace({ state, busy, control, connected, result, setResult }
   const [entity, setEntity] = useState<Entity>();
   const [incidentId, setIncidentId] = useState<string>();
   const [eventId, setEventId] = useState<string>();
+  const [labEvidence, setLabEvidence] = useState<Incident["events"][number]>();
   const [launcher, setLauncher] = useState(false);
   const [storageFailed, setStorageFailed] = useState(false);
   const [reduced, setReduced] = useState(false);
@@ -90,7 +93,7 @@ export function Workspace({ state, busy, control, connected, result, setResult }
     const keyboard = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); setLauncher(v => !v); }
       if (event.key === "Escape") setLauncher(false);
-      if (event.altKey && ["1", "2"].includes(event.key)) { event.preventDefault(); dispatch({ type: "preset", preset: event.key === "1" ? "operations" : "incident" }); setActive(event.key === "1" ? "network" : "investigations"); }
+      if (event.altKey && ["1", "2", "3"].includes(event.key)) { event.preventDefault(); dispatch({ type: "preset", preset: event.key === "1" ? "operations" : event.key === "2" ? "incident" : "lab" }); setActive(event.key === "1" ? "network" : event.key === "2" ? "investigations" : "lab"); }
     };
     window.addEventListener("keydown", keyboard); return () => window.removeEventListener("keydown", keyboard);
   }, []);
@@ -104,7 +107,7 @@ export function Workspace({ state, busy, control, connected, result, setResult }
       case "network": return <AgentGraph state={state} layout={reduced ? { ...layout, animations: false } : layout} dispatch={dispatch} incidentId={incidentId} eventId={eventId} select={select} />;
       case "events": return <EventTerminal state={state} inspect={inspectEvent} />;
       case "inspector": return <AgentInspector {...focused} />;
-      case "evidence": return <EvidenceInspector {...focused} entity={entity} />;
+      case "evidence": return <EvidenceInspector {...focused} entity={entity} eventRecord={labEvidence} />;
       case "registry": return <AgentRegistry key={focus[id]} {...focused} />;
       case "dna": return <AgentDNA key={focus[id]} {...focused} />;
       case "shadow": return <ShadowWatch {...focused} />;
@@ -113,14 +116,15 @@ export function Workspace({ state, busy, control, connected, result, setResult }
       case "investigations": return <IncidentDesk key={focus[id]} {...focused} />;
       case "runtime": return <LiveSessions {...focused} />;
       case "demo": return <DemoControl {...props} result={result} setResult={setResult} />;
+      case "lab": return <SecurityLab state={state} csrf={csrf} inspectEvent={inspectEvent} provideEvidence={setLabEvidence} navigate={navigate} />;
       case "overview": return <div className="system-brief"><span className="eyebrow">PERSISTED OPERATIONS SUMMARY</span><h3>Integrated-tool enforcement</h3><p>Only authenticated, integrated tools are enforced. Anomaly findings and decoy interest are investigative signals, not proof of compromise.</p><dl>{Object.entries(state.stats).map(([key, value]) => <div key={key}><dt>{key.replace(/([A-Z])/g, " $1")}</dt><dd>{value}</dd></div>)}</dl><p>{state.runtimeCount} actual local runtime requests recorded. Model inference is not implied by tool activity.</p><button className="button" onClick={() => open("runtime")}>Inspect actual MCP receipts</button></div>;
     }
   };
   return <div className={`ops-workbench ${layout.navigationExpanded ? "navigation-expanded" : ""}`}><a className="skip-link" href="#security-desktop">Skip to workspace</a>
-    <header className="ops-header"><button className="ops-brand" onClick={() => { dispatch({ type: "preset", preset: "operations" }); setActive("network"); setIncidentId(undefined); setEventId(undefined); }}><GhostMark size={24} /><strong>GHOST<span>OPS</span></strong></button><span className="ops-header-divider" /><span className="ops-workspace-name">{layout.preset === "operations" ? "OPERATIONS" : "INCIDENT ROOM"} / LOCAL</span><div className={`ops-connection ${connected ? "online" : "offline"}`}><i />{connected ? "CONNECTED" : "STALE / RECONNECTING"}</div><button className="ops-tool-button" onClick={() => setLauncher(v => !v)} aria-expanded={launcher}><PanelsTopLeft size={14} /><span>Open tool</span><kbd>⌘K</kbd></button><button className="ops-tool-button" aria-label="Trust boundaries and keyboard help" onClick={() => help.current?.showModal()}><CircleHelp size={16} /></button></header>
+    <header className="ops-header"><button className="ops-brand" onClick={() => { dispatch({ type: "preset", preset: "operations" }); setActive("network"); setIncidentId(undefined); setEventId(undefined); }}><GhostMark size={24} /><strong>GHOST<span>OPS</span></strong></button><span className="ops-header-divider" /><span className="ops-workspace-name">{layout.preset === "operations" ? "OPERATIONS" : layout.preset === "incident" ? "INCIDENT ROOM" : "SECURITY LAB"} / LOCAL</span><div className={`ops-connection ${connected ? "online" : "offline"}`}><i />{connected ? "CONNECTED" : "STALE / RECONNECTING"}</div><button className="ops-tool-button" onClick={() => setLauncher(v => !v)} aria-expanded={launcher}><PanelsTopLeft size={14} /><span>Open tool</span><kbd>⌘K</kbd></button><button className="ops-tool-button" aria-label="Trust boundaries and keyboard help" onClick={() => help.current?.showModal()}><CircleHelp size={16} /></button></header>
     <div className="ops-body"><nav className="ops-rail" aria-label="Security tools"><button aria-label="Expand tool navigation" aria-pressed={layout.navigationExpanded} title="Toggle tool names" onClick={() => dispatch({ type: "navigation" })}><PanelsTopLeft size={20} /><span>Tool navigation</span></button>{windowIds.filter(id => !["inspector", "evidence", "overview"].includes(id)).map(id => { const Icon = icons[id]; return <button key={id} aria-label={`Open ${titles[id]}`} aria-pressed={visible.some(w => w.id === id)} title={titles[id]} onClick={() => open(id)}><Icon size={21} /><span>{titles[id]}</span></button>; })}<div className="rail-spacer" /><button title="System overview" aria-label="Open System overview" onClick={() => open("overview")}><Activity size={18} /><span>System overview</span></button></nav>
       <div className="ops-stage"><div className="workspace-toolbar"><div className="workspace-presets" aria-label="Workspace presets"><button aria-pressed={layout.preset === "operations"} onClick={() => { dispatch({ type: "preset", preset: "operations" }); setActive("network"); setIncidentId(undefined); setEventId(undefined); }}><LayoutGrid size={13} />Operations</button><button aria-pressed={layout.preset === "incident"} onClick={() => { dispatch({ type: "preset", preset: "incident" }); setActive("investigations"); if (!incidentId && state.incidents[0]) focusIncident(state.incidents[0].id); }}><Search size={13} />Incident Room</button></div>
-        <select aria-label="Focus network investigation" value={incidentId ?? ""} onChange={e => { const id = e.target.value; if (id) focusIncident(id); else { setIncidentId(undefined); setEventId(undefined); } }}><option value="">Relevant recorded relationships</option>{state.incidents.map(i => <option key={i.id} value={i.id}>INC-{i.id.slice(0, 8)} / {i.actorId}</option>)}</select><span className="toolbar-spacer" /><button className="ops-tool-button" title="Auto-arrange current preset" onClick={() => dispatch({ type: "arrange" })}><PanelsTopLeft size={13} /><span>Arrange</span></button><button className="ops-tool-button" title="Reset layout and node positions; backend data unchanged" onClick={() => { dispatch({ type: "reset" }); setActive("network"); }}><RotateCcw size={13} /><span>Reset layout</span></button><label className="motion-toggle"><input type="checkbox" checked={layout.animations && !reduced} disabled={reduced} onChange={() => dispatch({ type: "animations" })} />Motion</label></div>
+        <button className="ops-tool-button" aria-pressed={layout.preset === "lab"} onClick={() => { dispatch({ type: "preset", preset: "lab" }); setActive("lab"); }}><FlaskConical size={13} />Security Lab</button><select aria-label="Focus network investigation" value={incidentId ?? ""} onChange={e => { const id = e.target.value; if (id) focusIncident(id); else { setIncidentId(undefined); setEventId(undefined); } }}><option value="">Relevant recorded relationships</option>{state.incidents.map(i => <option key={i.id} value={i.id}>INC-{i.id.slice(0, 8)} / {i.actorId}</option>)}</select><span className="toolbar-spacer" /><button className="ops-tool-button" title="Auto-arrange current preset" onClick={() => dispatch({ type: "arrange" })}><PanelsTopLeft size={13} /><span>Arrange</span></button><button className="ops-tool-button" title="Reset layout and node positions; backend data unchanged" onClick={() => { dispatch({ type: "reset" }); setActive("network"); }}><RotateCcw size={13} /><span>Reset layout</span></button><label className="motion-toggle"><input type="checkbox" checked={layout.animations && !reduced} disabled={reduced} onChange={() => dispatch({ type: "animations" })} />Motion</label></div>
         <div className="ops-status-strip"><span><i className="online-dot" />{state.stats.registered} registered</span><span>{state.stats.authorized} active identities</span><span className={state.stats.unknown ? "amber-text" : ""}>{state.stats.unknown} unknown</span><span className={state.stats.activeIncidents ? "red-text" : ""}>{state.stats.activeIncidents} active investigations</span><span>{state.stats.quarantined} quarantined</span><span>{state.stats.anomalies} deviations</span><span>{state.stats.memoryEvents} memory alerts</span><span>{state.stats.trapTriggers} decoy interactions</span><button onClick={() => open("events")}>{state.stats.blocked} blocked / {state.stats.requests} requests</button></div>
         <div className="mobile-panel-nav"><label>Active tool<select aria-label="Mobile active tool" value={mobileActive ?? ""} onChange={e => open(e.target.value as WindowId)}><option value="" disabled>Select a tool</option>{windowIds.map(id => <option key={id} value={id}>{titles[id]}</option>)}</select></label></div>
         <div className="security-desktop" id="security-desktop" tabIndex={-1} ref={desktop}>
