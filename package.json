@@ -38,6 +38,7 @@
     "release:preflight": "tsx scripts/release-preflight.ts",
     "release:backup": "tsx scripts/release-backup.ts",
     "release:demo": "tsx scripts/hackathon-demo.ts",
+    "test:release-upgrade": "tsx scripts/verify-release-upgrade.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx scripts/seed.ts",
