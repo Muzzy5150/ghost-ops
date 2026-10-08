@@ -20,17 +20,19 @@ async function actor(tx: Tx, actorId: string, runId: string) {
 export async function verifyMemory(tx: Tx, id: string, context?: { sessionId?: string; runId?: string; identityVerified?: boolean }) {
   context = { ...context, identityVerified: true };
   const memory = await tx.memoryVersion.findUniqueOrThrow({ where: { id } });
+  if (!context.sessionId && !(await tx.agent.findUniqueOrThrow({ where: { id: memory.ownerId } })).simulated) context.sessionId = memory.sessionId ?? (await tx.session.findFirst({ where: { agentId: memory.ownerId }, orderBy: { createdAt: "desc" } }))?.id;
   const valid = verifySignature(memory);
   await tx.memoryVersion.update({ where: { id }, data: { integrity: valid ? "verified" : "tampered" } });
   await recordEvent(tx, { actorId: memory.ownerId, ...context, module: "MemoryGuard", kind: valid ? "INTEGRITY_VERIFIED" : "INTEGRITY_TAMPER", severity: valid ? "info" : "high", message: valid ? `Memory v${memory.version}: content and signed provenance verified.` : `Memory v${memory.version}: integrity signature mismatch; unauthorized database alteration detected.`, details: { memoryId: id, version: memory.version, valid, sourceId: memory.sourceId }, ...(valid ? {} : { finding: { rule: "INTEGRITY_TAMPER", explanation: "Content hash or HMAC over provenance does not match the server-held integrity key." } }) });
-  if (context?.sessionId) await correlate(tx, memory.ownerId, context.sessionId, true);
+  if (context?.sessionId) await correlate(tx, memory.ownerId, context.sessionId, true, (await tx.agent.findUniqueOrThrow({ where: { id: memory.ownerId } })).simulated);
   return { memoryId: id, valid };
 }
 export async function restoreMemory(tx: Tx, id: string, context?: { sessionId?: string; runId?: string; identityVerified?: boolean }) {
   context = { ...context, identityVerified: true };
   const restored = await restoreSnapshot(tx, id);
+  if (!context.sessionId && !(await tx.agent.findUniqueOrThrow({ where: { id: restored.ownerId } })).simulated) context.sessionId = (await tx.session.findFirst({ where: { agentId: restored.ownerId }, orderBy: { createdAt: "desc" } }))?.id;
   await recordEvent(tx, { actorId: restored.ownerId, ...context, module: "MemoryGuard", kind: "MEMORY_RESTORED", severity: "info", message: `Verified historical snapshot restored into new signed memory v${restored.version}. Tampered history retained as evidence.`, details: { memoryId: restored.id, restoredFromId: id, verified: verifySignature(restored) } });
-  if (context?.sessionId) await correlate(tx, restored.ownerId, context.sessionId, true);
+  if (context?.sessionId) await correlate(tx, restored.ownerId, context.sessionId, true, (await tx.agent.findUniqueOrThrow({ where: { id: restored.ownerId } })).simulated);
   return { memoryId: restored.id, restoredFromId: id, valid: verifySignature(restored) };
 }
 async function tamperAndRestore(tx: Tx, sessionId: string, runId: string) {

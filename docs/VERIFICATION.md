@@ -1,5 +1,9 @@
 # Verification record
 
+Phase 3's current results and actual MCP/agent-process proof are in [PHASE3_VERIFICATION.md](PHASE3_VERIFICATION.md): 73 tests, current production build and live-tool verification. The Phase 2 results below are preserved as historical evidence. No real model inference has been executed.
+
+Phase 3 browser retry again selected the authorized existing local Ghost Ops tab, but the saved site preference explicitly blocked access. The in-app browser was unavailable. No alternate surface or indirect browser workaround was attempted after that denial.
+
 ## Phase 2 independently verified results
 
 2026-10-07, macOS, Node 24.10.0 / npm 11.19.0. Previous claims were independently checked before changes: 26 tests, typecheck and lint passed. Seven new regressions then failed on the original implementation, establishing the defects before correction.

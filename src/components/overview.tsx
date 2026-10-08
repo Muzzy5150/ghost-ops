@@ -3,6 +3,7 @@ import { Activity, ArrowUpRight, CheckCheck, ChevronRight, Fingerprint, Ghost, L
 import type { Event, State } from "@/lib/view-types";
 import type { SectionProps } from "./console";
 import { Badge, Empty, GhostMark, Panel, SectionLink, time } from "./ui";
+import { LiveSessions } from "./live-sessions";
 
 export function Metrics({ state }: { state: State }) {
   const metrics = [
@@ -31,7 +32,10 @@ export function AgentNetwork({ state, deception = false }: { state: State; decep
 export function ActivityTable({ events, limit = 12, navigate }: { events: Event[]; limit?: number; navigate?: SectionProps["navigate"] }) {
   const [expanded, expand] = useState<string | null>(null);
   if (!events.length) return <Empty title="Awaiting agent activity" detail="Run Normal Operation to establish behavioral baselines." />;
-  return <div className="table-scroll"><table className="activity-table"><thead><tr><th>Sequence / time</th><th>Identity attribution</th><th>Engine</th><th>Observation · click to inspect</th><th>Level</th></tr></thead><tbody>{events.slice(0, limit).map(e => <Fragment key={e.id}><tr><td className="mono muted">#{e.ordinal}<small className="cell-sub">{time(e.createdAt)}</small></td><td><span className={`identity-dot ${e.identityVerified ? "green" : "red"}`} />{e.actorId}<small className="cell-sub">{e.identityVerified ? "Verified / authorized attribution" : "Unverified claim / legacy"}</small></td><td><span className={`module-label module-${e.module.toLowerCase()}`}>{e.module}</span></td><td className="event-message"><button className="event-inspect" aria-expanded={expanded === e.id} onClick={() => expand(expanded === e.id ? null : e.id)}>{e.message}</button></td><td><Badge value={e.severity} /></td></tr>{expanded === e.id && <tr className="event-detail"><td colSpan={5}><div className="evidence-header"><code>{e.kind} · {e.id}</code>{e.incidentId && navigate && <SectionLink onClick={() => navigate("Investigations", e.incidentId!)}>Open linked investigation</SectionLink>}</div><pre className="evidence-json">{JSON.stringify({ sessionId: e.sessionId, requestId: e.requestId, identityVerified: e.identityVerified, simulated: e.simulated, details: e.details }, null, 2)}</pre></td></tr>}</Fragment>)}</tbody></table></div>;
+  return <div className="table-scroll"><table className="activity-table"><thead><tr><th>Sequence / time</th><th>Identity attribution</th><th>Engine</th><th>Observation · click to inspect</th><th>Level</th></tr></thead><tbody>{events.slice(0, limit).map(e => <Fragment key={e.id}>
+    <tr><td className="mono muted">#{e.ordinal}<small className="cell-sub">{time(e.createdAt)}</small></td><td><span className={`identity-dot ${e.identityVerified ? "green" : "red"}`} />{e.actorId}<small className="cell-sub">{e.identityVerified ? "Verified / authorized attribution" : "Unverified claim / legacy"}</small></td><td><span className={`module-label module-${e.module.toLowerCase()}`}>{e.module}</span><small className="cell-sub">{e.simulated ? "SIMULATED" : "LOCAL RUNTIME"}</small></td><td className="event-message"><button className="event-inspect" aria-expanded={expanded === e.id} onClick={() => expand(expanded === e.id ? null : e.id)}>{e.message}</button></td><td><Badge value={e.severity} /></td></tr>
+    {expanded === e.id && <tr className="event-detail"><td colSpan={5}><div className="evidence-header"><code>{e.kind} · {e.id}</code>{e.incidentId && navigate && <SectionLink onClick={() => navigate("Investigations", e.incidentId!)}>Open linked investigation</SectionLink>}</div><pre className="evidence-json">{JSON.stringify({ sessionId: e.sessionId, requestId: e.requestId, identityVerified: e.identityVerified, simulated: e.simulated, details: e.details }, null, 2)}</pre></td></tr>}
+  </Fragment>)}</tbody></table></div>;
 }
 export function Overview({ state, navigate }: SectionProps) {
   const latest = state.incidents[0];
@@ -49,6 +53,7 @@ export function Overview({ state, navigate }: SectionProps) {
         <div className="posture-footer"><span><i className="online-dot" />Deterministic response policies</span><SectionLink onClick={() => navigate("Investigations")}>Investigate</SectionLink></div>
       </Panel></div>
     <div className="engine-cards">{engines.map(({ name, icon: Icon, color, stat, description }) => <button className="engine-card" key={name} onClick={() => navigate(name)}><span className={`engine-icon ${color}`}><Icon size={21} strokeWidth={1.6} /></span><div><h3>{name}<ChevronRight size={14} /></h3><p>{description}</p><span><i className="online-dot" />Active <b>{stat}</b></span></div></button>)}</div>
+    <LiveSessions state={state} navigate={navigate} />
     <Panel title="Recent enforcement decisions" eyebrow="GENUINE GATEWAY RECEIPTS"><ActivityTable events={state.events.filter(e => e.module === "Gateway")} limit={5} navigate={navigate} /></Panel>
     <Panel title="Live activity" eyebrow="RECENT OBSERVATIONS" action={<SectionLink onClick={() => navigate("AgentDNA")}>View behavior</SectionLink>}><ActivityTable events={state.events} navigate={navigate} /><div className="table-footer"><span><i className="online-dot" />Every observation is a persisted backend record</span><span>{state.stats.requests} requests · {state.stats.blocked} blocked</span></div></Panel>
   </>;

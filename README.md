@@ -2,7 +2,30 @@
 
 Detect the rogue. Trace the behavior. Protect the memory.
 
-Ghost Ops is a working local counterintelligence demonstration for autonomous AI agents. Four engines correlate identity, behavioral deviation, signed memory history, and synthetic deception interactions into explainable investigations. The dashboard uses actual SQLite records, and the gateway enforces every tool decision before a simulated effect can occur.
+Ghost Ops monitors isolated local agents through an authenticated MCP tool gateway. Four engines correlate identity, behavioral deviation, signed memory and synthetic deception into evidence-backed investigations. The dashboard uses SQLite records; permissions, quarantine and revocation are enforced before bounded local tools run. The original synthetic demonstration remains available.
+
+## Phase 3: running local agent
+
+With the server on port 3210, use another terminal:
+
+```sh
+npm run agent:provision
+npm run agent:run -- --task "Read the approved research document and write a summary."
+npm run agent:demo -- --interactive
+```
+
+The offline client uses **scripted decisions**, not model inference, but makes genuine MCP requests: approved fixture reads, actual restricted file writes, signed memory operations and denied tool requests. Overview and Agent Registry show live sessions and handler receipts; Investigations labels live versus simulated provenance. The seven-stage demo tests injection denial independently of model behavior, correlates a decoy attempt, verifies containment and restores an explicitly altered test snapshot.
+
+Optional **official OpenAI Agents SDK** model execution requires deliberate configuration:
+
+```sh
+export GHOSTOPS_MODEL_ENABLED=1
+export GHOSTOPS_MODEL=your-approved-model-id
+# Set OPENAI_API_KEY securely in this terminal; never commit or print it.
+npm run agent:run -- --model --task "Read docs/research and summarize it using the local tools."
+```
+
+Model mode contacts only the configured official OpenAI provider endpoint and disables tracing exports. Use synthetic inputs only; costs and provider retention apply. A key alone does not enable inference. **No real-model call was performed during verification.** Model integration is implemented/typechecked, not live-provider verified. See [REAL_AGENT_INTEGRATION.md](docs/REAL_AGENT_INTEGRATION.md), [MCP_GATEWAY.md](docs/MCP_GATEWAY.md), [LIVE_DEMO_SCRIPT.md](docs/LIVE_DEMO_SCRIPT.md), and [PHASE3_VERIFICATION.md](docs/PHASE3_VERIFICATION.md).
 
 ## Run locally
 
@@ -31,7 +54,7 @@ Open **http://127.0.0.1:3210**. Always use these scripts: the custom Node transp
 
 No OpenAI API key, cloud account, paid API, or external database is required. No environment file is required. Optional process environment variables are `PORT`, `DATABASE_URL`, and `GHOSTOPS_SIGNING_SECRET` (at least 32 characters). Scripts do not automatically load `.env`; export variables in the launching shell if overriding defaults. See [.env.example](.env.example).
 
-The default database is `prisma/ghostops.db`. First startup creates a private random signing key at `.ghostops/integrity.key` with mode `0600`. Both paths are gitignored. Back up the key together with the database. Changing or losing the key invalidates existing signatures and agent credential hashes; the disposable demo must then be reinitialized with **Reset environment**. Never copy this key into dashboard configuration or logs.
+The default database is `prisma/ghostops.db`. First startup creates a private random signing key at `.ghostops/integrity.key` with mode `0600`. Both paths are gitignored. Back up the key with the database. Losing/changing it invalidates memory signatures and credential hashes: restore the original key or explicitly archive and create a new isolated environment. Simulation reset does not repair runtime history or credentials. Never copy this key into dashboard configuration or logs.
 
 ## Two-minute demonstration
 
@@ -56,7 +79,7 @@ Exact narration and timing are in [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 ```text
 Local Node transport → Next.js API → strict Zod schema
     → credential + session verification → explicit policy decision
-    → bounded synthetic executor → persisted request + event
+    → synthetic result OR bounded local MCP handler → persisted request + event
     → AgentDNA / ShadowWatch / MemoryGuard / GhostTrap
     → actor/session correlation → incident + evidence timeline
     → quarantine / credential revocation / verified snapshot restoration
@@ -88,7 +111,10 @@ Key files:
 - `src/components/investigations.tsx`: linked investigation workflow and expandable policy evidence.
 - `scripts/server.ts`, `src/server/http.ts`, `src/app/api/`: local transport, administrative session, CSRF, body limits, and API boundaries.
 - `src/components/`, `src/app/globals.css`: responsive graphite/green operations console.
-- `src/lib/integration-contracts.ts`: future adapter contracts, not implemented integrations.
+- `src/server/runtime.ts`, `runtime-tools.ts`, `src/app/api/mcp/route.ts`: runtime enrollment, authenticated MCP interception and bounded local handlers.
+- `src/runtime/client.ts`, `agent.ts`, `scripts/agent.ts`, `live-demo.ts`: actual MCP client, opt-in official Agents SDK loop, offline dispatcher and exact live-tool demonstration.
+- `src/components/live-sessions.tsx`: persisted runtime decisions and execution metadata.
+- `src/lib/integration-contracts.ts`: extension interfaces; non-local/other-framework adapters remain future work.
 
 ## API boundaries
 
@@ -106,6 +132,7 @@ npm run test:integration
 npm test
 npm run build
 npm run test:restart
+npm run test:runtime
 ```
 
 Vitest uses isolated temporary SQLite databases and applies the committed migration. Tests do not modify the running demo database. The suite covers authorized tasks, unknown identities, invalid credentials, impersonation, session mismatch, permissions, destination denial, protected memory, provenance tampering, signed restore, baseline deviations, quarantine/revocation, rotated credentials, concurrent duplicate ingestion, deterministic reset, command replay, secret redaction, and component rendering against actual incident records.
@@ -124,8 +151,8 @@ Phase 2 typecheck, lint, **52 Vitest tests**, production build, production HTTP 
 
 Read [docs/SECURITY.md](docs/SECURITY.md) and [docs/SECURITY_MODEL.md](docs/SECURITY_MODEL.md) before changing exposure or integrating a real runtime. Upgrade with `npm run setup`, then reset disposable demo data: the additive migration preserves history but deliberately does not infer verified identity attribution for legacy observations or repair old mixed incidents.
 
-- Agent task sequences, documents, tools, infrastructure, endpoints, and all decoy keys are synthetic. Credential verification, policy denial, audit records, deterministic correlation, quarantine, revocation, signed memory validation, and restoration are genuinely enforced in backend code.
-- No LLM runs in this MVP. The simulator explicitly submits adversarial attempted actions after ingestion; it does not claim a prompt actually compromised a real model. No shell, arbitrary code, real filesystem tool, or outbound network executor exists.
+- Demonstration decisions and all documents, infrastructure and decoy keys are synthetic. Integrated runtime requests/effects, credential checks, policy denial, audit records, correlation, containment and memory integrity/restoration are genuine.
+- Optional model inference is implemented but was not executed in verification. Offline decisions and malicious regression probes are scripted. Bounded tools perform actual fixture/file/signed-memory effects; no shell, arbitrary code/path or tool-driven outbound network capability exists.
 - This is a single-process local demonstration, not a production multi-tenant security service. It trusts the local OS user. Loopback is not independent administrative identity authentication. Do not deploy publicly without an independent authentication/authorization layer, TLS, proxy-aware transport verification, and operational hardening.
 - HMAC integrity does not survive compromise of the server-held signing key. The MVP uses one local key to derive integrity, agent credential digests, transport attestation, and administrative tokens. A database/OS administrator can alter or erase unsigned event/incident history; the audit trail is not an externally immutable ledger.
 - Baselines use straightforward counts and deterministic rules, not statistically validated machine learning. Burst detection uses a conservative 60-second request threshold; sequence evidence uses the last five requests. Baselines freeze after normal simulation; authorized policy changes need deliberate relearning/reset.
@@ -136,4 +163,4 @@ Read [docs/SECURITY.md](docs/SECURITY.md) and [docs/SECURITY_MODEL.md](docs/SECU
 
 ## Future integration roadmap
 
-Implement and test runtime adapters for MCP, Codex, Cursor, OpenAI agents, and other runtimes behind the same policy gateway. Add credential enrollment/rotation APIs, independent administrator authentication and role separation, OpenTelemetry export, immutable remote evidence retention, production memory-store adapters, cloud infrastructure telemetry, carefully sandboxed effect executors, and evidence-grounded optional model explanations. These are **interfaces and roadmap only**, not supported integrations today.
+The bounded local MCP tools/client and optional OpenAI Agents SDK path now ship. Native Codex/Cursor interception, arbitrary MCP servers, production agent enrollment/rotation, independent administrator identity, OpenTelemetry export, immutable evidence, production memory stores, cloud telemetry and hardened OS sandboxing remain **future work**. Ghost Ops does not intercept all tool calls or operating-system activity.

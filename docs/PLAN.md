@@ -1,5 +1,18 @@
 # Implementation plan and verification log
 
+## Phase 3 — bounded local runtime integration
+
+- [x] Inspect architecture and independently rerun all 52 baseline tests.
+- [x] Authenticated loopback MCP transport, bounded real tools, replay/provenance protection.
+- [x] Isolated runtime identities, optional official Agents SDK, labeled offline client.
+- [x] Live memory, correlation, containment, dashboard sessions; preserve simulation reset.
+- [x] Runtime security, actual protocol calls, restart and regression verification (73 tests, typecheck, lint, production build, both fresh-process verifiers; zero production advisories).
+- [x] Runtime/demo documentation; verified implementation checkpoint pending commit, followed by clean-checkout verification.
+
+Additive migration preserved all original workspace records (3 agents / 31 requests / 85 events / 3 incidents / 6 memory versions). A private consistent backup was created; the exact live demo then ran successfully on 3210 with new `live-phase3` identity, no reset and zero model calls. Browser retry: in-app browser unavailable; existing Chrome site explicitly blocked by saved permission. No workaround; visual checks remain unverified. Real-provider model execution and same-identity credential redelivery remain unverified/future work respectively.
+
+Model inference is opt-in; it must not be claimed unless executed. Tools cannot execute commands, arbitrary paths or outbound requests. Additive migrations preserve presenter data; simulation reset must preserve runtime records.
+
 ## Phase 2 — independent hardening and investigation UX
 
 - [x] Independently rerun baseline: 26 tests, type checking and lint pass.

@@ -1,10 +1,22 @@
 # Ghost Ops architecture
 
+## Phase 3 local runtime
+
+`src/runtime/agent.ts` supplies an optional official OpenAI Agents SDK tool loop and a clearly labeled offline dispatcher. Both use `LocalAgentClient` and the official MCP protocol client. `/api/mcp` runs stateless JSON-response Streamable HTTP while binding every action to a persistent SQLite credential/session. `/api/runtime/enroll` uses the existing administrator/Origin/CSRF boundary and stores only a random credential's digest. The client receives no signing root.
+
+The common gateway accepts a server-held runtime dispatcher only on the MCP path. Simulation ingestion cannot acquire execution or train runtime histories. Allowed calls dispatch to fixed synthetic fixture reads, exclusive request-addressed summary files or signed owner-bound notes. No arbitrary paths, commands, destinations or security-policy writes exist. Runtime ToolRequest.execution stores handler completion, output hash/size and bounded artifact/version metadata; raw tool output is returned only to the caller and not persisted in receipts. Operational failures are audited without fabricated success. Exact retries recheck current authority and never rerun committed handlers.
+
+AgentDNA learns only authenticated permitted trusted runtime history, with independent local-operator baseline freezing after at least four observations. Untrusted ingestion taints the session. MemoryGuard separates writable notes (never policy) from protected runtime policy and verifies signatures before reads/appends. GhostTrap sees actual denied MCP decoy attempts. Correlation distinguishes live/simulated provenance and verified/unverified attribution; quarantine and revocation remain enforced at dispatch across restart. Local administrator restoration/fault injection is labeled separately from agent/model behavior.
+
+Simulation reset now deletes only simulated requests/events/incidents/agent memory; runtime identities, revocation, evidence and memory survive. Shared source/decoy records and command receipts remain. Overview and Agent Registry expose real session receipts; all event feeds and incidents label provenance; MemoryGuard selects individual owner/key chains. Existing eight sections and original guided demos remain operational.
+
+The process is not an OS sandbox, and only integrated calls are protected. Optional remote inference has not been executed in verification. Details: REAL_AGENT_INTEGRATION.md, MCP_GATEWAY.md and PHASE3_VERIFICATION.md.
+
 ## Deployment and authority
 
 One local Node process runs Next.js App Router on `127.0.0.1`. `scripts/server.ts` verifies the actual socket, rejects inbound proxy/attestation headers, and inserts a domain-separated HMAC transport attestation before Next handles the request. Routes check that attestation, exact loopback Host, Origin and fetch metadata. Direct `next start` fails closed.
 
-The local OS operator is trusted. Bootstrap creates a random, signed administrative session with a server-checked eight-hour expiry; management additionally requires a CSRF token bound to that exact session. This is not independent human administrator authentication. Agent ingestion uses a separate credential digest and credential-bound session. No cloud, model API or real effect executor is installed.
+The local OS operator is trusted. Bootstrap creates a random signed eight-hour administrative session; management also requires session-bound CSRF. This is not independent human administrator authentication. Agent ingestion and runtime MCP use separate credential digests and bound sessions. Real bounded local effects and opt-in model execution now ship; cloud/production integrations do not.
 
 ## Event and response path
 
@@ -60,4 +72,4 @@ The eight sections share expandable event evidence and targeted investigation na
 
 The additive migration preserves existing records and deliberately leaves their attribution unverified. It does not repair historical ambiguous/mixed incidents or infer old credential proof. Reset the disposable demonstration after upgrading to generate fully attributed evidence.
 
-Future MCP/Codex/Cursor/OpenAI/OpenTelemetry/cloud/memory-store adapters remain contracts and roadmap only. Production integration requires independent admin identity, enrollment, per-environment credential lifecycle, durable concurrency controls, sandboxed effects and externally anchored evidence.
+The bounded local MCP/optional OpenAI SDK client is implemented. Native Codex/Cursor, arbitrary MCP servers, OpenTelemetry, cloud and production memory adapters remain roadmap. Production integration needs independent admin identity, credential lifecycle/redelivery, durable concurrency, hardened sandboxing and externally anchored evidence.

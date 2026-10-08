@@ -1,0 +1,2 @@
+ALTER TABLE "ToolRequest" ADD COLUMN "execution" JSONB;
+ALTER TABLE "Incident" ADD COLUMN "simulated" BOOLEAN NOT NULL DEFAULT true;

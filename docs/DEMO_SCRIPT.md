@@ -1,5 +1,7 @@
 # Two-minute Ghost Ops demonstration
 
+Phase 3's actual MCP tool demonstration is in [LIVE_DEMO_SCRIPT.md](LIVE_DEMO_SCRIPT.md). This retained script exercises the **synthetic** Phase 2 scenarios. Simulation reset now preserves runtime records; the clean totals below apply when no live records are present. No model inference is implied by this script.
+
 ## Before presenting
 
 ```sh

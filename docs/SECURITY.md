@@ -12,9 +12,9 @@ Any trusted local OS user can bootstrap administration. This is deliberately **n
 
 ## Agents and untrusted inputs
 
-Agent credentials are high-entropy HMAC-derived synthetic tokens. Only HMAC digests are persisted; raw tokens and digests never appear in dashboard responses. The session must exist, be active, belong to the actor, and be bound to the presented credential. Quarantine checks the registered agent state, revokes all credentials, and disables all sessions before the next request can execute. Authorized restoration rotates credentials and validates the latest memory before resuming.
+Demo credentials are HMAC-derived synthetic tokens; enrolled runtime credentials are independently random 256-bit secrets held only by a private client file. Only server-derived digests are persisted. Raw tokens/digests never appear in snapshots or model tool schemas. Sessions must be active and bound to the actor/credential. Quarantine revokes every credential and disables sessions before dispatch; restoration verifies every latest owned memory key and rotates credentials. Same-identity runtime credential redelivery remains future work.
 
-Ingestion requires a strict Zod action schema and a Bearer credential. A claimed actor identity is evidence, not proof of authentication. Valid credentials cannot bypass permission or resource checks. Tools, operations, resource names, and optional destinations must match explicit allowlists. Resource paths are catalogue IDs, never actual filesystem paths. No arbitrary command, code evaluation, real HTTP executor, or MCP tool runtime is present.
+Ingestion and MCP require strict bounded schemas and a Bearer credential. A claimed identity is not authentication. Valid credentials cannot bypass tool/resource/status/session checks. Catalogue IDs never become caller-supplied filesystem paths. The runtime MCP dispatcher performs only bounded local fixture, summary-file and signed-note effects; no arbitrary command/code/path or tool-driven outbound HTTP executor exists. Optional model networking is separate explicit opt-in to the official provider, with trace exports disabled.
 
 Source-document trust is looked up from a server-owned record; agents cannot set it to trusted. Ingested instructions are stored and returned as data, never interpreted or executed. Simulator code explicitly submits attempted hostile actions through the gateway to test defenses. It does not assert real LLM compromise.
 
@@ -40,7 +40,7 @@ For request replay, current credential/session/status/policy/integrity checks no
 
 JSON body: 16 KiB, enforced while streaming (including absent Content-Length). Content: 4,000 characters; IDs: 100 characters; resource/destination: 160 characters. HTTP request timeout: 15s; header timeout: 10s; maximum header count: 40. The local demo permits 2,000 tool requests, 10,000 command receipts and 1,000 memory versions across all append paths. Capacity violations stop the transaction; request/receipt and explicit administrative restoration guards return `429`. Input is never echoed into generic error logs.
 
-Dashboard reads bound recent collections but query complete totals separately. Incident timelines are bounded indirectly by total request capacity. This is not distributed, multi-tenant, externally rate-limited, tamper-proof logging infrastructure. A trusted administrator can reset synthetic records or modify/erase unsigned evidence in SQLite. Agent enrollment for a production runtime is not implemented.
+Dashboard reads bound recent collections but query complete totals separately. Incident timelines are bounded indirectly by total request capacity. This is not distributed, multi-tenant, externally rate-limited or immutable logging infrastructure. Local runtime enrollment is implemented behind existing trusted-OS administration, not production self-enrollment. Simulation reset preserves all runtime evidence/status/memory. No OS process sandbox or protection of unintegrated activity is claimed. See MCP_GATEWAY.md for live replay/metadata, filesystem crash boundaries and capacities.
 
 ## Dependencies
 

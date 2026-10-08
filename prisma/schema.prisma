@@ -64,6 +64,7 @@ model ToolRequest {
   reason String
   result Json
   simulated Boolean @default(true)
+  execution Json?
   createdAt DateTime @default(now())
   decision PolicyDecision?
   events SecurityEvent[]
@@ -114,6 +115,7 @@ model Incident {
   correlationKey String @unique
   actorId String
   identityVerified Boolean @default(false)
+  simulated Boolean @default(true)
   sessionId String?
   title String
   severity String

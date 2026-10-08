@@ -13,11 +13,11 @@ export const actionSchema = z.object({
 export type AgentAction = z.infer<typeof actionSchema>;
 export const commandSchema = z.object({
   commandId: z.string().uuid(),
-  action: z.enum(["initialize", "reset", "normal", "rogue", "poisoning", "compromise", "quarantine", "revoke", "restore-agent", "restore-memory", "verify-memory", "replay", "start-story", "advance-story"]),
+  action: z.enum(["initialize", "reset", "normal", "rogue", "poisoning", "compromise", "quarantine", "revoke", "restore-agent", "restore-memory", "verify-memory", "replay", "start-story", "advance-story", "runtime-memory-drill", "freeze-runtime-baseline"]),
   targetId: id.optional(),
   expectedStep: z.number().int().min(0).max(9).optional()
 }).strict().superRefine((v, ctx) => {
-  if (["quarantine", "revoke", "restore-agent", "restore-memory", "verify-memory", "replay", "advance-story"].includes(v.action) && !v.targetId)
+  if (["quarantine", "revoke", "restore-agent", "restore-memory", "verify-memory", "replay", "advance-story", "runtime-memory-drill", "freeze-runtime-baseline"].includes(v.action) && !v.targetId)
     ctx.addIssue({ code: "custom", message: "A target is required", path: ["targetId"] });
   if (v.action === "advance-story" && v.expectedStep === undefined) ctx.addIssue({ code: "custom", message: "Expected story step is required", path: ["expectedStep"] });
   if (v.action !== "advance-story" && v.expectedStep !== undefined) ctx.addIssue({ code: "custom", message: "Unexpected step", path: ["expectedStep"] });

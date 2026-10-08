@@ -6,6 +6,7 @@ import type { State } from "../src/lib/view-types";
 import { Overview } from "../src/components/overview";
 import { ActivityTable } from "../src/components/overview";
 import { AgentRegistry, AgentDNA, ShadowWatch, MemoryGuard, GhostTrap, Investigations, DemoControl } from "../src/components/sections";
+import { enrollRuntime, callRuntime } from "../src/server/runtime";
 
 it("renders all eight dashboard sections against actual correlated backend state", async () => {
   await command({ commandId: randomUUID(), action: "reset" });
@@ -36,4 +37,18 @@ it("renders untrusted stored observations as escaped text, not HTML", async () =
   expect(html).not.toContain("<img src=x");
   expect(html).toContain("&lt;script&gt;");
   expect(html).toContain("Unverified claim / legacy");
+});
+it("renders live provenance, executed handler receipts and the correct agent memory chain", async () => {
+  const credential = "b".repeat(64);
+  const ids = await enrollRuntime({ commandId: randomUUID(), actorId: "live-render", credential }) as { actorId: string; sessionId: string };
+  await callRuntime(ids.actorId, ids.sessionId, credential, "read_document", { requestId: randomUUID(), resource: "docs/research" });
+  await callRuntime(ids.actorId, ids.sessionId, credential, "write_memory", { requestId: randomUUID(), resource: "memory/runtime-notes", content: "An actual signed runtime note" });
+  const state = JSON.parse(JSON.stringify(await snapshot())) as State;
+  const props = { state, busy: false, control: async () => null, navigate: () => {}, focusId: ids.actorId };
+  const registry = renderToStaticMarkup(<AgentRegistry {...props} />);
+  expect(registry).toContain("Actual local runtime"); expect(registry).toContain("Handler executed");
+  expect(renderToStaticMarkup(<Overview {...props} />)).toContain("LOCAL RUNTIME");
+  const memory = state.memories.find(m => m.ownerId === ids.actorId && m.key === "runtime-notes")!;
+  const html = renderToStaticMarkup(<MemoryGuard {...props} focusId={memory.id} />);
+  expect(html).toContain("An actual signed runtime note"); expect(html).toContain("Agent notes"); expect(html).not.toContain("ResearchAgent may read");
 });

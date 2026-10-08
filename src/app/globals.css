@@ -11,6 +11,9 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 /* Phase 2: readable operational density, evidence-first hierarchy. */
+.memory-chain-select{margin-bottom:18px}.memory-chain-select select{max-width:min(440px,75vw)}
+.network-actors{max-height:230px;overflow-y:auto}.deception .network-actors{max-height:290px}.runtime-guide{padding:20px;line-height:1.8}.runtime-guide code{overflow-wrap:anywhere}.runtime-guide .control-row{padding:15px 0 0}
+@media(max-width:760px){.network-actors,.deception .network-actors{max-height:none}.env-pill{font-size:8px}.runtime-guide{padding:15px}}
 .panel-heading>div{min-width:0}.panel-heading .eyebrow{overflow-wrap:anywhere}.investigation-toolbar>.tabs{min-width:0;max-width:100%}.engine-card>div{min-width:0}
 .deception.network-view{height:450px}.deception .network-boundaries{top:47px;gap:10px}.deception .network-actors{top:99px;gap:29px}.deception .gateway-node{top:150px}
 :root{--bg:#090d10;--surface:#10171b;--surface2:#172126;--border:#29373c;--muted:#9aadb3;--green:#a4ee86;--cyan:#7adddf}

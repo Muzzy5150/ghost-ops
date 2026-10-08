@@ -1,5 +1,11 @@
 # Phase 2 security model and audit disposition
 
+## Phase 3 additions
+
+The historical audit disposition below remains valid for Phase 2. The platform now also has an authenticated bounded local MCP runtime, random scoped client credentials, actual fixture/file/signed-note handlers, explicit simulated/live provenance and independent operator-approved baseline freezing. All policy checks remain server-side; model explanations never authorize effects. Simulation reset preserves runtime history and containment. Private writable data is excluded from build traces. Additional 20 runtime regressions and actual HTTP/fresh-process checks are recorded in PHASE3_VERIFICATION.md.
+
+The earlier “all tools synthetic” description applies to the original simulator, not the new actual local handler execution. Resource content/status/decoy secrets remain synthetic. Optional official model inference is implemented but **not live-provider verified**. The client process is not OS-sandboxed; local OS administration is trusted. Same-identity credential redelivery, arbitrary MCP/OS interception and production controls remain future work.
+
 See [SECURITY.md](SECURITY.md) for deployment restrictions and [ARCHITECTURE.md](ARCHITECTURE.md) for implemented boundaries.
 
 ## Audit scope and evidence

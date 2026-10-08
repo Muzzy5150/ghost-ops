@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "tsx scripts/server.ts --dev",
     "build": "next build",
@@ -15,14 +17,23 @@
     "test:integration": "vitest run tests/integration.test.ts",
     "test:api": "tsx scripts/verify-api.ts",
     "test:restart": "tsx scripts/verify-restart.ts",
+    "test:runtime": "tsx scripts/verify-runtime.ts",
+    "agent:provision": "tsx scripts/agent.ts --provision",
+    "agent:run": "tsx scripts/agent.ts",
+    "agent:demo": "tsx scripts/live-demo.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx scripts/seed.ts",
     "setup": "npm run db:generate && npm run db:migrate && npm run db:seed",
     "postinstall": "prisma generate"
   },
-  "overrides": { "deepmerge-ts": "8.0.2", "mysql2": "3.24.5" },
+  "overrides": {
+    "deepmerge-ts": "8.0.2",
+    "mysql2": "3.24.5"
+  },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@openai/agents": "0.19.0",
     "@prisma/adapter-better-sqlite3": "7.10.0",
     "@prisma/client": "7.10.0",
     "lucide-react": "1.52.0",

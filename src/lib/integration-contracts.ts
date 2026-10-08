@@ -1,6 +1,6 @@
 import type { AgentAction } from "./schemas";
 
-/** Future integration contracts; no production executor or framework adapter ships in MVP. */
+/** Extension contracts. A bounded local MCP client/gateway now ships; other adapters are future work. */
 export interface AgentRuntimeAdapter {
   readonly runtime: "mcp" | "codex" | "cursor" | "openai" | "other";
   normalizeObservation(observation: unknown): AgentAction;

@@ -5,6 +5,7 @@ import { execFileSync } from "node:child_process";
 import { afterAll } from "vitest";
 const directory = mkdtempSync(join(tmpdir(), "ghostops-test-"));
 process.env.DATABASE_URL = `file:${join(directory, "test.db")}`;
+process.env.GHOSTOPS_RUNTIME_WORKSPACE = join(directory, "workspace");
 process.env.GHOSTOPS_SIGNING_SECRET = "isolated-vitest-signing-key-not-a-production-secret";
 execFileSync(process.execPath, ["node_modules/prisma/build/index.js", "migrate", "deploy"], { env: process.env, stdio: "pipe" });
 afterAll(async () => {
