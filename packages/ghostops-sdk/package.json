@@ -1,0 +1,8 @@
+{
+  "name": "@ghostops/sdk", "version": "0.1.0", "description": "Authenticated local Ghost Ops MCP client", "type": "module",
+  "engines": { "node": ">=22.12.0" }, "license": "UNLICENSED",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } }, "files": ["dist", "README.md"],
+  "scripts": { "build": "tsc -p tsconfig.json" },
+  "dependencies": { "@modelcontextprotocol/sdk": "1.32.1", "zod": "4.6.5" },
+  "devDependencies": { "typescript": "^5.9.0", "@types/node": "^24.0.0" }
+}

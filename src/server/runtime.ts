@@ -1,11 +1,12 @@
 import { randomUUID } from "node:crypto";
 import type { z } from "zod";
-import { enrollmentSchema, runtimeCallSchema, runtimeToolNames, type RuntimeToolName } from "@/lib/runtime-contract";
+import { enrollmentSchema, rotationSchema, runtimeCallSchema, runtimeToolNames, type RuntimeToolName } from "@/lib/runtime-contract";
 import type { AgentAction } from "@/lib/schemas";
 import { db, serialized } from "./db";
 import { credentialDigest } from "./config";
 import { CapacityError, ConflictError, gateway } from "./gateway";
-import { appendMemory, hash } from "./memory";
+import { appendMemory, hash, verifySignature } from "./memory";
+import { permissionDecision } from "./policy";
 import { recordEvent } from "./investigation";
 import { seed } from "./registry";
 import { executeLocalTool } from "./runtime-tools";
@@ -24,7 +25,7 @@ export async function enrollRuntime(raw: z.infer<typeof enrollmentSchema>) {
     if (await tx.agent.findUnique({ where: { id: input.actorId } })) throw new ConflictError("Runtime identity already exists; use a new identity, not implicit reauthorization");
     await seed(tx);
     const credentialId = randomUUID(), sessionId = randomUUID();
-    await tx.agent.create({ data: { id: input.actorId, name: input.actorId, role: "Isolated local research runtime", simulated: false, permissions: { tools: ["documents:read", "documents:ingest", "summarize:write", "status:read", "memory:read", "memory:write"], resources: ["docs/research", "docs/untrusted", "runtime/tasks", "research/summary", "infra/status", "memory/runtime-policy", "memory/runtime-notes"], destinations: [] } } });
+    await tx.agent.create({ data: { id: input.actorId, name: input.integration?.name ?? input.actorId, role: input.integration ? `External ${input.integration.role} integration` : "Isolated local research runtime", integrationType: input.integration ? "external-node" : "internal", simulated: false, permissions: input.integration?.permissions ?? { tools: ["documents:read", "documents:ingest", "summarize:write", "status:read", "memory:read", "memory:write"], resources: ["docs/research", "docs/untrusted", "runtime/tasks", "research/summary", "infra/status", "memory/runtime-policy", "memory/runtime-notes"], destinations: [] } } });
     await tx.credential.create({ data: { id: credentialId, agentId: input.actorId, digest: credentialDigest(input.credential) } });
     await tx.session.create({ data: { id: sessionId, agentId: input.actorId, credentialId } });
     await tx.profile.create({ data: { agentId: input.actorId, tools: {}, resources: {}, destinations: {}, sequences: {} } });
@@ -37,10 +38,54 @@ export async function enrollRuntime(raw: z.infer<typeof enrollmentSchema>) {
   }, { timeout: 30_000 }));
 }
 export async function authorizedRuntime(actorId: string, sessionId: string, credential: string) {
+  return await runtimeAuthenticationReason(actorId, sessionId, credential) === null;
+}
+export async function runtimeAuthenticationReason(actorId: string, sessionId: string, credential: string) {
   const agent = await db.agent.findUnique({ where: { id: actorId } });
   const session = await db.session.findUnique({ where: { id: sessionId } });
   const stored = await db.credential.findUnique({ where: { digest: credentialDigest(credential) } });
-  return !!(agent && !agent.simulated && agent.status === "active" && session?.active && session.agentId === actorId && stored?.agentId === actorId && !stored.revoked && session.credentialId === stored.id);
+  if (!agent || !stored || stored.agentId !== actorId || !session || session.agentId !== actorId || session.credentialId !== stored.id) return "AUTHENTICATION_FAILED";
+  if (agent.status === "quarantined") return "AGENT_QUARANTINED";
+  if (stored.revoked || agent.status === "revoked") return "CREDENTIAL_REVOKED";
+  if (agent.simulated || !session.active || agent.status !== "active") return "AUTHENTICATION_FAILED";
+  return null;
+}
+export async function approvedRuntimeTools(actorId: string, sessionId: string, credential: string) {
+  if (!await authorizedRuntime(actorId, sessionId, credential)) return [];
+  const agent = await db.agent.findUniqueOrThrow({ where: { id: actorId } });
+  const permissions = agent.permissions as { tools: string[]; resources: string[]; destinations: string[] };
+  return runtimeToolNames.filter(name => runtimeCallSchema.shape.resource.options.some(resource => {
+    try { const action = runtimeAction(actorId, sessionId, name, { requestId: randomUUID(), resource, ...(["write_summary", "write_memory"].includes(name) ? { content: "Discovery validation only" } : {}) }); return permissionDecision(action, permissions) === null; } catch { return false; }
+  }));
+}
+/** Operator supplies a fresh random credential; receipts contain no plaintext token. */
+export async function rotateRuntime(raw: z.infer<typeof rotationSchema>) {
+  const input = rotationSchema.parse(raw);
+  return serialized(() => db.$transaction(async tx => {
+    const fingerprint = hash(JSON.stringify({ ...input, credential: credentialDigest(input.credential) }));
+    const prior = await tx.command.findUnique({ where: { id: input.commandId } });
+    if (prior) { if (prior.fingerprint !== fingerprint) throw new ConflictError("Rotation receipt conflict"); return prior.result; }
+    if (await tx.command.count() >= 10000) throw new CapacityError("Command capacity reached");
+    const agent = await tx.agent.findUniqueOrThrow({ where: { id: input.actorId } });
+    if (agent.simulated || agent.integrationType !== "external-node") throw new Error("External integration required");
+    if (agent.status !== "active" && !input.restore) throw new Error("Explicit restoration required for contained agent");
+    if (await tx.credential.findUnique({ where: { digest: credentialDigest(input.credential) } })) throw new ConflictError("Credential must be fresh, never reuse revoked material");
+    const versions = await tx.memoryVersion.findMany({ where: { ownerId: agent.id }, orderBy: { version: "desc" } });
+    const latest = versions.filter((m, i) => versions.findIndex(v => v.key === m.key) === i);
+    if (latest.some(m => !verifySignature(m))) throw new Error("Verify and restore memory before credential rotation");
+    await tx.credential.updateMany({ where: { agentId: agent.id }, data: { revoked: true } });
+    await tx.session.updateMany({ where: { agentId: agent.id }, data: { active: false } });
+    const credentialId = randomUUID(), sessionId = randomUUID();
+    await tx.credential.create({ data: { id: credentialId, agentId: agent.id, digest: credentialDigest(input.credential) } });
+    await tx.session.create({ data: { id: sessionId, agentId: agent.id, credentialId } });
+    await tx.agent.update({ where: { id: agent.id }, data: { status: "active", trust: "authorized" } });
+    const actionId = randomUUID();
+    await tx.containmentAction.create({ data: { id: actionId, dedupeKey: `external-rotation:${input.commandId}`, actorId: agent.id, action: input.restore ? "restore" : "rotate", reason: "Authorized external credential replacement after signed-memory verification", operator: "local-administrator" } });
+    if (input.restore) await tx.incident.updateMany({ where: { actorId: agent.id, identityVerified: true, status: "contained" }, data: { status: "resolved" } });
+    await recordEvent(tx, { actorId: agent.id, sessionId, identityVerified: true, simulated: false, module: "Response", kind: input.restore ? "EXTERNAL_AGENT_RESTORED" : "EXTERNAL_CREDENTIAL_ROTATED", severity: "info", message: "Local operator replaced the external credential and session; old credentials remain revoked.", details: { actionId } });
+    const result = { actorId: agent.id, sessionId, rotated: true, restored: input.restore, actionId };
+    await tx.command.create({ data: { id: input.commandId, fingerprint, action: "rotate-external", result } }); return result;
+  }, { timeout: 30000 }));
 }
 export function runtimeAction(actorId: string, sessionId: string, name: RuntimeToolName, raw: unknown): AgentAction {
   if (!runtimeToolNames.includes(name)) throw new Error("Unknown runtime tool");

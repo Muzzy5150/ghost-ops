@@ -1,6 +1,10 @@
 import { z } from "zod";
 export const runtimeIdentitySchema = z.object({ actorId: z.string().regex(/^live-[a-zA-Z0-9_-]{1,48}$/), sessionId: z.string().uuid(), credential: z.string().regex(/^[a-f0-9]{64}$/) }).strict();
-export const enrollmentSchema = z.object({ commandId: z.string().uuid(), actorId: runtimeIdentitySchema.shape.actorId, credential: runtimeIdentitySchema.shape.credential }).strict();
+export const externalTools = ["documents:read", "documents:ingest", "summarize:write", "status:read", "memory:read", "memory:write"] as const;
+export const externalResources = ["docs/research", "docs/untrusted", "runtime/tasks", "research/summary", "infra/status", "memory/runtime-policy", "memory/runtime-notes"] as const;
+export const integrationSchema = z.object({ name: z.string().min(1).max(64), role: z.enum(["research", "observer"]), permissions: z.object({ tools: z.array(z.enum(externalTools)).min(1).max(6), resources: z.array(z.enum(externalResources)).min(1).max(7), destinations: z.array(z.never()).max(0) }).strict() }).strict();
+export const enrollmentSchema = z.object({ commandId: z.string().uuid(), actorId: runtimeIdentitySchema.shape.actorId, credential: runtimeIdentitySchema.shape.credential, integration: integrationSchema.optional() }).strict();
+export const rotationSchema = z.object({ commandId: z.string().uuid(), actorId: runtimeIdentitySchema.shape.actorId, credential: runtimeIdentitySchema.shape.credential, restore: z.boolean().default(false) }).strict();
 export const runtimeCallSchema = z.object({
   requestId: z.string().uuid(),
   resource: z.enum(["docs/research", "docs/untrusted", "runtime/tasks", "research/summary", "infra/status", "memory/runtime-notes", "memory/runtime-policy", "decoy/credentials", "decoy/admin"]),

@@ -13,6 +13,7 @@ model Agent {
   status String @default("active")
   trust String @default("authorized")
   simulated Boolean @default(true)
+  integrationType String @default("internal")
   createdAt DateTime @default(now())
   credentials Credential[]
   sessions Session[]

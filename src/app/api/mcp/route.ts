@@ -2,8 +2,9 @@ import { NextRequest } from "next/server";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { z } from "zod";
+import { ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { runtimeCallSchema, runtimeToolNames, toolDescriptions } from "@/lib/runtime-contract";
-import { authorizedRuntime, callRuntime, runtimeAction } from "@/server/runtime";
+import { runtimeAuthenticationReason, approvedRuntimeTools, callRuntime, runtimeAction } from "@/server/runtime";
 import { failure, HttpError, localOnly, readBody } from "@/server/http";
 export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
@@ -23,12 +24,13 @@ export async function POST(request: NextRequest) {
       runtimeAction(actorId, sessionId, params.name, params.arguments);
       // Failed identities are recorded only as unverified claims at the gateway.
       // No discovery/payload/handler is granted; a denied tool call is still traceable.
-    } else if (!await authorizedRuntime(actorId, sessionId, credential)) throw new HttpError(401, "Active authenticated runtime session required");
+    } else { const reason = await runtimeAuthenticationReason(actorId, sessionId, credential); if (reason) throw new HttpError(401, reason); }
     server = new McpServer({ name: "ghostops-local-gateway", version: "1.0.0" }, { maxToolInputElements: 12 });
     for (const name of runtimeToolNames) server.registerTool(name, { description: toolDescriptions[name], inputSchema: runtimeCallSchema }, async args => {
       const result = await callRuntime(actorId, sessionId, credential, name, args);
       return { content: [{ type: "text", text: JSON.stringify(result) }], structuredContent: result, isError: !result.allowed };
     });
+    server.server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: (await approvedRuntimeTools(actorId, sessionId, credential)).map(name => ({ name, description: toolDescriptions[name], inputSchema: z.toJSONSchema(runtimeCallSchema) as { type: "object" } })) }));
     const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true, maxRequestBodySize: 16_384 });
     await server.connect(transport);
     const response = await transport.handleRequest(request, { parsedBody: body });

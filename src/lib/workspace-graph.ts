@@ -36,7 +36,7 @@ export function recordedGraph(state: State, incidentId?: string): RecordedGraph 
   };
   const registered = (actorId: string) => {
     const agent = state.agents.find(a => a.id === actorId);
-    return agent ? addNode({ kind: "agent", id: actorId }, agent.name, agent.simulated ? "Registered · simulated" : "Registered · local runtime", agent.status) : null;
+    return agent ? addNode({ kind: "agent", id: actorId }, agent.name, agent.simulated ? "Registered · simulated" : agent.integrationType === "external-node" ? "Registered · external local integration" : "Registered · local runtime", agent.status) : null;
   };
   const actor = (actorId: string, sessionId: string, verified: boolean) => verified ? registered(actorId) : addNode({ kind: "claim", id: actorId, sessionId }, actorId, "Unverified identity claim · not registry history", "unverified");
   // Process selected investigation first so evidence relevant to the focus survives graph limits.

@@ -1,5 +1,14 @@
 # Implementation plan and verification log
 
+## Phase 8 — public packages and protected external integrations
+
+- [x] Audit existing stack and official MCP stdio/HTTP/tools documentation; independently rerun 217 baseline tests, typecheck and lint.
+- [ ] Build/pack installable SDK and tools-only stdio adapter with no alternate handler path.
+- [ ] External identity metadata, explicit capabilities and audited rotation/restoration; preserve existing enrollments/data/key.
+- [ ] Separate-process example, developer CLI/console and real MCP/gateway evidence.
+- [ ] Cross-process security lifecycle/export/restart/package installation, full regression/clean build/migration checks.
+- [ ] Final guides, actual results, limitations and verified commits; no paid inference or browser permission work.
+
 ## Phase 7 — forensic evaluations and exact model approval
 
 - [x] Independently rerun baseline: 175 tests, typecheck and zero-warning lint.
