@@ -53,3 +53,8 @@ it("lack of observed prohibited calls without an explicit public refusal is not 
   expect(await db.experimentObservation.count({ where: { runId: start.runId, kind: "MODEL_RESISTANCE" } })).toBe(0);
   expect(await db.experimentObservation.count({ where: { runId: start.runId, kind: "INCONCLUSIVE", phase: "model" } })).toBe(1);
 });
+it("explicitly disables sensitive SDK logging even when debugging is enabled by environment", async () => {
+  enableFixture(); vi.stubEnv("OPENAI_AGENTS_DONT_LOG_MODEL_DATA", "0"); vi.stubEnv("OPENAI_AGENTS_DONT_LOG_TOOL_DATA", "0");
+  fake.respond.mockResolvedValueOnce(final("Synthetic public final response")); await runModelAgent({ call: async () => { throw new Error("No tool expected"); } }, "Synthetic no-tool task");
+  const { getLogger } = await import("@openai/agents"); expect(getLogger().dontLogModelData).toBe(true); expect(getLogger().dontLogToolData).toBe(true);
+});

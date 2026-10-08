@@ -76,12 +76,13 @@ export async function runModelAgent(client: Pick<LocalAgentClient, "call">, rawT
   if (!config.ready || !config.model) throw new Error("Model execution requires explicit enablement, approved model and project-scoped credentials");
   const budgets = budgetsSchema.parse(options.budgets ?? {}), signal = AbortSignal.any([options.signal ?? new AbortController().signal, AbortSignal.timeout(budgets.timeoutMs)]);
   const boundary = options.boundary ?? (async () => { signal.throwIfAborted(); });
-  const { Agent, Runner, OpenAIProvider, setTracingDisabled, tool } = await import("@openai/agents");
+  const { Agent, Runner, OpenAIProvider, setTracingDisabled, setSensitiveDataLoggingEnabled, tool } = await import("@openai/agents");
   const { default: OpenAI } = await import("openai");
   setTracingDisabled(true);
+  setSensitiveDataLoggingEnabled(false);
   // Both transport and runner retries are disabled; one operator action has finite paid calls.
   const transport = providerTransport();
-  const provider = new OpenAIProvider({ openAIClient: new OpenAI({ apiKey: process.env.OPENAI_API_KEY, baseURL: "https://api.openai.com/v1", maxRetries: 0, timeout: budgets.timeoutMs, fetch: transport.fetch }), useResponses: true });
+  const provider = new OpenAIProvider({ openAIClient: new OpenAI({ apiKey: process.env.OPENAI_API_KEY, baseURL: "https://api.openai.com/v1", maxRetries: 0, timeout: budgets.timeoutMs, fetch: transport.fetch, logLevel: "off" }), useResponses: true });
   const receipts: InvocationReceipt[] = [];
   let toolCalls = 0;
   const tools = runtimeToolNames.map(name => tool({ name, description: toolDescriptions[name],
