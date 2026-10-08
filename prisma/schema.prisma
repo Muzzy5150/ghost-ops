@@ -52,6 +52,7 @@ model ToolRequest {
   id String @id
   fingerprint String
   actorId String
+  identityVerified Boolean @default(false)
   sessionId String
   tool String
   operation String
@@ -80,6 +81,8 @@ model PolicyDecision {
 model SecurityEvent {
   id String @id
   actorId String
+  identityVerified Boolean @default(false)
+  ordinal Int @default(0)
   sessionId String?
   requestId String?
   request ToolRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
@@ -96,6 +99,7 @@ model SecurityEvent {
   findings Finding[]
   evidence Evidence[]
   @@index([actorId, createdAt])
+  @@index([ordinal])
 }
 model Finding {
   id String @id
@@ -109,6 +113,7 @@ model Incident {
   id String @id
   correlationKey String @unique
   actorId String
+  identityVerified Boolean @default(false)
   sessionId String?
   title String
   severity String

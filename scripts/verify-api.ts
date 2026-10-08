@@ -65,6 +65,7 @@ assert.equal(await rawStatus({ host: "evil.invalid" }), 403);
 assert.equal((await fetch(`${base}/api/bootstrap`, { headers: { "x-forwarded-host": "localhost" } })).status, 403);
 assert.equal((await fetch(`${base}/api/bootstrap`, { headers: { "x-forwarded-for": "127.0.0.1" } })).status, 403);
 assert.equal(await rawStatus({ "x-ghostops-transport": "forged-attestation" }), 403);
+assert.equal(await rawStatus({ "x-forwarded-port": "443" }), 403);
 assert.equal((await post("/api/control", { commandId: randomUUID(), action: "reset", arbitrary: true }, headers)).status, 400);
 assert.equal((await post("/api/control", { commandId: randomUUID(), action: "reset", data: "a".repeat(17000) }, headers)).status, 413);
 console.log("PASS management: anonymous, missing-CSRF, cross-origin, hostile host, proxy, invalid-schema and oversized requests denied.");

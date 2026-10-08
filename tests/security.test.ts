@@ -131,9 +131,10 @@ describe("HTTP trust boundary", () => {
     }
   });
   it("requires admin session and same-origin CSRF", () => {
+    const session = adminSession();
     expect(() => requireAdmin(request({}), true)).toThrow("session");
     expect(() => requireAdmin(request({ cookie: `ghostops-admin=${adminSession()}` }), true)).toThrow("CSRF");
-    expect(() => requireAdmin(request({ cookie: `ghostops-admin=${adminSession()}`, origin: "http://127.0.0.1:3000", "x-ghostops-csrf": csrfToken() }), true)).not.toThrow();
+    expect(() => requireAdmin(request({ cookie: `ghostops-admin=${session}`, origin: "http://127.0.0.1:3000", "x-ghostops-csrf": csrfToken(session) }), true)).not.toThrow();
   });
   it("rejects oversized, invalid JSON, unknown fields, and arbitrary operations", async () => {
     await expect(readBody(request({ "content-type": "application/json" }, JSON.stringify({ data: "a".repeat(17000) })))).rejects.toThrow("16 KiB");

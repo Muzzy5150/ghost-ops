@@ -14,7 +14,7 @@ const handler = app.getRequestHandler();
 const server = createServer((request, response) => {
   const remote = request.socket.remoteAddress;
   const local = remote === "127.0.0.1" || remote === "::1" || remote === "::ffff:127.0.0.1";
-  const proxyHeaders = ["x-forwarded-host", "x-forwarded-for", "x-forwarded-proto", "forwarded", "x-ghostops-transport"];
+  const proxyHeaders = Object.keys(request.headers).filter(h => h.startsWith("x-forwarded-") || ["forwarded", "x-ghostops-transport"].includes(h));
   if (!local || proxyHeaders.some(h => request.headers[h] !== undefined)) {
     response.writeHead(403, { "Content-Type": "application/json", "Cache-Control": "no-store" });
     response.end(JSON.stringify({ error: "Proxy or unverified transport access is disabled" }));

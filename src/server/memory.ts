@@ -12,6 +12,7 @@ export function verifySignature(m: MemoryVersion) {
   return hash(m.content) === m.contentHash && secureEqual(m.signature, mac(`memory:${memoryPayload(m)}`));
 }
 export async function appendMemory(tx: Tx, input: { ownerId: string; key: string; content: string; sourceId: string; sourceTrust: string; sessionId?: string; restoredFromId?: string }) {
+  if (await tx.memoryVersion.count() >= 1000) throw new Error("Memory history capacity reached; reset the synthetic environment");
   const parent = await tx.memoryVersion.findFirst({ where: { ownerId: input.ownerId, key: input.key }, orderBy: { version: "desc" } });
   const data: SignedMemory = {
     id: randomUUID(), ownerId: input.ownerId, key: input.key, version: (parent?.version ?? 0) + 1,

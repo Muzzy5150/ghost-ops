@@ -14,6 +14,7 @@
     "test:unit": "vitest run tests/security.test.ts",
     "test:integration": "vitest run tests/integration.test.ts",
     "test:api": "tsx scripts/verify-api.ts",
+    "test:restart": "tsx scripts/verify-restart.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx scripts/seed.ts",

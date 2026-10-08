@@ -27,6 +27,16 @@ export function secureEqual(a: string, b: string) {
 }
 export function credentialFor(id: string) { return mac(`agent-credential:${id}`); }
 export function credentialDigest(value: string) { return mac(`credential-digest:${value}`); }
-export function adminSession() { return mac("local-admin-session:v1"); }
-export function csrfToken() { return mac("local-admin-csrf:v1"); }
+const adminLifetime = 8 * 3600_000;
+export function adminSession(now = Date.now()) {
+  const payload = `${now + adminLifetime}.${randomBytes(16).toString("hex")}`;
+  return `${payload}.${mac(`local-admin-session:v2:${payload}`)}`;
+}
+export function validAdminSession(value: string, now = Date.now()) {
+  const match = /^(\d{13})\.([a-f0-9]{32})\.([a-f0-9]{64})$/.exec(value);
+  if (!match) return false;
+  const expires = Number(match[1]);
+  return expires > now && expires <= now + adminLifetime && secureEqual(match[3], mac(`local-admin-session:v2:${match[1]}.${match[2]}`));
+}
+export function csrfToken(session: string) { return mac(`local-admin-csrf:v2:${session}`); }
 export function transportToken() { return mac("loopback-transport:v1"); }

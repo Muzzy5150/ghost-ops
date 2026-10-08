@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { adminSession, csrfToken, secureEqual, transportToken } from "./config";
+import { validAdminSession, csrfToken, secureEqual, transportToken } from "./config";
 import { CapacityError, ConflictError } from "./gateway";
 
 export class HttpError extends Error { constructor(public status: number, message: string) { super(message); } }
@@ -16,8 +16,9 @@ export function localOnly(request: NextRequest) {
 }
 export function requireAdmin(request: NextRequest, mutate = false) {
   localOnly(request);
-  if (!secureEqual(request.cookies.get("ghostops-admin")?.value ?? "", adminSession())) throw new HttpError(401, "Local administrative session required");
-  if (mutate && (!request.headers.get("origin") || !secureEqual(request.headers.get("x-ghostops-csrf") ?? "", csrfToken()))) throw new HttpError(403, "Same-origin CSRF token required");
+  const session = request.cookies.get("ghostops-admin")?.value ?? "";
+  if (!validAdminSession(session)) throw new HttpError(401, "Local administrative session required");
+  if (mutate && (!request.headers.get("origin") || !secureEqual(request.headers.get("x-ghostops-csrf") ?? "", csrfToken(session)))) throw new HttpError(403, "Same-origin CSRF token required");
 }
 export async function readBody(request: NextRequest) {
   if (!request.headers.get("content-type")?.startsWith("application/json")) throw new HttpError(415, "JSON content type required");
