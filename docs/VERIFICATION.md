@@ -6,6 +6,8 @@ The 117-test Phase 4 baseline was independently rerun before edits. Phase 5 curr
 
 Synthetic DOM now exercises actual React Flow node drag/click suppression, keyboard movement, canvas pan, zoom, search/expansion/filters/evidence highlighting; it does not prove viewport appearance or real touch/hit-testing. **No Phase 5 screenshots:** saved localhost permission again rejected browser access, with no bypass. Visual sign-off remains pending: [PHASE5_VISUAL_QA.md](PHASE5_VISUAL_QA.md).
 
+Exact implementation commit `2308b2c` independently passed a fresh git-archive checkout: npm ci/setup, 140 tests, typecheck/lint/build, actual MCP/HTTP/agent CLI and restart verifiers, zero production advisories. Clean checkout used Node 26.4.0/npm 11.17.0; main workspace used Node 24.10.0/npm 11.19.0. The presenter restarted on 3210 without data reset: page, authenticated snapshot and ten referenced assets return 200; exact before/after counts remain 4 agents / 41 requests / 5 incidents / 10 memory versions / 10 runtime requests / 2 quarantined. The temporary checkout was recoverably moved to Trash. HTTP availability does not establish browser hydration or visuals.
+
 Phase 3's current results and actual MCP/agent-process proof are in [PHASE3_VERIFICATION.md](PHASE3_VERIFICATION.md): 73 tests, current production build and live-tool verification. The Phase 2 results below are preserved as historical evidence. No real model inference has been executed.
 
 Phase 3 browser retry again selected the authorized existing local Ghost Ops tab, but the saved site preference explicitly blocked access. The in-app browser was unavailable. No alternate surface or indirect browser workaround was attempted after that denial.

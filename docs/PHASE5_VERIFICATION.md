@@ -28,7 +28,13 @@
 
 New coverage: two preference/migration/docking cases, eleven graph/layout/evidence/diff cases and ten synthetic interaction cases. All 73 pre-Phase-4 security/runtime/rendering tests remain. Current file totals: security18, adversarial25, integration7, rendering3, runtime20, workspace26, workspace-graph9, graph-explorer11, workspace-interactions21.
 
-Clean-checkout verification and preserved-presenter HTTP checks are pending at this implementation checkpoint and will be recorded separately after execution. See `docs/VERIFICATION.md` for the retained earlier phases.
+## Clean checkout and preserved presenter
+
+Verified implementation checkpoint: **`2308b2c`**. A git archive of that exact commit was exported to an isolated temporary checkout. `npm ci`, fresh `npm run setup`, typecheck, zero-warning lint, all **140 tests**, production build, both disposable production runtime/restart verifiers and zero-production-advisory audit passed. Installation emitted the retained development deprecation/install-script/advisory notices; native SQLite execution succeeded. Main workspace used Node 24.10.0 / npm 11.19.0; clean checkout used Node 26.4.0 / npm 11.17.0. No separate Node 22 matrix was executed. The archive deliberately has no `.git` directory; a diagnostic `git status` there correctly reported that it is not a git repository, unrelated to application verification.
+
+The presenter process was restarted with the new build on **http://127.0.0.1:3210** without setup/reset/migration/scenario writes against its database. Authenticated snapshot and page return 200; all **10 referenced assets** return 200. Exact before/after totals match: **4 agents / 41 requests / 5 incidents / 10 memory versions / 10 runtime requests / 2 quarantined agents**. This proves preserved persisted totals and HTTP availability, not browser hydration or visuals.
+
+The clean verifier servers stopped through their scripts; only their own disposable test databases were cleaned. The exported clean checkout was recoverably moved to the user's Trash after checks. See `docs/VERIFICATION.md` for retained earlier phases. The final documentation checkpoint records these results without changing implementation code.
 
 ## Boundaries
 
