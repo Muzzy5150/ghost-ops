@@ -4,6 +4,29 @@ Phase 3's current results and actual MCP/agent-process proof are in [PHASE3_VERI
 
 Phase 3 browser retry again selected the authorized existing local Ghost Ops tab, but the saved site preference explicitly blocked access. The in-app browser was unavailable. No alternate surface or indirect browser workaround was attempted after that denial.
 
+## Phase 4 independently verified results
+
+2026-10-07, macOS, Node 24.10.0 / npm 11.19.0. The reported Phase 3 baseline was independently rerun: **73 tests passed** before edits. The security backend, APIs, migrations and presenter database were not rewritten/reset.
+
+| Check | Actual result |
+| --- | --- |
+| `npm test` | **117 pass** across eight files: 73 existing plus 44 new window/graph/DOM tests |
+| `npm run typecheck` | Pass |
+| `npm run lint` | Pass, zero errors/warnings |
+| `npm run build` | Pass, optimized Next.js 16.4; all existing routes retained |
+| `npm run test:runtime` | Pass on disposable production database: original A/B/C/D HTTP checks, actual official MCP client, separate local agent CLI, bounded reads/writes/notes, unauthorized denial, correlation, restart containment, signed restoration and exact live demo; model calls **0** |
+| `npm run test:restart` | Pass: fresh-process quarantine/revocation/replay denial, ten guided steps, persisted cursor/tamper evidence and verified restoration |
+| `npm audit --omit=dev` | Zero advisories |
+| Full `npm audit` | Same five high entries in one development-only braces chain; no new production advisory |
+| Synthetic DOM interactions | Pass pointer movement, corner resize, keyboard resize, focus, minimize/reopen/maximize/restore, layout reload/reset/presets, graph selection/directory, timeline/evidence linking, mobile selector and paused terminal |
+| Real browser / screenshots | **Not executed**: saved localhost preference still blocks browser access after user's authorization; no bypass |
+
+New tests: `workspace.test.ts` has 24 geometry/preference cases, `workspace-graph.test.ts` has nine evidence/projection/filter cases, and `workspace-interactions.test.tsx` has eleven synthetic DOM cases. Backend snapshots used in graph/component tests are created by actual security logic in disposable test databases. Only the Next lazy-loading boundary is stubbed in shell tests; the actual React Flow component has its own DOM selection test. Synthetic DOM results do not prove rendered viewport appearance or real touch/hit-testing.
+
+Code review additionally corrected forged-claim leakage in agent-scoped presentation, ensured session-scoped graph tools, preserved replay-denial semantics in projection, prevented mobile geometry from overwriting desktop preferences, cleared transient graph drag positions on commit and synchronized case/network focus. No backend permission or trust boundary was changed. Window reset/preset tests prove no management mutation is issued.
+
+Reference browser access was also rejected, so no specific reference design was inspected/copied. Actual large desktop/laptop/tablet/mobile screenshots and accessibility/performance sign-off remain pending; see [PHASE4_VISUAL_QA.md](PHASE4_VISUAL_QA.md). Closed tools may reset local filters/scroll/graph viewport, while central selection and geometry persist. The graph is bounded evidence, not exhaustive infrastructure inventory; memory diffs are sentence-based. Real provider inference remains unverified and no production deployment was performed.
+
 ## Phase 2 independently verified results
 
 2026-10-07, macOS, Node 24.10.0 / npm 11.19.0. Previous claims were independently checked before changes: 26 tests, typecheck and lint passed. Seven new regressions then failed on the original implementation, establishing the defects before correction.

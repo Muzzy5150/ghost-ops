@@ -1,5 +1,18 @@
 # Implementation plan and verification log
 
+## Phase 4 — interactive security workspace
+
+- [x] Inspect reusable frontend and independently verify baseline: 73 tests pass.
+- [x] Build validated persistent window geometry, focus ordering, presets and keyboard/mobile alternatives.
+- [x] Add bounded React Flow network using recorded ownership and observed requests; isolate unverified claims.
+- [x] Integrate existing engines, demo, runtime sessions, evidence inspector and filtered event terminal.
+- [x] Verify layout/graph interactions, complete backend regressions, typecheck, lint, production build and disposable HTTP/MCP/restart demos (117 tests pass; 73 preserved + 44 new).
+- [x] Update design/architecture/demo/verification documentation.
+- [ ] Commit verified milestones, clean-checkout verification and final presenter restart without reset.
+- [ ] Real-browser desktop/laptop/tablet/mobile screenshots and visual sign-off: saved permission still blocks localhost after user replied yes. No bypass.
+
+Design direction: an original graphite operations desktop, restrained severity colors, narrow utility rail, rectangular title bars and dense forensic tools. Custom pointer-based window geometry keeps one positioning system and enables pure constraint tests. React Flow handles the graph's pan/zoom/selection and node movement. Browser reference access was explicitly blocked; no reference design details are assumed. Local browser permissions have also previously blocked visual QA; requested a saved-permission change, without workaround. No backend/database/security changes are planned.
+
 ## Phase 3 — bounded local runtime integration
 
 - [x] Inspect architecture and independently rerun all 52 baseline tests.

@@ -4,6 +4,16 @@ Detect the rogue. Trace the behavior. Protect the memory.
 
 Ghost Ops monitors isolated local agents through an authenticated MCP tool gateway. Four engines correlate identity, behavioral deviation, signed memory and synthetic deception into evidence-backed investigations. The dashboard uses SQLite records; permissions, quarantine and revocation are enforced before bounded local tools run. The original synthetic demonstration remains available.
 
+## Phase 4: interactive security workspace
+
+The landing screen is now an operations desktop, not a card dashboard. Arrange thirteen operational tools in genuine draggable/resizable windows, use **Operations** or **Incident Room**, minimize to the task strip, maximize/restore, and reopen tools from the rail or **⌘/Ctrl K**. Geometry and opaque graph coordinates persist locally in a validated, versioned preference record. **Reset layout** changes presentation only—it does not reset security data. Mobile/tablet widths up to 900px use a single active panel with a selector for every tool, without rewriting desktop geometry.
+
+The React Flow network supports pan, zoom, node movement, fit/reset and an accessible entity directory. **Operations map** projects recorded agent/resource requests; **Sessions & tools** exposes their actual session/capability chain. Dashed amber links mark unverified claims, red links denied requests. Claims never join the victim's registered session. Selecting an agent opens its floating inspector; selecting an incident or timeline event opens its actual case or evidence. Investigations presents a compact chronological timeline, recorded enforcement and response history, with the complete previous case file still available.
+
+MemoryGuard retains signed history, source provenance, before/after diff and verified restoration. GhostTrap has an operational resource grid and linked interaction evidence. AgentDNA compares recent verified session activity with historical trusted counts; these are not compromise probabilities. The terminal supports search, engine/severity/agent/origin filters, display-only pause/resume and auto-scroll. Runtime receipts and the existing guided demo remain accessible.
+
+See [UI design](docs/PHASE4_UI_DESIGN.md), [workspace architecture](docs/WORKSPACE_ARCHITECTURE.md), [visual QA limitations](docs/PHASE4_VISUAL_QA.md), and the updated [two-minute walkthrough](docs/DEMO_SCRIPT.md). **Real-browser visual QA remains unverified:** saved site permissions blocked the browser tool even after authorization. Synthetic DOM tests are not screenshots. The reference site was also inaccessible; no reference assets, code or specific layout were copied.
+
 ## Phase 3: running local agent
 
 With the server on port 3210, use another terminal:
@@ -83,7 +93,7 @@ Local Node transport → Next.js API → strict Zod schema
     → AgentDNA / ShadowWatch / MemoryGuard / GhostTrap
     → actor/session correlation → incident + evidence timeline
     → quarantine / credential revocation / verified snapshot restoration
-    → polling dashboard (2.5 seconds)
+    → polling windowed security workspace (2.5 seconds)
 ```
 
 Mutation commands are serialized in the local server process and committed in SQLite transactions. A simulation uses the exact gateway used by `/api/ingest`. Request and command IDs have persistent fingerprint receipts; altered reuse returns `409`. Request replay rechecks current identity/session/status/policy/memory integrity before disclosing cached output: withdrawn authority receives `allowed:false` and `output:null`, while the original receipt remains unchanged and the tool never executes twice. Exact management replay returns its historical receipt. Read-only timeline replay never re-executes effects. Guided steps additionally require the persisted expected cursor.

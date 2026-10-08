@@ -1,5 +1,18 @@
 # Two-minute Ghost Ops demonstration
 
+## Phase 4 workspace walkthrough (approximately two minutes)
+
+1. Before judging, start production with `npm run build` and `npm start -- --port 3210`. Open http://127.0.0.1:3210. Choose **Reset layout** (UI only), then **Demo Control → New guided demo → Reset & start** if explicitly resetting disposable simulation history. Runtime identities/evidence remain. Minimize Demo Control; the task strip reopens it. Never reset in the middle of an investigation you want to keep.
+2. **0:00–0:20:** Operations → network **Operations map**, fit/zoom and select ResearchAgent. Its inspector shows registry permissions and signed memory. Drag the title bar and resize a corner; these are actual local preferences. Open AgentDNA from the inspector.
+3. **0:20–1:10:** Reopen Demo Control and execute the existing guided steps 1–8 in order. Show normal work, rogue denial, untrusted document provenance, unusual deployment, protected-memory denial, legitimate task completion, correlated decoy-triggered containment, and `AGENT_QUARANTINED`. Every step commits backend evidence; no animation substitutes for it. Live Events labels these observations **SIM**.
+4. **1:10–1:35:** Choose **Incident Room**. Select the critical ResearchAgent case. Click a timeline entry to populate the floating evidence inspector; inspect the denied summary's actual policy receipt. Use **Focus network** and fit the graph to show recorded links with unrelated records dimmed. Expand correlation interpretation or auditable response history if asked.
+5. **1:35–1:55:** Reopen Demo Control and execute steps 9–10 (authorized synthetic tamper/restore test). Return to the incident, choose **Memory / restoration**, select the altered and restored versions, and show before/after text, source trust and verified current integrity. Verify only the latest good snapshot; verification itself records a real receipt.
+6. **1:55–2:00:** Demonstrate maximize/restore, park a tool, and reopen it. Finish: “Detect the rogue. Trace the behavior. Protect the memory.” Reloading restores the arrangement, not credentials or backend state.
+
+For **actual local tools**, follow [LIVE_DEMO_SCRIPT.md](LIVE_DEMO_SCRIPT.md) using a freshly provisioned isolated identity, then open **Runtime sessions** from the rail. Terminal provenance **LOCAL** means real local observations/tool requests—not necessarily model inference. The existing Phase 3 CLI and its seven stages are unchanged. No verified model-inference record is manufactured by this frontend.
+
+Browser walkthrough timings and rendered visuals have not been executed by automation because saved site permissions block access. The underlying ten-step workflow and live CLI were independently verified over production HTTP with disposable databases. Use [PHASE4_VISUAL_QA.md](PHASE4_VISUAL_QA.md) before judging.
+
 Phase 3's actual MCP tool demonstration is in [LIVE_DEMO_SCRIPT.md](LIVE_DEMO_SCRIPT.md). This retained script exercises the **synthetic** Phase 2 scenarios. Simulation reset now preserves runtime records; the clean totals below apply when no live records are present. No model inference is implied by this script.
 
 ## Before presenting

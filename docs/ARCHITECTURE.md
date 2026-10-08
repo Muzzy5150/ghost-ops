@@ -1,5 +1,15 @@
 # Ghost Ops architecture
 
+## Phase 4 presentation boundary
+
+The security backend, APIs, database schema and runtime dispatcher are unchanged. `Console` retains the existing bootstrap/CSRF client, non-overlapping polling and idempotent mutation retry IDs. `Workspace` maps navigation to thirteen window tools rather than replacing security workflows. Layout actions never call management endpoints.
+
+`workspace-model.ts` is the pure geometry/persistence reducer. `WorkWindow` uses pointer capture and frame-scheduled local DOM updates during gestures, committing geometry at gesture end. Eight edge/corner handles, title-bar keyboard movement, bounded focus ordering, minimize/maximize/restore/hide/reopen and two presets share one positioning system. A ResizeObserver handles desktop bounds; mobile panels do not overwrite desktop geometry.
+
+`workspace-graph.ts` projects bounded stored ownership, request and investigation relationships. Claims and claimed sessions have separate namespaces. Tool nodes are session scoped; compact request edges come directly from recorded actor/resource requests, never temporal proximity or inferred paths. The lazily loaded React Flow canvas provides pan/zoom/select/node movement with opaque coordinate persistence. An investigator can inspect an agent, case, version or linked event while retaining other windows.
+
+`IncidentDesk` makes evidence timelines primary; the previous full case view remains inside an expandable case file. `EvidenceInspector` resolves events from the recent snapshot or returned incident timelines, displays actual request receipts, and preserves replay-denial semantics. The event terminal freezes only its displayed snapshot while polling/enforcement continue. Engine components, guided demo and live session receipts are reused with window-width container queries. Details: [WORKSPACE_ARCHITECTURE.md](WORKSPACE_ARCHITECTURE.md).
+
 ## Phase 3 local runtime
 
 `src/runtime/agent.ts` supplies an optional official OpenAI Agents SDK tool loop and a clearly labeled offline dispatcher. Both use `LocalAgentClient` and the official MCP protocol client. `/api/mcp` runs stateless JSON-response Streamable HTTP while binding every action to a persistent SQLite credential/session. `/api/runtime/enroll` uses the existing administrator/Origin/CSRF boundary and stores only a random credential's digest. The client receives no signing root.
