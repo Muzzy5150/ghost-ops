@@ -8,10 +8,12 @@
 - [x] Integrate existing engines, demo, runtime sessions, evidence inspector and filtered event terminal.
 - [x] Verify layout/graph interactions, complete backend regressions, typecheck, lint, production build and disposable HTTP/MCP/restart demos (117 tests pass; 73 preserved + 44 new).
 - [x] Update design/architecture/demo/verification documentation.
-- [ ] Commit verified milestones, clean-checkout verification and final presenter restart without reset.
+- [x] Implementation checkpoint `f367bb2`; clean checkout independently passes npm ci/setup, 117 tests, typecheck/lint/build, actual MCP/HTTP/runtime and restart verifiers; presenter server restarted on 3210 without reset.
 - [ ] Real-browser desktop/laptop/tablet/mobile screenshots and visual sign-off: saved permission still blocks localhost after user replied yes. No bypass.
 
 Design direction: an original graphite operations desktop, restrained severity colors, narrow utility rail, rectangular title bars and dense forensic tools. Custom pointer-based window geometry keeps one positioning system and enables pure constraint tests. React Flow handles the graph's pan/zoom/selection and node movement. Browser reference access was explicitly blocked; no reference design details are assumed. Local browser permissions have also previously blocked visual QA; requested a saved-permission change, without workaround. No backend/database/security changes are planned.
+
+Final Phase 4 presenter HTTP check: page and all nine referenced JS/CSS assets return 200; authenticated snapshot returns 200. Before/after restart counts match exactly: four agents, 41 requests, five incidents, ten memory versions, ten runtime requests, two quarantined agents. No presenter reset, migration, model call or new agent activity occurred. Main Node 24 and clean-checkout Node 26 both pass; temporary checkout moved to Trash, recoverable. Visual acceptance remains pending saved-site permission change and real viewport/screenshot inspection; other checks are completed. Documentation verification checkpoint follows.
 
 ## Phase 3 — bounded local runtime integration
 
