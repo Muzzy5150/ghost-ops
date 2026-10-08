@@ -1,8 +1,8 @@
 "use client";
 
 import { memo, useEffect, useRef, type ReactNode, type PointerEvent, type KeyboardEvent, type Dispatch } from "react";
-import { Maximize2, Minus, X, PanelTop, Move } from "lucide-react";
-import { gestureRect, titles, type Bounds, type Rect, type WindowState, type WorkspaceAction } from "@/lib/workspace-model";
+import { Maximize2, Minus, X, PanelTop, Move, PanelLeft, PanelRight } from "lucide-react";
+import { gestureRect, snapRect, titles, type Bounds, type Rect, type WindowState, type WorkspaceAction } from "@/lib/workspace-model";
 
 export type WindowProps = { window: WindowState; bounds: Bounds; mobile: boolean; active: boolean; dispatch: Dispatch<WorkspaceAction>; children: ReactNode };
 export const WorkWindow = memo(function WorkWindow({ window: win, bounds, mobile, active, dispatch, children }: WindowProps) {
@@ -30,7 +30,7 @@ export const WorkWindow = memo(function WorkWindow({ window: win, bounds, mobile
   };
   const finish = () => {
     if (frame.current !== null) { cancelAnimationFrame(frame.current); frame.current = null; }
-    if (gesture.current) dispatch({ type: "geometry", id: win.id, rect: gesture.current.rect });
+    if (gesture.current) dispatch({ type: "geometry", id: win.id, rect: gesture.current.handle === "move" ? snapRect(gesture.current.rect, bounds) : gesture.current.rect });
     gesture.current = null;
     element.current?.classList.remove("moving");
   };
@@ -45,7 +45,7 @@ export const WorkWindow = memo(function WorkWindow({ window: win, bounds, mobile
   return <section ref={element} data-window={win.id} aria-label={titles[win.id]} className={`work-window ${active ? "focused" : ""} ${win.maximized ? "maximized" : ""}`} style={mobile ? undefined : { left: rect.x, top: rect.y, width: rect.width, height: rect.height, zIndex: win.z + 1 }} onPointerDownCapture={() => dispatch({ type: "focus", id: win.id })} onFocusCapture={() => { if (!active) dispatch({ type: "focus", id: win.id }); }}>
     <header className="window-title" tabIndex={0} aria-label={`${titles[win.id]} title bar. Alt arrows move; Alt Shift arrows resize.`} onPointerDown={e => begin(e, "move")} onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} onLostPointerCapture={finish} onKeyDown={keyMove} onDoubleClick={e => { if (!mobile && !(e.target as HTMLElement).closest("button")) dispatch({ type: "maximize", id: win.id }); }}>
       <span className="window-grip"><Move size={12} /></span><h2>{titles[win.id]}</h2><span className="window-index">{String(win.z + 1).padStart(2, "0")}</span>
-      <div className="window-buttons"><button title="Minimize" aria-label={`Minimize ${titles[win.id]}`} onClick={() => dispatch({ type: "minimize", id: win.id })}><Minus size={14} /></button>{!mobile && <button title={win.maximized ? "Restore" : "Maximize"} aria-label={`${win.maximized ? "Restore" : "Maximize"} ${titles[win.id]}`} onClick={() => dispatch({ type: "maximize", id: win.id })}>{win.maximized ? <PanelTop size={13} /> : <Maximize2 size={13} />}</button>}<button title="Hide" aria-label={`Close ${titles[win.id]}`} onClick={() => dispatch({ type: "close", id: win.id })}><X size={14} /></button></div>
+      <div className="window-buttons">{!mobile && <><button title="Dock left" aria-label={`Dock ${titles[win.id]} left`} onClick={() => dispatch({ type: "dock", id: win.id, side: "left" })}><PanelLeft size={14} /></button><button title="Dock right" aria-label={`Dock ${titles[win.id]} right`} onClick={() => dispatch({ type: "dock", id: win.id, side: "right" })}><PanelRight size={14} /></button></>}<button title="Minimize" aria-label={`Minimize ${titles[win.id]}`} onClick={() => dispatch({ type: "minimize", id: win.id })}><Minus size={14} /></button>{!mobile && <button title={win.maximized ? "Restore" : "Maximize"} aria-label={`${win.maximized ? "Restore" : "Maximize"} ${titles[win.id]}`} onClick={() => dispatch({ type: "maximize", id: win.id })}>{win.maximized ? <PanelTop size={13} /> : <Maximize2 size={13} />}</button>}<button title="Hide" aria-label={`Close ${titles[win.id]}`} onClick={() => dispatch({ type: "close", id: win.id })}><X size={14} /></button></div>
     </header>
     <div className="window-content">{children}</div>
     {!mobile && !win.maximized && ["n", "s", "e", "w", "ne", "nw", "se", "sw"].map(handle => <div key={handle} aria-hidden="true" className={`resize-handle resize-${handle}`} onPointerDown={e => begin(e, handle)} onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} onLostPointerCapture={finish} />)}

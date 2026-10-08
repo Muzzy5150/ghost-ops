@@ -1,5 +1,11 @@
 # Verification record
 
+## Phase 5 independently verified results
+
+The 117-test Phase 4 baseline was independently rerun before edits. Phase 5 currently passes **140 tests**, typecheck, zero-warning lint, optimized production build, disposable production MCP/agent-process/HTTP A/B/C/D verification and fresh-process containment/replay/memory/guided-story restoration. Production dependency audit remains clean; full audit retains the five development-only braces-chain entries without a forced incompatible downgrade. No model inference occurred. Security backend/schema and presenter data were not changed. Details and checkpoint/clean-checkout results: [PHASE5_VERIFICATION.md](PHASE5_VERIFICATION.md).
+
+Synthetic DOM now exercises actual React Flow node drag/click suppression, keyboard movement, canvas pan, zoom, search/expansion/filters/evidence highlighting; it does not prove viewport appearance or real touch/hit-testing. **No Phase 5 screenshots:** saved localhost permission again rejected browser access, with no bypass. Visual sign-off remains pending: [PHASE5_VISUAL_QA.md](PHASE5_VISUAL_QA.md).
+
 Phase 3's current results and actual MCP/agent-process proof are in [PHASE3_VERIFICATION.md](PHASE3_VERIFICATION.md): 73 tests, current production build and live-tool verification. The Phase 2 results below are preserved as historical evidence. No real model inference has been executed.
 
 Phase 3 browser retry again selected the authorized existing local Ghost Ops tab, but the saved site preference explicitly blocked access. The in-app browser was unavailable. No alternate surface or indirect browser workaround was attempted after that denial.

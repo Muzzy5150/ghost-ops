@@ -1,5 +1,17 @@
 # Implementation plan and verification log
 
+## Phase 5 — readable node-editor workstation
+
+- [x] Independently rerun Phase 4 baseline: 117 tests pass; browser retry still rejected by saved permission.
+- [x] Network-first defaults, contextual tabbed inspector, expanded rail, readable design system and window docking.
+- [x] Large purpose-specific nodes, Dagre layout, bounded neighborhood exploration, search/focus/filters, stable manual positions and evidence highlighting.
+- [x] Refine security tools, ordered split/unified forensic diff, baseline/outcome lanes, timeline and terminal; preserve authenticated controls and demos.
+- [x] 140 tests pass, typecheck/lint/build, disposable MCP/HTTP/restart and production audit pass; document saved-permission visual limitation.
+- [ ] Verified implementation commit, clean-checkout validation and preserved-presenter HTTP restart checks.
+- [ ] Real-browser screenshots/visual sign-off; blocked by saved localhost preference, no bypass.
+
+Implemented: retain backend/projection provenance boundaries. Operations allocates roughly 67–72% of taller desktops to the full-width graph and parks the inspector until selected; short heights park the terminal. Initial exploration shows a relevant bounded neighborhood at readable zoom; expand explicitly rather than fit every entity. Automatic layout runs on first mount, user scope change or explicit Arrange; arriving nodes append without relocating old nodes. React Flow official examples/Dagre docs were accessible as source reference, not rendered reference appearance. Fixed shared mutable Dagre dimensions, keyboard coordinate persistence, stale graph drag suppression, older-event follow and non-event ownership/case edge navigation. Local saved permission remains blocked. Design/QA/verification documentation created; no screenshot claim.
+
 ## Phase 4 — interactive security workspace
 
 - [x] Inspect reusable frontend and independently verify baseline: 73 tests pass.

@@ -4,7 +4,19 @@ Detect the rogue. Trace the behavior. Protect the memory.
 
 Ghost Ops monitors isolated local agents through an authenticated MCP tool gateway. Four engines correlate identity, behavioral deviation, signed memory and synthetic deception into evidence-backed investigations. The dashboard uses SQLite records; permissions, quarantine and revocation are enforced before bounded local tools run. The original synthetic demonstration remains available.
 
-## Phase 4: interactive security workspace
+## Phase 5: network-first node editor
+
+The landing workspace now centers a large dark node editor: **304×218px custom nodes**, 18px names, readable controls, distinct agents/tools/memory/decoys/cases, and actual recorded relationships. Operations opens the full-width network and terminal, **no permanent inspector**. Short desktop heights park the terminal to preserve canvas space. Select an agent for a compact inspector with Overview, AgentDNA, Permissions, Sessions, Memory, Events and Investigations tabs.
+
+Use **Tool network** for a bounded relevant neighborhood, **Expand records** for more detail, or **Session detail** for the complete returned session chain. Search and Enter focuses a match; filters select identity, origin and severity. Pan/zoom, center selection, fit selection and Arrange are functional. Dagre generates deterministic non-overlapping positions; ordinary polling does not rearrange existing nodes. Fit clamps to readable zoom instead of shrinking the entire graph. Manual node positions remain presentation only.
+
+Windows retain all Phase 4 controls and add left/right docking and edge snapping. The rail optionally expands to named navigation. Layout v2 is validated and persisted; valid v1 preferences migrate to the new window defaults while preserving opaque manual node coordinates. Reset layout clears UI positions only, never backend evidence. Incident Room focuses recorded case relationships and timeline-selected evidence, with memory ownership/version references resolved from actual records.
+
+AgentDNA compares historical trusted counts with permitted/denied recent requests in separate visual lanes. MemoryGuard has order-preserving, side-by-side/unified forensic diffs and unchanged signed verification/restoration. GhostTrap interaction history identifies claimed attribution, actual origin and recorded policy receipts. Live Events has compact/expanded rows, display pause and protected older-event inspection. Local runtime still does **not** imply model inference.
+
+Verified: **140 tests**, typecheck, zero-warning lint, production build, disposable MCP/agent-process/HTTP scenarios, restart containment and signed restoration. **Visual sign-off remains pending:** saved localhost permissions still reject browser access; no screenshots were captured or workaround attempted. See [design](docs/PHASE5_DESIGN.md), [verification](docs/PHASE5_VERIFICATION.md), [precise manual screenshot checklist](docs/PHASE5_VISUAL_QA.md), and [updated two-minute walkthrough](docs/DEMO_SCRIPT.md). Backend security engines, MCP integration and existing databases are preserved.
+
+## Phase 4: interactive security workspace (historical)
 
 The landing screen is now an operations desktop, not a card dashboard. Arrange thirteen operational tools in genuine draggable/resizable windows, use **Operations** or **Incident Room**, minimize to the task strip, maximize/restore, and reopen tools from the rail or **⌘/Ctrl K**. Geometry and opaque graph coordinates persist locally in a validated, versioned preference record. **Reset layout** changes presentation only—it does not reset security data. Mobile/tablet widths up to 900px use a single active panel with a selector for every tool, without rewriting desktop geometry.
 

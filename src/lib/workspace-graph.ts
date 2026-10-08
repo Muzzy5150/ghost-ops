@@ -3,7 +3,7 @@ import type { State } from "./view-types";
 export type Entity = { kind: "agent" | "claim" | "session" | "tool" | "resource" | "memory" | "trap" | "incident"; id: string; actorId?: string; sessionId?: string };
 export type GraphNode = { id: string; entity: Entity; label: string; detail: string; status: string; position: { x: number; y: number }; incidentIds: string[] };
 export type GraphLink = { id: string; source: string; target: string; label: string; blocked: boolean; verified: boolean; count: number; evidenceIds: string[]; incidentIds: string[] };
-export type RecordedGraph = { nodes: GraphNode[]; edges: GraphLink[]; compactEdges: GraphLink[]; truncated: boolean };
+export type RecordedGraph = { nodes: GraphNode[]; edges: GraphLink[]; compactEdges: GraphLink[]; toolEdges: GraphLink[]; truncated: boolean };
 // Opaque preference keys: labels/resource text never enter localStorage. Two independent 32-bit hashes.
 export function nodeKey(value: string): string {
   let a = 2166136261, b = 3339675911;
@@ -12,7 +12,7 @@ export function nodeKey(value: string): string {
 }
 const text = (value: unknown) => typeof value === "string" ? value : "";
 export function recordedGraph(state: State, incidentId?: string): RecordedGraph {
-  const nodes = new Map<string, GraphNode>(), edges = new Map<string, GraphLink>(), compactEdges = new Map<string, GraphLink>();
+  const nodes = new Map<string, GraphNode>(), edges = new Map<string, GraphLink>(), compactEdges = new Map<string, GraphLink>(), toolEdges = new Map<string, GraphLink>();
   const columns: Record<Entity["kind"], number> = { agent: 0, claim: 0, session: 1, tool: 2, resource: 3, memory: 3, trap: 3, incident: 4 };
   const rows: Record<number, number> = {};
   let truncated = false;
@@ -25,9 +25,9 @@ export function recordedGraph(state: State, incidentId?: string): RecordedGraph 
     nodes.set(id, { id, entity, label, detail, status, position: { x: column * 280, y: row * 128 }, incidentIds: incidents });
     return id;
   };
-  const link = (source: string | null, target: string | null, label: string, evidenceId: string, blocked = false, verified = true, incidents: string[] = [], compact = false) => {
+  const link = (source: string | null, target: string | null, label: string, evidenceId: string, blocked = false, verified = true, incidents: string[] = [], compact: boolean | "tools" = false) => {
     if (!source || !target) return;
-    const collection = compact ? compactEdges : edges;
+    const collection = compact === "tools" ? toolEdges : compact ? compactEdges : edges;
     const id = nodeKey(JSON.stringify([source, target, label, blocked, verified]));
     const prior = collection.get(id);
     if (prior) { prior.count++; prior.evidenceIds = [...new Set([...prior.evidenceIds, evidenceId])]; prior.incidentIds = [...new Set([...prior.incidentIds, ...incidents])]; }
@@ -76,6 +76,7 @@ export function recordedGraph(state: State, incidentId?: string): RecordedGraph 
     link(source, session, "observed session request", request.evidenceId, !request.allowed, request.verified, request.incidents);
     link(session, tool, "invoked", request.evidenceId, !request.allowed, request.verified, request.incidents);
     link(tool, resource, "requested", request.evidenceId, !request.allowed, request.verified, request.incidents);
+    link(source, tool, "tool request", request.evidenceId, !request.allowed, request.verified, request.incidents, "tools");
     link(source, resource, "observed resource request", request.evidenceId, !request.allowed, request.verified, request.incidents, true);
   }
   // Ownership comes from stored memory metadata, not an agent's claim. One node per chain, latest snapshot.
@@ -88,5 +89,5 @@ export function recordedGraph(state: State, incidentId?: string): RecordedGraph 
     link(registered(memory.ownerId), target, "stored memory owner", memory.id, memory.integrity !== "verified", true, related);
   }
   for (const trap of state.traps) addNode({ kind: "trap", id: trap.id }, trap.name, `${trap.category} · ${trap._count.interactions} recorded interactions`, trap.active ? "armed" : "inactive");
-  return { nodes: [...nodes.values()], edges: [...edges.values()], compactEdges: [...compactEdges.values(), ...edges.values()].filter(e => nodes.get(e.source)?.entity.kind !== "session" && nodes.get(e.target)?.entity.kind !== "session" && nodes.get(e.source)?.entity.kind !== "tool" && nodes.get(e.target)?.entity.kind !== "tool"), truncated };
+  return { nodes: [...nodes.values()], edges: [...edges.values()], toolEdges: [...toolEdges.values(), ...edges.values()].filter(e => nodes.get(e.source)?.entity.kind !== "session" && nodes.get(e.target)?.entity.kind !== "session"), compactEdges: [...compactEdges.values(), ...edges.values()].filter(e => nodes.get(e.source)?.entity.kind !== "session" && nodes.get(e.target)?.entity.kind !== "session" && nodes.get(e.source)?.entity.kind !== "tool" && nodes.get(e.target)?.entity.kind !== "tool"), truncated };
 }

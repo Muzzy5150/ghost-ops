@@ -1,6 +1,20 @@
 # Two-minute Ghost Ops demonstration
 
-## Phase 4 workspace walkthrough (approximately two minutes)
+## Phase 5 node-editor walkthrough (current)
+
+Prepare with `npm run build` then `npm start -- --port 3210`. Open http://127.0.0.1:3210 at 100% browser zoom. **Reset layout** changes UI only. If deliberately resetting disposable simulated history, open Demo Control → New guided demo → Reset & start; runtime evidence is preserved. Do not run this reset if retaining the current simulation evidence.
+
+1. **0:00–0:15 — Operations:** show the large **Tool network**, pan/zoom and select ResearchAgent. Its compact inspector opens Overview; open its AgentDNA tab → full view to show trusted baseline versus observed outcomes. With no observed calls yet, there are identities and memory ownership—not invented usage edges.
+2. **0:15–1:05 — Actual enforcement:** reopen Demo Control from its task button/rail. Execute guided steps 1–8 in order. Minimize it between steps to expose the graph; permitted tool links and denied paths derive from stored requests. The terminal marks **SIM**. Open the decoy/evidence path or use agent filters/Expand records for additional entities.
+3. **1:05–1:30 — Incident Room:** switch preset, select the critical ResearchAgent case. Click a denied tool timeline event; the evidence inspector shows its persisted policy receipt and the graph highlights exact recorded request links. Inspect `AGENT_QUARANTINED` and the actual containment action. Fit selection stays readable; pan for remaining entities.
+4. **1:30–1:50 — Memory forensics:** reopen Demo Control and execute steps 9–10. Open the incident's Memory / restoration control, choose altered then verified restored history, switch Split/Unified diff, and inspect source trust and the verified restoration receipt. Altered snapshot restoration remains disabled.
+5. **1:50–2:00 — Workbench:** drag/resize a window, dock it using title controls, maximize/restore, minimize/reopen. Reload after a short pause to restore geometry/node positions. Conclude: “Actual policy decisions, linked evidence, enforced containment.”
+
+For **genuine local tools**, run `npm run agent:demo -- --interactive` in another terminal against a fresh isolated runtime identity; follow [LIVE_DEMO_SCRIPT.md](LIVE_DEMO_SCRIPT.md). Select it via the network agent filter and Runtime sessions. **LOCAL** means actual local MCP activity; offline choices remain scripted and no model call is implied. Never reuse a previously contained identity for a supposedly healthy-agent demonstration.
+
+This exact backend story and live CLI are regression-verified on disposable production databases. Browser narration timing, rendered appearance and physical gestures remain unverified; obtain [PHASE5 visual screenshots](PHASE5_VISUAL_QA.md) before visual sign-off.
+
+## Phase 4 workspace walkthrough (historical)
 
 1. Before judging, start production with `npm run build` and `npm start -- --port 3210`. Open http://127.0.0.1:3210. Choose **Reset layout** (UI only), then **Demo Control → New guided demo → Reset & start** if explicitly resetting disposable simulation history. Runtime identities/evidence remain. Minimize Demo Control; the task strip reopens it. Never reset in the middle of an investigation you want to keep.
 2. **0:00–0:20:** Operations → network **Operations map**, fit/zoom and select ResearchAgent. Its inspector shows registry permissions and signed memory. Drag the title bar and resize a corner; these are actual local preferences. Open AgentDNA from the inspector.

@@ -6,8 +6,9 @@ export type Bounds = { width: number; height: number };
 export type Rect = { x: number; y: number; width: number; height: number };
 export type WindowState = Rect & { id: WindowId; open: boolean; minimized: boolean; maximized: boolean; z: number };
 export type Preset = "operations" | "incident";
-export type Preferences = { version: 1; preset: Preset; bounds: Bounds; windows: WindowState[]; positions: Record<string, { x: number; y: number }>; animations: boolean };
-export const storageKey = "ghostops.workspace.v1";
+export type Preferences = { version: 2; preset: Preset; bounds: Bounds; windows: WindowState[]; positions: Record<string, { x: number; y: number }>; animations: boolean; navigationExpanded: boolean };
+export const storageKey = "ghostops.workspace.v2";
+export const legacyStorageKey = "ghostops.workspace.v1";
 export const titles: Record<WindowId, string> = {
   network: "Agent network", events: "Live events", inspector: "Agent inspector", evidence: "Evidence inspector",
   overview: "System overview", registry: "Agent Registry", dna: "AgentDNA", shadow: "ShadowWatch", memory: "MemoryGuard",
@@ -16,11 +17,11 @@ export const titles: Record<WindowId, string> = {
 const finite = z.number().finite();
 const rectSchema = { x: finite.min(0).max(10000), y: finite.min(0).max(10000), width: finite.min(1).max(10000), height: finite.min(1).max(10000) };
 const preferencesSchema = z.object({
-  version: z.literal(1), preset: z.enum(["operations", "incident"]),
+  version: z.literal(2), preset: z.enum(["operations", "incident"]),
   bounds: z.object({ width: finite.min(1).max(10000), height: finite.min(1).max(10000) }).strict(),
   windows: z.array(z.object({ ...rectSchema, id: z.enum(windowIds), open: z.boolean(), minimized: z.boolean(), maximized: z.boolean(), z: z.number().int().min(0).max(100) }).strict()).length(windowIds.length),
   positions: z.record(z.string().regex(/^n-[a-f0-9]{16}$/), z.object({ x: finite.min(-10000).max(10000), y: finite.min(-10000).max(10000) }).strict()).refine(p => Object.keys(p).length <= 200),
-  animations: z.boolean()
+  animations: z.boolean(), navigationExpanded: z.boolean()
 }).strict();
 
 export function constrain(rect: Rect, bounds: Bounds): Rect {
@@ -29,25 +30,32 @@ export function constrain(rect: Rect, bounds: Bounds): Rect {
   return { width, height, x: Math.max(0, Math.min(bounds.width - width, rect.x)), y: Math.max(0, Math.min(bounds.height - height, rect.y)) };
 }
 export function defaultLayout(bounds: Bounds, preset: Preset = "operations"): Preferences {
-  const gap = 8, left = Math.floor((bounds.width - gap) * .66), right = bounds.width - gap - left;
-  const top = Math.floor((bounds.height - gap) * .66), bottom = bounds.height - gap - top;
+  const gap = 12, left = Math.floor((bounds.width - gap) * .57), right = bounds.width - gap - left;
+  const top = Math.max(220, Math.min(Math.floor((bounds.height - gap) * .72), bounds.height - 220 - gap)), bottom = bounds.height - gap - top;
   const placements: Partial<Record<WindowId, Rect>> = preset === "operations" ? {
-    network: { x: 0, y: 0, width: left, height: top }, events: { x: 0, y: top + gap, width: left, height: bottom },
-    inspector: { x: left + gap, y: 0, width: right, height: bounds.height }
+    network: { x: 0, y: 0, width: bounds.width, height: bounds.height < 650 ? bounds.height : top }, events: { x: 0, y: top + gap, width: bounds.width, height: bottom }
   } : {
-    investigations: { x: 0, y: 0, width: left, height: top }, network: { x: 0, y: top + gap, width: left, height: bottom },
-    evidence: { x: left + gap, y: 0, width: right, height: top }, memory: { x: left + gap, y: top + gap, width: right, height: bottom }
+    network: { x: 0, y: 0, width: left, height: bounds.height }, investigations: { x: left + gap, y: 0, width: right, height: top },
+    memory: { x: left + gap, y: top + gap, width: right, height: bottom }
   };
-  return { version: 1, preset, bounds, positions: {}, animations: false, windows: windowIds.map((id, i) => ({
-    id, ...constrain(placements[id] ?? { x: 30 + i * 12, y: 24 + i * 9, width: Math.min(860, bounds.width * .8), height: Math.min(640, bounds.height * .86) }, bounds),
-    open: !!placements[id], minimized: false, maximized: false, z: i
+  const contextual = (id: WindowId): Rect => ["inspector", "evidence"].includes(id) ? { x: bounds.width - 450, y: 32, width: 430, height: Math.min(570, bounds.height - 48) } : { x: 45 + iOffset(id), y: 24 + iOffset(id), width: Math.min(1000, bounds.width * .86), height: Math.min(730, bounds.height * .9) };
+  return { version: 2, preset, bounds, positions: {}, animations: false, navigationExpanded: false, windows: windowIds.map((id, i) => ({
+    id, ...constrain(placements[id] ?? contextual(id), bounds),
+    open: !!placements[id], minimized: preset === "operations" && id === "events" && bounds.height < 650, maximized: false, z: i
   })) };
 }
 export function parsePreferences(raw: string | null, bounds: Bounds): Preferences {
   try {
     if (!raw || raw.length > 60000) return defaultLayout(bounds);
-    const parsed = preferencesSchema.parse(JSON.parse(raw));
-    if (new Set(parsed.windows.map(w => w.id)).size !== windowIds.length) return defaultLayout(bounds);
+    const input = JSON.parse(raw);
+    if (input?.version === 1) {
+      const legacy = preferencesSchema.omit({ navigationExpanded: true }).extend({ version: z.literal(1) }).strict().parse(input);
+      if (new Set(legacy.windows.map(w => w.id)).size !== windowIds.length) return defaultLayout(bounds);
+      // New visual defaults replace v1 window placements; preserve valid manual node positions.
+      return { ...defaultLayout(bounds, legacy.preset), positions: legacy.positions, animations: legacy.animations };
+    }
+    const parsed = preferencesSchema.parse(input);
+    if (new Set(parsed.windows.map(w => w.id)).size !== windowIds.length || new Set(parsed.windows.map(w => w.z)).size !== windowIds.length) return defaultLayout(bounds);
     return resizeLayout(parsed, bounds);
   } catch { return defaultLayout(bounds); }
 }
@@ -58,19 +66,21 @@ export type WorkspaceAction =
   | { type: "hydrate"; raw: string | null; bounds: Bounds }
   | { type: "open" | "focus" | "minimize" | "close" | "maximize"; id: WindowId }
   | { type: "geometry"; id: WindowId; rect: Rect }
+  | { type: "dock"; id: WindowId; side: "left" | "right" }
   | { type: "bounds"; bounds: Bounds }
   | { type: "preset"; preset: Preset }
-  | { type: "arrange" | "reset" | "reset-nodes" | "animations" }
+  | { type: "arrange" | "reset" | "reset-nodes" | "animations" | "navigation" }
   | { type: "position"; id: string; position: { x: number; y: number } };
 export function workspaceReducer(layout: Preferences, action: WorkspaceAction): Preferences {
   if (action.type === "hydrate") return parsePreferences(action.raw, action.bounds);
   if (action.type === "bounds") return resizeLayout(layout, action.bounds);
   if (action.type === "preset" || action.type === "arrange" || action.type === "reset") {
     const next = defaultLayout(layout.bounds, action.type === "preset" ? action.preset : action.type === "reset" ? "operations" : layout.preset);
-    return { ...next, animations: layout.animations, positions: action.type === "reset" ? {} : layout.positions };
+    return { ...next, navigationExpanded: layout.navigationExpanded, animations: layout.animations, positions: action.type === "reset" ? {} : layout.positions };
   }
   if (action.type === "reset-nodes") return { ...layout, positions: {} };
   if (action.type === "animations") return { ...layout, animations: !layout.animations };
+  if (action.type === "navigation") return { ...layout, navigationExpanded: !layout.navigationExpanded };
   if (action.type === "position") {
     if (!/^n-[a-f0-9]{16}$/.test(action.id) || !Number.isFinite(action.position.x) || !Number.isFinite(action.position.y)) return layout;
     const positions = { ...layout.positions, [action.id]: { x: Math.max(-10000, Math.min(10000, action.position.x)), y: Math.max(-10000, Math.min(10000, action.position.y)) } };
@@ -88,9 +98,15 @@ export function workspaceReducer(layout: Preferences, action: WorkspaceAction): 
       case "close": return { ...next, open: false };
       case "maximize": return { ...next, maximized: !w.maximized };
       case "geometry": return { ...next, ...constrain(action.rect, layout.bounds) };
+      case "dock": return { ...next, ...constrain({ x: action.side === "left" ? 0 : layout.bounds.width / 2, y: 0, width: layout.bounds.width / 2, height: layout.bounds.height }, layout.bounds), open: true, minimized: false, maximized: false };
       default: return next;
     }
   }) };
+}
+function iOffset(id: WindowId) { return windowIds.indexOf(id) * 9; }
+export function snapRect(rect: Rect, bounds: Bounds): Rect {
+  const next = constrain(rect, bounds);
+  return { ...next, x: next.x < 14 ? 0 : bounds.width - next.width - next.x < 14 ? bounds.width - next.width : next.x, y: next.y < 14 ? 0 : bounds.height - next.height - next.y < 14 ? bounds.height - next.height : next.y };
 }
 export function gestureRect(start: Rect, dx: number, dy: number, handle: string, bounds: Bounds): Rect {
   if (handle === "move") return constrain({ ...start, x: start.x + dx, y: start.y + dy }, bounds);

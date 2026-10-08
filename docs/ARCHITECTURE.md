@@ -1,5 +1,11 @@
 # Ghost Ops architecture
 
+## Phase 5 presentation boundary
+
+The backend remains unchanged. A pinned Dagre layout module and `graph-explorer.ts` add bounded, evidence-backed neighborhood exploration and readable automatic placement to the existing React Flow projection. Custom 304×218 nodes live in `security-node.tsx`; ordinary telemetry updates do not reposition established nodes. Exact request/evidence matching links timeline selection to the canvas. Ownership/case/session edge clicks resolve stored entities rather than nonexistent events.
+
+Operations is network-first, with contextual tabbed inspection instead of a permanent sidebar. Window move/resize/focus persistence is retained with edge snapping and half-width docking. Layout v2 migrates valid v1 coordinates into new visual defaults; no sensitive content is stored. Memory diffs use bounded ordered LCS comparisons with split/unified modes. AgentDNA's visual lanes distinguish historical baselines from recent verified outcomes; GhostTrap exposes actual interaction attribution and policy/provenance. The terminal preserves older-event inspection while polling continues. No presentation operation grants authority. See [PHASE5_DESIGN.md](PHASE5_DESIGN.md) and [WORKSPACE_ARCHITECTURE.md](WORKSPACE_ARCHITECTURE.md).
+
 ## Phase 4 presentation boundary
 
 The security backend, APIs, database schema and runtime dispatcher are unchanged. `Console` retains the existing bootstrap/CSRF client, non-overlapping polling and idempotent mutation retry IDs. `Workspace` maps navigation to thirteen window tools rather than replacing security workflows. Layout actions never call management endpoints.

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { constrain, defaultLayout, gestureRect, parsePreferences, resizeLayout, windowIds, workspaceReducer } from "../src/lib/workspace-model";
+import { constrain, defaultLayout, gestureRect, parsePreferences, resizeLayout, snapRect, windowIds, workspaceReducer } from "../src/lib/workspace-model";
 
 const bounds = { width: 1400, height: 800 };
 describe("validated window management", () => {
   it("defines useful Operations and Incident Room presets", () => {
-    expect(defaultLayout(bounds).windows.filter(w => w.open).map(w => w.id)).toEqual(["network", "events", "inspector"]);
-    expect(defaultLayout(bounds, "incident").windows.filter(w => w.open).map(w => w.id)).toEqual(["network", "evidence", "memory", "investigations"]);
+    expect(defaultLayout(bounds).windows.filter(w => w.open).map(w => w.id)).toEqual(["network", "events"]);
+    expect(defaultLayout(bounds, "incident").windows.filter(w => w.open).map(w => w.id)).toEqual(["network", "memory", "investigations"]);
+    expect(defaultLayout(bounds).windows[0].width).toBe(bounds.width);
+    expect(defaultLayout(bounds).windows[0].height / bounds.height).toBeGreaterThan(.65);
   });
   it("keeps all title bars and complete windows inside viewport bounds", () => {
     const rect = constrain({ x: -300, y: 4000, width: 10000, height: 1 }, bounds);
@@ -46,7 +48,7 @@ describe("validated window management", () => {
   it("round trips positions/dimensions without recording evidence", () => {
     const layout = workspaceReducer(defaultLayout(bounds), { type: "geometry", id: "network", rect: { x: 50, y: 60, width: 600, height: 430 } });
     expect(parsePreferences(JSON.stringify(layout), bounds)).toEqual(layout);
-    expect(Object.keys(layout)).toEqual(["version", "preset", "bounds", "positions", "animations", "windows"]);
+    expect(Object.keys(layout)).toEqual(["version", "preset", "bounds", "positions", "animations", "navigationExpanded", "windows"]);
   });
   it.each([null, "{broken", JSON.stringify({ version: 999 }), "x".repeat(60001)])("recovers safely from missing/malformed/oversized preferences", raw => {
     expect(parsePreferences(raw, bounds)).toEqual(defaultLayout(bounds));
@@ -74,5 +76,21 @@ describe("validated window management", () => {
   it("reflows desktop geometry on viewport changes without inaccessible windows", () => {
     const small = resizeLayout(defaultLayout(bounds), { width: 760, height: 450 });
     for (const w of small.windows) { expect(w.x + w.width).toBeLessThanOrEqual(760); expect(w.y + w.height).toBeLessThanOrEqual(450); }
+  });
+  it("migrates valid v1 preferences without carrying the oversized inspector default", () => {
+    const legacy = { ...defaultLayout(bounds) } as Record<string, unknown>;
+    delete legacy.navigationExpanded;
+    const positions = { "n-0123456789abcdef": { x: 50, y: 80 } };
+    const migrated = parsePreferences(JSON.stringify({ ...legacy, version: 1, positions }), bounds);
+    expect(migrated.version).toBe(2); expect(migrated.positions).toEqual(positions);
+    expect(migrated.windows.find(w => w.id === "inspector")!.open).toBe(false);
+  });
+  it("docks, snaps and persists expanded navigation without changing backend data", () => {
+    const docked = workspaceReducer(defaultLayout(bounds), { type: "dock", id: "inspector", side: "right" });
+    expect(docked.windows.find(w => w.id === "inspector")).toMatchObject({ x: 700, y: 0, width: 700, height: 800, open: true });
+    expect(snapRect({ x: 9, y: 13, width: 400, height: 300 }, bounds)).toMatchObject({ x: 0, y: 0 });
+    const nav = workspaceReducer(docked, { type: "navigation" });
+    expect(parsePreferences(JSON.stringify(nav), bounds).navigationExpanded).toBe(true);
+    expect(workspaceReducer(nav, { type: "reset" }).navigationExpanded).toBe(true);
   });
 });
