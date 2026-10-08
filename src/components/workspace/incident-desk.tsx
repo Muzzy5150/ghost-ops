@@ -3,12 +3,16 @@ import { Fingerprint, ShieldOff, Database, ArrowUpRight } from "lucide-react";
 import type { SectionProps } from "../console";
 import { Badge, Empty, shortId, time } from "../ui";
 import { Investigations } from "../investigations";
+import { downloadEvidence } from "./lab-benchmarks";
 
 export function IncidentDesk(props: SectionProps) {
   const { state, focusId, navigate, inspectEvent, focusIncident, busy, control } = props;
   const [selected, setSelected] = useState(focusId ?? "");
   const [severity, setSeverity] = useState("all");
   const [selectedEvent, setSelectedEvent] = useState<string>();
+  const [exportStatus, setExportStatus] = useState("");
+  const [exporting, setExporting] = useState(false);
+  const exportCase = async (id: string) => { setExporting(true); try { await downloadEvidence("incident", id); setExportStatus("Downloaded locally authenticated evidence. Verify with evidence:verify; not external attestation."); } catch { setExportStatus("Export failed; no verified success claimed."); } finally { setExporting(false); } };
   const cases = state.incidents.filter(i => severity === "all" || i.severity === severity);
   const incident = cases.find(i => i.id === selected) ?? cases[0];
   if (!incident) return <div className="incident-desk"><div className="tool-bar"><select aria-label="Case severity" value={severity} onChange={e => setSeverity(e.target.value)}><option value="all">All severities</option>{["critical", "high", "medium"].map(v => <option key={v}>{v}</option>)}</select></div><Empty title="No matching investigations" detail="Open Demo Control to execute a recorded local scenario, or change the severity filter." /></div>;
@@ -20,6 +24,7 @@ export function IncidentDesk(props: SectionProps) {
     <div className="case-header"><div><span className="eyebrow">CASE FILE / {incident.id}</span><h3>{incident.title}</h3><p>{incident.identityVerified ? "Verified attribution" : "Unverified claim — not victim history"} · {incident.simulated ? "SIMULATED" : "LOCAL RUNTIME"} · session <code>{shortId(incident.sessionId ?? "not recorded")}</code></p></div><div><Badge value={incident.severity} /><Badge value={incident.status} /></div></div>
     <div className="case-facts"><span><small>AFFECTED IDENTITY</small>{agent ? <button className="text-button" onClick={() => navigate("Agent inspector", agent.id)}>{agent.name}<ArrowUpRight size={12} /></button> : <code>{incident.actorId} [claim]</code>}</span><span><small>OBSERVED RANGE</small>{time(incident.events[0]?.createdAt ?? incident.createdAt)} → {time(incident.events.at(-1)?.createdAt ?? incident.updatedAt)}</span><span><small>ENFORCEMENT</small>{blocked.length} denial observations</span><span><small>CONTAINMENT</small>{agent?.status ?? incident.status}</span></div>
     <div className="case-response"><button className="button small danger" disabled={busy || !incident.identityVerified && !!state.agents.find(a => a.id === incident.actorId) || incident.status !== "investigating"} onClick={() => void control("quarantine", incident.actorId)}><ShieldOff size={12} />Contain actor</button><button className="button small" disabled={!agent} onClick={() => navigate("AgentDNA", incident.actorId)}><Fingerprint size={12} />Behavioral history</button>{memories.length > 0 && <button className="button small" onClick={() => navigate("MemoryGuard", memories[0].id)}><Database size={12} />Memory / restoration</button>}<span>{incident.events.length} persisted timeline events</span></div>
+    <button className="button" disabled={exporting} onClick={() => void exportCase(incident.id)}>Download investigation report</button><p role="status">{exportStatus}</p>
     <ol className="case-timeline">{incident.events.map(event => {
       const receipt = event.request;
       const denied = receipt && (!receipt.allowed || event.kind === "REPLAY_ACCESS_DENIED");

@@ -3,6 +3,9 @@ import { spawn, execFileSync, type ChildProcess } from "node:child_process";
 import { randomBytes, randomUUID, createHmac } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { readdir } from "node:fs/promises";
+import { writeFileSync } from "node:fs";
+import { verifyEvidence } from "../src/lib/evidence-verification";
+import { evidenceZip, readEvidenceZip } from "../src/lib/evidence-zip";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createServer } from "node:net";
@@ -43,7 +46,7 @@ try {
     assert.equal(run.status, "completed", `${mode}/${scenario} did not complete`);
     assert.equal(run.invocations.length, 0); assert.equal(run.results.verifiedModelCalls, 0);
     if (mode === "offline") assert.equal(run.results.handlerExecutions, 0);
-    if (scenario === "normal") { assert.equal(run.results.denied, 0); assert.equal(run.results.incidents.length, 0); }
+    if (["normal", "benign-edge"].includes(scenario)) { assert.equal(run.results.denied, 0); if (scenario === "normal") assert.equal(run.results.incidents.length, 0); }
     else assert(run.results.denied >= 1);
     if (scenario === "memory-poisoning") assert(run.observations.find((o: { kind: string }) => o.kind === "MEMORY_VERIFICATION").details.originalIntact);
     if (scenario === "impersonation") { assert(run.events.some((e: { kind: string; identityVerified: boolean }) => e.kind === "INVALID_CREDENTIAL" && !e.identityVerified)); assert(run.events.some((e: { kind: string }) => e.kind === "UNKNOWN_IDENTITY")); }
@@ -59,8 +62,9 @@ try {
   assert(contained);
   const beforeFiles = await readdir(env.GHOSTOPS_RUNTIME_WORKSPACE);
   await stop(); await start();
-  const snapshot = await get(); assert.equal(snapshot.runs.length, 12);
+  const snapshot = await get(); assert.equal(snapshot.runs.length, 16);
   assert(snapshot.runs.every((r: { status: string }) => r.status === "completed"));
+  assert(snapshot.runs.every((r: { scenarioVersion: string; configuration: { policyHash: string } }) => r.scenarioVersion === "2.0" && r.configuration.policyHash));
   const credential = createHmac("sha256", key).update(`agent-credential:lab-run:${contained.id}`).digest("hex"), requestId = randomUUID();
   const rpc = await fetch(base + "/api/mcp", { method: "POST", headers: { authorization: `Bearer ${credential}`, "x-ghostops-agent": contained.actorId, "x-ghostops-session": contained.sessionId, "content-type": "application/json", accept: "application/json, text/event-stream", "mcp-protocol-version": "2025-11-25" }, body: JSON.stringify({ jsonrpc: "2.0", id: requestId, method: "tools/call", params: { name: "write_summary", arguments: { requestId, resource: "research/summary", content: "Restart containment verification must not execute" } } }) });
   assert.equal(rpc.status, 200); assert.equal((await rpc.json()).result.structuredContent.reason, "AGENT_QUARANTINED");
@@ -76,5 +80,22 @@ try {
   const current = await get("/api/state"); assert(current.memories.some((m: { ownerId: string; integrity: string; restoredFromId: string }) => m.ownerId === contained.actorId && m.integrity === "verified" && m.restoredFromId));
   const cli = execFileSync(process.execPath, ["--import", "tsx", "scripts/lab.ts", "--scenario", "normal", "--mode", "local"], { env: { ...env, GHOSTOPS_URL: base }, encoding: "utf8", timeout: 20000 });
   assert(cli.includes('"status": "completed"')); assert(cli.includes('"verifiedModelCalls": 0'));
-  console.log("PASS Security Lab production HTTP: 12 A–F local/offline runs, real MCP handlers, protected memory, unknown/spoofed attribution, evidence correlation, idempotency, CSRF, restart containment, stale-worker interruption, signed restoration and demo-reset preservation. Actual inference calls: 0.");
+  const benchmark = await get("/api/lab/benchmarks"); assert.equal(benchmark.metrics.coverage.value, 1); assert.equal(benchmark.metrics.unsafeExecutionCount, 0); assert.equal(benchmark.metrics.falsePositive.numerator, 0);
+  assert.equal((await fetch(base + "/api/lab/benchmarks")).status, 401);
+  const options = labStartSchema.parse({ commandId: randomUUID(), scenario: "normal", mode: "local" }); const beforePreflight = (await get()).runs.length;
+  const preflight = await post("/api/lab/preflight", options); assert.equal(preflight.maximumModelCalls, 0); assert.equal((await get()).runs.length, beforePreflight);
+  await post("/api/lab", { ...options, mode: "model", confirmModelCost: true }, 409);
+  assert.equal((await fetch(`${base}/api/evidence/run/${contained.id}`)).status, 401);
+  const download = await fetch(`${base}/api/evidence/run/${contained.id}`, { headers }); assert.equal(download.status, 200); assert.equal(download.headers.get("x-ghostops-evidence-integrity"), "local-hmac-and-hashes-verified");
+  const bytes = Buffer.from(await download.arrayBuffer()); assert.equal(verifyEvidence(bytes).subjectId, contained.id);
+  const validPath = join(directory, "valid.zip"), alteredPath = join(directory, "altered.zip"); writeFileSync(validPath, bytes, { mode: 0o600 });
+  const verified = execFileSync(process.execPath, ["--import", "tsx", "scripts/evidence-verify.ts", validPath], { env, encoding: "utf8", timeout: 10000 }); assert.equal(JSON.parse(verified).authenticated, true);
+  execFileSync("/usr/bin/unzip", ["-t", validPath], { stdio: "pipe", timeout: 10000 });
+  const files = readEvidenceZip(bytes); files["events.jsonl"] = Buffer.concat([files["events.jsonl"], Buffer.from("altered-copy\n")]); writeFileSync(alteredPath, evidenceZip(files), { mode: 0o600 });
+  assert.throws(() => execFileSync(process.execPath, ["--import", "tsx", "scripts/evidence-verify.ts", alteredPath], { env, stdio: "pipe", timeout: 10000 }));
+  const incidentId = snapshot.runs.find((r: { id: string }) => r.id === contained.id).results.incidents[0];
+  const incidentDownload = await fetch(`${base}/api/evidence/incident/${incidentId}`, { headers }); assert.equal(incidentDownload.status, 200); assert.equal(verifyEvidence(new Uint8Array(await incidentDownload.arrayBuffer())).scope, "incident");
+  const exportedPath = join(directory, "cli-export.zip"); execFileSync(process.execPath, ["--import", "tsx", "scripts/evidence-export.ts", "--run", contained.id, "--output", exportedPath], { env: { ...env, GHOSTOPS_URL: base }, encoding: "utf8", timeout: 20000 });
+  const story = execFileSync(process.execPath, ["--import", "tsx", "scripts/evaluation-demo.ts", "--mode", "local", "--show-tamper", "--output", join(directory, "story")], { env: { ...env, GHOSTOPS_URL: base }, encoding: "utf8", timeout: 90000 }); assert(story.includes("PASS tampered copy rejected"));
+  console.log("PASS Security Lab production HTTP: 16 A–H local/offline runs, real MCP handlers, protected memory, identity isolation, correlation, idempotency, CSRF, restart containment, stale-worker interruption, restoration/reset preservation. Benchmarks, dry preflight, authenticated run/incident ZIP downloads, independent CLI verification/tamper rejection, export CLI and eight-stage local evaluation story pass. Actual inference calls: 0.");
 } finally { await stop(); rmSync(directory, { recursive: true }); }

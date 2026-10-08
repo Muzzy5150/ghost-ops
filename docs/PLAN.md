@@ -1,5 +1,17 @@
 # Implementation plan and verification log
 
+## Phase 7 — forensic evaluations and exact model approval
+
+- [x] Independently rerun baseline: 175 tests, typecheck and zero-warning lint.
+- [x] Inspect official documentation and installed SDK; identify successful SDK mocks previously counted as verified provider calls.
+- [x] Add exact-run dry preflight, expiring configuration/credential-bound approval, CLI interactive confirmation, transport-backed provenance and CI network guard.
+- [x] Additive version/configuration/provenance migration; A–H versioned definitions and separate actor/probe benchmark denominators.
+- [x] Persisted scoped forensic projection, deterministic HTML, bounded ZIP, redaction-before-hashing, SHA-256/local HMAC and verification/export CLI.
+- [ ] Regression tests, Security Lab controls/comparison/export, actual HTTP offline hackathon, clean-checkout build and restart verification.
+- [ ] Final Phase 7 docs and verified commits.
+- [ ] Real inference pending configured credentials and fresh operator authorization; no automatic paid experiment.
+- [ ] Visual QA remains pending and explicitly excluded. Presenter/process/database remain unchanged.
+
 ## Phase 6 — bounded model execution and Security Lab
 
 - [x] Independently rerun 140 baseline tests; inspect existing SDK, gateway, persistence, workspace and trust boundaries.

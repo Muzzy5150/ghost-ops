@@ -11,6 +11,7 @@ import { callRuntime } from "../src/server/runtime";
 import { snapshot } from "../src/server/service";
 import { defaultLayout, parsePreferences, workspaceReducer } from "../src/lib/workspace-model";
 import type { State } from "../src/lib/view-types";
+import { benchmarkMetrics, evaluationBundles } from "../src/server/benchmarks";
 let state: State, data: unknown;
 beforeAll(async () => {
   const start = await startExperiment(labStartSchema.parse({ commandId: randomUUID(), scenario: "prompt-injection", mode: "local" }));
@@ -19,7 +20,7 @@ beforeAll(async () => {
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 function renderLab() {
-  const fetcher = vi.fn(async (_url: string, options?: RequestInit) => new Response(JSON.stringify(options?.method === "POST" ? { runId: "persisted-command-receipt" } : data), { status: 200, headers: { "content-type": "application/json" } }));
+  const fetcher = vi.fn(async (url: string, options?: RequestInit) => new Response(JSON.stringify(url.includes("benchmarks") ? benchmarkMetrics(await evaluationBundles()) : options?.method === "POST" ? { runId: "persisted-command-receipt" } : data), { status: 200, headers: { "content-type": "application/json" } }));
   vi.stubGlobal("fetch", fetcher);
   const inspectEvent = vi.fn(), navigate = vi.fn();
   render(<SecurityLab state={state} csrf="synthetic-csrf-test" inspectEvent={inspectEvent} navigate={navigate} />);

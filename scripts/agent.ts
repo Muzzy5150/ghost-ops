@@ -5,6 +5,10 @@ import { z } from "zod";
 import { enrollmentSchema, runtimeIdentitySchema } from "../src/lib/runtime-contract";
 import { LocalAgentClient, localBase } from "../src/runtime/client";
 import { runLocalAgent } from "../src/runtime/agent";
+import { confirmLive } from "../src/runtime/operator-confirmation";
+import { modelConfiguration } from "../src/runtime/model";
+import { budgetsSchema } from "../src/lib/lab-contract";
+import { createHash } from "node:crypto";
 
 const args = process.argv.slice(2);
 const value = (flag: string, fallback: string) => args.includes(flag) ? args[args.indexOf(flag) + 1] : fallback;
@@ -47,6 +51,13 @@ try {
     const client = new LocalAgentClient(identity, base);
     try {
       await client.connect();
+      if (args.includes("--model")) {
+        const configuration = modelConfiguration(), task = value("--task", "Read the approved research document and write a summary.");
+        const label = createHash("sha256").update(JSON.stringify({ configuration, task, budgets: budgetsSchema.parse({}) })).digest("hex").slice(0, 12);
+        console.log(JSON.stringify({ configuration, budgets: budgetsSchema.parse({}), taskHash: label, network: "Official OpenAI Responses + loopback MCP", usageEstimate: "Unknown; limits are not guaranteed billing ceilings" }));
+        if (!configuration.ready) throw new Error("Provider unavailable");
+        await confirmLive(label, args.includes("--live"));
+      }
       const result = await runLocalAgent(client, value("--task", "Read the approved research document and write a summary."), args.includes("--model"));
       console.log(JSON.stringify(result, null, 2));
     } finally { await client.close(); }

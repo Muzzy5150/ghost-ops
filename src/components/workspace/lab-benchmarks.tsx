@@ -1,0 +1,32 @@
+"use client";
+import { useEffect, useState } from "react";
+import type { benchmarkMetrics } from "@/server/benchmarks";
+import type { Wire } from "@/lib/view-types";
+import { scenarios, scenarioNames } from "@/lib/lab-contract";
+type Data = Wire<ReturnType<typeof benchmarkMetrics>>;
+export async function downloadEvidence(kind: "run" | "incident", id: string) {
+  const response = await fetch(`/api/evidence/${kind}/${encodeURIComponent(id)}`, { cache: "no-store", signal: AbortSignal.timeout(15000) });
+  if (!response.ok) throw new Error("Evidence export denied; only terminal runs and existing investigations can be exported");
+  const url = URL.createObjectURL(await response.blob()), link = document.createElement("a"); link.href = url; link.download = `ghostops-${kind}-${id}.zip`; link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+  return response.headers.get("x-ghostops-evidence-integrity") === "local-hmac-and-hashes-verified";
+}
+export default function LabBenchmarks({ navigate }: { navigate: (name: string, id?: string) => void }) {
+  const [data, setData] = useState<Data>(), [error, setError] = useState("");
+  const [scenario, setScenario] = useState("all"), [mode, setMode] = useState("all"), [search, setSearch] = useState("");
+  useEffect(() => { let active = true, timer: ReturnType<typeof setTimeout>;
+    const poll = async () => { try { const response = await fetch("/api/lab/benchmarks", { cache: "no-store", signal: AbortSignal.timeout(10000) }); if (!response.ok) throw new Error("Benchmarks unavailable"); const value = await response.json(); if (active) setData(value); } catch { if (active) setError("Benchmark read failed; no success inferred"); } if (active) timer = setTimeout(() => void poll(), 10000); }; void poll(); return () => { active = false; clearTimeout(timer); };
+  }, []);
+  const rows = data?.rows.filter(r => (scenario === "all" || r.scenario === scenario) && (mode === "all" || r.mode === mode) && JSON.stringify({ agent: r.agentId, model: r.model, requestedModel: r.requestedModel, config: r.configuration, date: r.startedAt, version: r.scenarioVersion, outcomes: r.outcomes }).toLowerCase().includes(search.toLowerCase())) ?? [];
+  const done = rows.filter(r => r.status === "completed");
+  const show = (n: number, d: number) => d ? `${n}/${d} (${(100 * n / d).toFixed(1)}%)` : "N/A · zero qualifying observations";
+  const totals = (key: "policyBlocks" | "memoryProtection" | "containment" | "honeypotDetection") => show(done.reduce((n, r) => n + r[key].numerator, 0), done.reduce((n, r) => n + r[key].denominator, 0));
+  const task = done.filter(r => r.legitimateTask.applicable), benign = done.filter(r => r.benign);
+  async function exportRun(id: string) { try { const authenticated = await downloadEvidence("run", id); setError(authenticated ? "Downloaded: server checked local HMAC + hashes. Verify independently with evidence:verify; not external attestation." : "Downloaded; independent integrity verification required."); } catch (e) { setError((e as Error).message); } }
+  return <section><h3>Attack versus defense benchmarks</h3><p>Completed filtered runs only. Actor choices exclude separately labeled regression probes; small synthetic samples are not real-world accuracy.</p>
+    <div className="lab-controls"><label>Scenario filter<select aria-label="Benchmark scenario" value={scenario} onChange={e => setScenario(e.target.value)}><option value="all">All scenarios</option>{scenarios.map(s => <option key={s} value={s}>{scenarioNames[s]}</option>)}</select></label><label>Origin filter<select aria-label="Benchmark runtime" value={mode} onChange={e => setMode(e.target.value)}><option value="all">All modes</option><option value="offline">Offline simulation</option><option value="local">Local scripted</option><option value="model">Model requested</option></select></label><label>Compare agent/model/policy/version/date/outcome<input aria-label="Benchmark search" value={search} onChange={e => setSearch(e.target.value)} /></label></div>
+    <dl className="lab-summary"><div><dt>Legitimate tool workflow</dt><dd>{show(task.filter(r => r.legitimateTask.completed).length, task.length)}</dd></div><div><dt>Actor unauthorized attempt rate</dt><dd>{show(done.filter(r => r.actorDecisions.prohibitedAttempts > 0).length, done.length)}</dd></div><div><dt>Policy blocks / prohibited requests · all phases</dt><dd>{totals("policyBlocks")}</dd></div><div><dt>Unsafe handler executions</dt><dd>{done.reduce((n, r) => n + r.unsafeExecutionCount, 0)}</dd></div><div><dt>Protected memory writes prevented</dt><dd>{totals("memoryProtection")}</dd></div><div><dt>Containment / explicit follow-up probes</dt><dd>{totals("containment")}</dd></div><div><dt>Decoy evidence / decoy requests</dt><dd>{totals("honeypotDetection")}</dd></div><div><dt>Benign critical finding or quarantine</dt><dd>{show(benign.filter(r => r.falsePositive).length, benign.length)}</dd></div><div><dt>Coverage / intended A–H</dt><dd>{show(new Set(done.map(r => r.scenario)).size, 8)}</dd></div></dl>
+    <p role="status">{error}</p><p>{rows.length} matching persisted runs; latest 50 detailed below. Summary quality is not scored. N/A is not 100%.</p>
+    {rows.slice(0, 50).map(r => <details key={r.runId}><summary>{r.scenario} v{r.scenarioVersion} · {r.provenance.toUpperCase()} · {r.status} · {r.agentId}</summary><p>{r.allowed} allowed / {r.denied} denied. Actor prohibited attempts: {r.actorDecisions.prohibitedAttempts}; independent probe attempts: {r.enforcementProbes.prohibitedAttempts}. Public-refusal interpretation: {r.actorDecisions.resistance ? "observed" : "not established"} ({r.actorDecisions.modelResistanceVerifiedProvider ? "verified provider" : "not real-provider verified"}). Detector latency: {r.latency.meanMilliseconds === null ? "N/A" : `${r.latency.meanMilliseconds} ms · local wall-clock`}. Deviations: {r.deviations}; not compromise probabilities.</p><pre>{JSON.stringify(r.configuration, null, 2)}</pre><div className="lab-actions">{r.incidentIds.map(id => <button className="button" key={id} onClick={() => navigate("Investigations", id)}>Investigation {id.slice(0, 8)}</button>)}<button className="button" disabled={["queued", "running"].includes(r.status)} onClick={() => void exportRun(r.runId)}>Export forensic ZIP</button></div></details>)}
+  </section>;
+}

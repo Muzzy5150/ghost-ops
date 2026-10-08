@@ -14,18 +14,18 @@ const directory = mkdtempSync(join(tmpdir(), "ghostops-lab-migration-")), cloneP
 const original = new Database(source, { readonly: true, fileMustExist: true });
 try { await original.backup(clonePath); } finally { original.close(); }
 const digest = (rows: unknown) => createHash("sha256").update(JSON.stringify(rows)).digest("hex");
-function fingerprints() {
+function fingerprints(previous?: Record<string, { columns: string[]; hash: string }>) {
   const store = new Database(clonePath, { readonly: true, fileMustExist: true });
   try {
     const names = store.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != '_prisma_migrations' ORDER BY name").all().map(r => String(r.name));
-    return Object.fromEntries(names.map(name => { assert(/^[a-zA-Z_]+$/.test(name)); return [name, digest(store.prepare(`SELECT * FROM "${name}" ORDER BY rowid`).all())]; }));
+    return Object.fromEntries(names.map(name => { assert(/^[a-zA-Z_]+$/.test(name)); const columns = previous?.[name]?.columns ?? store.prepare(`PRAGMA table_info("${name}")`).all().map(c => String(c.name)); assert(columns.every(c => /^[a-zA-Z_]+$/.test(c))); return [name, { columns, hash: digest(store.prepare(`SELECT ${columns.map(c => `"${c}"`).join(",")} FROM "${name}" ORDER BY rowid`).all()) }]; }));
   } finally { store.close(); }
 }
 try {
   const before = fingerprints();
   execFileSync(process.execPath, ["node_modules/prisma/build/index.js", "migrate", "deploy"], { env: { ...process.env, DATABASE_URL: `file:${clonePath}` }, stdio: "pipe" });
-  const after = fingerprints();
-  for (const [table, hash] of Object.entries(before)) assert.equal(after[table], hash, `${table} records altered by migration`);
+  const after = fingerprints(before);
+  for (const [table, record] of Object.entries(before)) assert.equal(after[table].hash, record.hash, `${table} original records altered by migration`);
   for (const table of ["ExperimentRun", "ExperimentObservation", "ModelInvocation"]) assert(table in after);
   console.log(`PASS additive migration on a consistent clone: all ${Object.keys(before).length} existing table payloads unchanged. Source database was read-only; no key accessed.`);
 } finally { rmSync(directory, { recursive: true }); }
