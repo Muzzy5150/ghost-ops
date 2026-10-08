@@ -27,6 +27,8 @@ The independent pre-change canonical security report contains four validated fam
 
 Phase 2 clean-checkout verification used a git archive of `37415ab`, installed with `npm ci`, and passed fresh setup, typecheck, lint, all 52 tests, production build, production startup on 3211, original A/B/C/D HTTP checks and the disposable restart verifier. It used its own generated private key/database. npm emitted development-tooling deprecation/allow-scripts warnings and the already documented five advisory entries, but installation and native SQLite execution succeeded. The temporary server was stopped and its checkout moved to Trash (recoverable); the main application remains running on 3210 in completed A/B/C/D state. Verified implementation checkpoint: `0ff9b59`; documentation checkpoint: `37415ab`.
 
+Runtime distinction: the main workspace suite used Node 24.10.0 / npm 11.19.0; the clean temporary checkout used its shell's Node 26.4.0 / npm 11.17.0. Both passed the listed checks. Node 22 minimum compatibility is based on package requirements, not an additional executed runtime matrix.
+
 ## Historical Phase 1 verification (retained)
 
 Verified in Node v24.10.0 / npm 11.19.0 on macOS, 2026-10-07.
