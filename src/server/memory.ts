@@ -1,13 +1,12 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { MemoryVersion, Prisma } from "@/generated/prisma/client";
 import { mac, secureEqual } from "./config";
+import { memoryPayload } from "@/lib/memory-payload";
+export { memoryPayload } from "@/lib/memory-payload";
 
 export const hash = (content: string) => createHash("sha256").update(content).digest("hex");
 type Tx = Prisma.TransactionClient;
 type SignedMemory = Omit<MemoryVersion, "signature" | "integrity">;
-export function memoryPayload(m: SignedMemory) {
-  return JSON.stringify([m.id, m.ownerId, m.key, m.version, m.contentHash, m.content, m.parentId, m.sourceId, m.sourceTrust, m.sessionId, m.authorization, m.protected, m.restoredFromId, m.createdAt.toISOString()]);
-}
 export function verifySignature(m: MemoryVersion) {
   return hash(m.content) === m.contentHash && secureEqual(m.signature, mac(`memory:${memoryPayload(m)}`));
 }
