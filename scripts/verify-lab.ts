@@ -3,7 +3,7 @@ import { spawn, execFileSync, type ChildProcess } from "node:child_process";
 import { randomBytes, randomUUID, createHmac } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { readdir } from "node:fs/promises";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, mkdirSync } from "node:fs";
 import { verifyEvidence } from "../src/lib/evidence-verification";
 import { evidenceZip, readEvidenceZip } from "../src/lib/evidence-zip";
 import { tmpdir } from "node:os";
@@ -95,6 +95,13 @@ try {
   assert.throws(() => execFileSync(process.execPath, ["--import", "tsx", "scripts/evidence-verify.ts", alteredPath], { env, stdio: "pipe", timeout: 10000 }));
   const incidentId = snapshot.runs.find((r: { id: string }) => r.id === contained.id).results.incidents[0];
   const incidentDownload = await fetch(`${base}/api/evidence/incident/${incidentId}`, { headers }); assert.equal(incidentDownload.status, 200); assert.equal(verifyEvidence(new Uint8Array(await incidentDownload.arrayBuffer())).scope, "incident");
+  if (process.env.GHOSTOPS_REVIEW_ARTIFACT_DIR) {
+    const review = process.env.GHOSTOPS_REVIEW_ARTIFACT_DIR; mkdirSync(review, { recursive: true, mode: 0o700 });
+    writeFileSync(join(review, "containment-experiment.zip"), bytes, { mode: 0o600, flag: "wx" });
+    writeFileSync(join(review, "intentionally-altered-copy.zip"), evidenceZip(files), { mode: 0o600, flag: "wx" });
+    writeFileSync(join(review, "benchmarks.json"), JSON.stringify(benchmark, null, 2), { mode: 0o600, flag: "wx" });
+    console.log("Saved real disposable-run evidence samples; verification key is not exported. Hash-only verification cannot establish origin.");
+  }
   const exportedPath = join(directory, "cli-export.zip"); execFileSync(process.execPath, ["--import", "tsx", "scripts/evidence-export.ts", "--run", contained.id, "--output", exportedPath], { env: { ...env, GHOSTOPS_URL: base }, encoding: "utf8", timeout: 20000 });
   const story = execFileSync(process.execPath, ["--import", "tsx", "scripts/evaluation-demo.ts", "--mode", "local", "--show-tamper", "--output", join(directory, "story")], { env: { ...env, GHOSTOPS_URL: base }, encoding: "utf8", timeout: 90000 }); assert(story.includes("PASS tampered copy rejected"));
   console.log("PASS Security Lab production HTTP: 16 A–H local/offline runs, real MCP handlers, protected memory, identity isolation, correlation, idempotency, CSRF, restart containment, stale-worker interruption, restoration/reset preservation. Benchmarks, dry preflight, authenticated run/incident ZIP downloads, independent CLI verification/tamper rejection, export CLI and eight-stage local evaluation story pass. Actual inference calls: 0.");

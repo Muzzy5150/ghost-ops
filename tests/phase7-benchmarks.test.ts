@@ -15,6 +15,8 @@ it("computes metrics from all eight actually completed scenario records", () => 
   expect(report.metrics.coverage).toMatchObject({ numerator: 8, denominator: 8, value: 1 });
   expect(report.metrics.legitimateTaskCompletion).toMatchObject({ numerator: 5, denominator: 5 });
   expect(report.metrics.unsafeExecutionCount).toBe(0); expect(report.metrics.policyBlock.value).toBe(1);
+  expect(report.metrics.unauthorizedRequestRun).toMatchObject({ numerator: 6, denominator: 8 });
+  expect(report.metrics.unauthorizedActorAttempt).toMatchObject({ numerator: 2, denominator: 8 });
 });
 it("uses N/A for zero qualifying denominators, not fabricated perfect defense", () => {
   const metrics = benchmarkMetrics([]).metrics;
@@ -54,4 +56,16 @@ it("latency samples link actual request and detector timestamps without claiming
 });
 it("incomplete runs do not inflate completed-run effectiveness denominators", () => {
   const unfinished: EvaluationBundle = { ...bundles[0], run: { ...bundles[0].run, status: "cancelled" } }; expect(benchmarkMetrics([unfinished]).metrics.policyBlock.denominator).toBe(0); expect(benchmarkMetrics([unfinished]).metrics.coverage.numerator).toBe(0);
+});
+it("same-millisecond timestamps cannot retroactively make initial authorized work a containment violation", () => {
+  const original = bundles.find(b => b.run.scenario === "containment")!;
+  const first = original.requests.find(r => r.allowed)!;
+  const tied = { ...original, actions: original.actions.map(a => ({ ...a, createdAt: first.createdAt })) };
+  const row = evaluateBundle(tied); expect(row.policyBlocks.denominator).toBe(1); expect(row.unsafeExecutionCount).toBe(0);
+});
+it("deliberate operator containment is not counted as detector false-positive quarantine", () => {
+  const benign = bundles.find(b => b.run.scenario === "normal")!, action = bundles.find(b => b.run.scenario === "containment")!.actions[0];
+  const operator = { ...benign, actions: [{ ...action, actorId: benign.run.actorId, operator: "local-administrator" }] };
+  expect(evaluateBundle(operator).falsePositive).toBe(false);
+  expect(evaluateBundle({ ...operator, actions: operator.actions.map(a => ({ ...a, operator: "correlation-engine" })) }).falsePositive).toBe(true);
 });

@@ -11,6 +11,7 @@ import { budgetsSchema } from "../src/lib/lab-contract";
 import { Usage, type ModelRequest, type ModelResponse } from "@openai/agents";
 import { POST } from "../src/app/api/lab/preflight/route";
 import { transportToken } from "../src/server/config";
+import { confirmLive } from "../src/runtime/operator-confirmation";
 afterEach(() => vi.unstubAllEnvs());
 const modelInput = () => labStartSchema.parse({ commandId: randomUUID(), mode: "model", scenario: "normal", confirmModelCost: true });
 function enable() { vi.stubEnv("GHOSTOPS_MODEL_ENABLED", "1"); vi.stubEnv("GHOSTOPS_MODEL", "synthetic-fixture"); vi.stubEnv("OPENAI_API_KEY", "synthetic-private-not-transmitted"); vi.stubEnv("GHOSTOPS_MODEL_PROVIDER", "openai"); }
@@ -89,4 +90,8 @@ it("legacy successful SDK receipts are not retrospectively promoted by old resul
   await db.experimentRun.update({ where: { id: run.id }, data: { results: { verifiedModelCalls: 99 } } });
   await db.modelInvocation.create({ data: { id: randomUUID(), runId: run.id, provider: "openai", model: "legacy-fixture", status: "succeeded", responseId: "fixture", provenance: "unverified" } });
   expect((await experimentSnapshot()).runs.find(r => r.id === run.id)?.results.verifiedModelCalls).toBe(0);
+});
+it("CLI live flags cannot substitute for interactive confirmation or authorize CI inference", async () => {
+  await expect(confirmLive("synthetic-run", false)).rejects.toThrow("--live");
+  vi.stubEnv("CI", "true"); await expect(confirmLive("synthetic-run", true)).rejects.toThrow("forbidden in CI");
 });
