@@ -6,6 +6,8 @@ Ghost Ops monitors isolated local agents through an authenticated MCP tool gatew
 
 ## Phase 5: network-first node editor
 
+Phase 5.5 independently reran the full 140-test/security/build verification while preserving the running presenter process. Actual visual access remains blocked by the saved localhost denial; no screenshots or speculative visual fixes were produced. See the [final visual review attempt](docs/PHASE5_FINAL_VISUAL_REVIEW.md) and [review package status](artifacts/ghost-ops-visual-review/README.md). Correcting the saved site permission allows automated capture to resume.
+
 The landing workspace now centers a large dark node editor: **304×218px custom nodes**, 18px names, readable controls, distinct agents/tools/memory/decoys/cases, and actual recorded relationships. Operations opens the full-width network and terminal, **no permanent inspector**. Short desktop heights park the terminal to preserve canvas space. Select an agent for a compact inspector with Overview, AgentDNA, Permissions, Sessions, Memory, Events and Investigations tabs.
 
 Use **Tool network** for a bounded relevant neighborhood, **Expand records** for more detail, or **Session detail** for the complete returned session chain. Search and Enter focuses a match; filters select identity, origin and severity. Pan/zoom, center selection, fit selection and Arrange are functional. Dagre generates deterministic non-overlapping positions; ordinary polling does not rearrange existing nodes. Fit clamps to readable zoom instead of shrinking the entire graph. Manual node positions remain presentation only.

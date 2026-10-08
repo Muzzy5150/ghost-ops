@@ -1,5 +1,16 @@
 # Implementation plan and verification log
 
+## Phase 5.5 — actual visual QA attempt
+
+- [x] Inspect unchanged presenter process/HTTP health, project dependencies, installed browser inventory and existing screenshot scripts.
+- [x] Retry the supported existing Chrome tab; saved localhost denial still rejects access and explicitly prohibits alternate/indirect capture. No runner/CDP/native workaround launched or permission setting widened.
+- [x] Independently rerun all 140 tests, typecheck and zero-warning lint; preserve existing database and app process.
+- [x] Isolated archive `fe8c685`: fresh npm ci, production build, actual MCP/HTTP/runtime and restart/guided/memory verifiers pass; production audit clean. Same presenter PID 68163; page/snapshot/10 assets 200 and exact counts unchanged. Verification checkout recoverably moved to Trash.
+- [x] Create honest final visual review and package status; no screenshots, mockups or before/after claims.
+- [ ] Actual five-viewport captures, browser interactions, image inspection and evidence-driven refinement; requires removing the saved deny for http://127.0.0.1:3210. Precise asynchronous request issued.
+
+No speculative visual edit was made. The local app continues running unchanged; full production verification uses a separate temporary archive so its serving artifacts are not replaced. See [PHASE5_FINAL_VISUAL_REVIEW.md](PHASE5_FINAL_VISUAL_REVIEW.md).
+
 ## Phase 5 — readable node-editor workstation
 
 - [x] Independently rerun Phase 4 baseline: 117 tests pass; browser retry still rejected by saved permission.
