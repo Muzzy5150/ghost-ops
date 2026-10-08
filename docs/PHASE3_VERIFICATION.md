@@ -17,6 +17,8 @@ Runtime tests verify authenticated real reads/writes, handler spies for denied u
 
 The production verifier launches separate real agent CLI processes, reads the resulting artifact and compares its actual bytes to the returned extractive summary. Denied writes leave directory contents unchanged and execution metadata absent. An existing MCP client makes another request after a new server process starts and still receives AGENT_QUARANTINED. Historical replay also remains denied. After administrator restoration the original client returns CREDENTIAL_REVOKED. No raw runtime credential appears in the snapshot.
 
+Clean checkout of implementation commit `758729a`, exported with git archive into an isolated temporary directory, passed `npm ci`, fresh setup/migration/seed, typecheck, lint, all 73 tests, production build, complete runtime HTTP verifier, original production restart verifier and zero-advisory production audit. That checkout's shell used Node 26.4.0 / npm 11.17.0; the primary workspace used Node 24.10.0 / npm 11.19.0. Native SQLite and official MCP packages worked in both executed environments. Node 22 minimum is not an independently executed test matrix. Installation emitted existing development deprecation/allow-scripts notices and the same five development advisory entries; no forced remediation or unverified major upgrade was applied.
+
 ## Genuine execution versus simulation
 
 **Verified:** running local MCP client, official maintained protocol, actual bounded fixture/file/SQLite handlers, authenticated session attribution, all four security engines, actual enforcement, persisted evidence, containment across restart, signed memory integrity and restoration.
@@ -30,6 +32,8 @@ The production verifier launches separate real agent CLI processes, reads the re
 ## Existing workspace application
 
 Created a private consistent database/key backup at `.ghostops/phase3-backup` before the additive migration. Counts were independently compared afterward: all original 3 agents, 31 requests, 85 events, 3 incidents and 6 memory versions were preserved. Restarted the supported production server on 3210, provisioned `live-phase3`, and executed the exact live demo CLI against the real presenter database without resetting old records. The local runtime completed its real-tool stages, protected write/trap denials, quarantine proof and verified restoration. It remains contained with altered history retained. Private credentials, key, backup and summary artifacts are gitignored, not delivered in commits.
+
+Actual new presenter runtime totals: 10 MCP requests, 4 denied, one critical contained `live-phase3` investigation plus a separate unknown-actor investigation. Runtime policy v1 remains verified, controlled altered v2 is tampered, restored v3 is verified. Those are appended to, not replacements for, the Phase 2 presenter records. The production app remains running on http://127.0.0.1:3210.
 
 ## Limitations
 

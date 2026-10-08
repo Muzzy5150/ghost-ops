@@ -7,9 +7,11 @@
 - [x] Isolated runtime identities, optional official Agents SDK, labeled offline client.
 - [x] Live memory, correlation, containment, dashboard sessions; preserve simulation reset.
 - [x] Runtime security, actual protocol calls, restart and regression verification (73 tests, typecheck, lint, production build, both fresh-process verifiers; zero production advisories).
-- [x] Runtime/demo documentation; verified implementation checkpoint pending commit, followed by clean-checkout verification.
+- [x] Runtime/demo documentation and implementation commit `758729a`; clean checkout independently passes install/setup, typecheck, lint, 73 tests, build, runtime HTTP/restart checks and original restart checks. Final verification documentation checkpoint follows.
 
 Additive migration preserved all original workspace records (3 agents / 31 requests / 85 events / 3 incidents / 6 memory versions). A private consistent backup was created; the exact live demo then ran successfully on 3210 with new `live-phase3` identity, no reset and zero model calls. Browser retry: in-app browser unavailable; existing Chrome site explicitly blocked by saved permission. No workaround; visual checks remain unverified. Real-provider model execution and same-identity credential redelivery remain unverified/future work respectively.
+
+Verified runtime totals on presenter database: ten actual MCP requests, four denied, critical registered-agent incident contained, verified runtime-policy restoration v3 with altered v2 retained. Main Node 24 and clean-checkout Node 26 both pass; no independent Node 22 matrix. Temporary clean checkout is recoverably moved to Trash after verification; disposable verifier servers/databases were stopped/cleaned by their own scripts. All four engines and eight sections retained. React review kept client imports type-only, model SDK conditional, labeled controls and escaped evidence. No public deployment or real model call was performed.
 
 Model inference is opt-in; it must not be claimed unless executed. Tools cannot execute commands, arbitrary paths or outbound requests. Additive migrations preserve presenter data; simulation reset must preserve runtime records.
 
