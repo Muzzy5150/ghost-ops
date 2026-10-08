@@ -1,5 +1,11 @@
 # Verification record
 
+## Phase 8 external process integration
+
+Immutable code `6459d58` passes **260 tests / 20 files**, clean install/setup/SDK build/production build, typecheck and zero-warning lint. Actual local tarballs installed in an unrelated consumer run a separate agent + stdio proxy against a disposable production server. Discovery, real permitted effects, forbidden handlers, forged claims, owned memory, exact replay, quarantine/restart, signed restoration, new credential/revocation and scoped ZIP/HMAC pass. Existing 16 A–H Lab evaluations, original HTTP/runtime demos and guided restart/tamper checks pass. Read-only migration clone preserves all 17 original table payloads. Production audit zero; five development-only entries remain. No paid inference/visual inspection.
+
+Retained PID 68163/data/key/build remain unchanged; 3210 still serves the prior build with original 41 requests. New routes require deliberate operator activation. Full results, initial failures/fixes and actual commands: [PHASE8_VERIFICATION.md](PHASE8_VERIFICATION.md).
+
 ## Phase 7 forensic evaluations
 
 Implementation `4047f00` passes **217 tests across 17 files**, typecheck, zero-warning lint, clean-checkout install/setup/production build, 16 A–H local/offline HTTP experiments, actual MCP/agent demos, restart quarantine/revocation/replay, signed restoration and guided resumption. Actual ZIP downloads, standard unzip validation, independent CLI verification, intentionally altered evidence and eight-stage local presentation pass without inference. A read-only clone preserves all 17 original table payloads. Production dependency audit is clean; five development-only advisories remain.

@@ -1,5 +1,9 @@
 # Security Lab
 
+## External integrations
+
+Phase 8 adds a separate public SDK/MCP example for independently running agents; it does not replace this lab or its versioned evaluations. External events use the same four engines and investigation/export pipeline. Runtime sessions → Developer integrations shows actual registered capabilities and recorded requests/cases without claiming continuous connectivity. Use [external demo](PHASE8_DEMO_SCRIPT.md) and `npm run test:external` for the cross-process proof. SDK-only external model receipts never grant VERIFIED PROVIDER provenance; the exact-confirmed transport-backed Lab provider flow below remains unchanged.
+
 The lab evaluates isolated synthetic workflows using the existing security gateway. It does not contact production infrastructure. Open **Security Lab** in the workspace toolbar/rail (or Alt+3); choose an agent, scenario and mode, then Start. Default **New isolated identity** preserves existing agents. Stop requests cancellation, not reversal of committed effects.
 
 ## Modes

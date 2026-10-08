@@ -1,5 +1,9 @@
 # Optional model-driven execution
 
+## Phase 8 external example
+
+The external example has an optional official Agents SDK adapter with explicit model enablement, fresh interactive `--model --live` confirmation, fixed synthetic task, no retries/tracing, call/tool/time/output and reported-token bounds. Tool callbacks still use the public protected integration. **No genuine inference was executed** during verification. Returned external SDK response IDs are not server-attested transport proof and do not produce VERIFIED PROVIDER status in Ghost Ops. Budgets are not guaranteed billing ceilings. This adapter remains opt-in/unverified; use the existing Security Lab receipt/approval path below for server-recorded provider evaluation.
+
 ## Verification status
 
 The official Agents SDK path is implemented and tested through its actual Agent/Runner/tool loop with a mocked provider. Actual MCP handlers were verified independently. **No real provider inference ran in Phase 6 or 7:** configuration and credentials were unavailable. Fixtures are not evidence of genuine inference. The opt-in smoke test remains pending. Phase 7 adds exact configuration/credential-bound preflight, interactive approval and transport-backed provenance; see [REAL_MODEL_VERIFICATION.md](REAL_MODEL_VERIFICATION.md).

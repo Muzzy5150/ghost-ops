@@ -1,5 +1,11 @@
 # Isolated local agent integration
 
+## External developer integration (Phase 8)
+
+The supported public packages now let independently running Node agents use the same protected tools without private server imports. `@ghostops/sdk` supports authenticated HTTP MCP; `@ghostops/mcp` bridges stdio MCP discovery/calls to that gateway. Use the [external quickstart](EXTERNAL_AGENT_INTEGRATION.md) for private credential issuance, separate-process example, revocation/rotation/restoration and tarball installation. The original internal CLI below remains supported. Discovery now returns permitted tool names instead of advertising forbidden capabilities; the existing offline agent accepts valid filtered catalogs.
+
+External scripted choices remain local-runtime, not inference. Optional external model receipts are SDK-only and cannot forge the server's verified-provider status. No genuine external model call has been verified. Only routed tools are enforced; unrelated OS/agent behavior is outside scope.
+
 ## Supported now
 
 TypeScript client using official `@modelcontextprotocol/sdk` 1.32.1, JSON-only stateless Streamable HTTP at `/api/mcp`. A persistent Ghost Ops agent session (separate from protocol transport sessions) binds a random 256-bit credential to an enrolled `live-*` identity. Optional `@openai/agents` 0.19.0 supplies a real model-driven tool loop. No production data, existing Codex session or third-party tool server is connected.

@@ -1,5 +1,9 @@
 # Local MCP security gateway
 
+## Phase 8 external client support
+
+The gateway remains the authoritative existing execution path. Public `@ghostops/sdk` and tools-only `@ghostops/mcp` stdio adapter add external process access with fixed credential/session headers and strict request UUIDs. Discovery is filtered against current grants; a known forbidden explicit call still reaches policy denial/evidence, never its handler. See [proxy protocol/profile](MCP_PROXY.md) and [external quickstart](EXTERNAL_AGENT_INTEGRATION.md). No arbitrary upstream server/OAuth/full MCP compatibility is claimed. Revoked historical sessions may be attributed for forensic evidence but cannot authorize automatic recontainment of restored identities.
+
 ## Transport
 
 `POST http://127.0.0.1:3210/api/mcp` uses the maintained official SDK's stateless, JSON-response Streamable HTTP transport. Only initialize, initialized notification, ping, tools/list and tools/call are supported; no free-form event ingestion, arbitrary resource read, shell, network tool or sampling endpoint exists. GET/DELETE return 405. The separate persistent agent session lives in SQLite, so restarting the stateless MCP endpoint never resets containment.

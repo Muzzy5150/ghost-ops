@@ -1,5 +1,11 @@
 # Ghost Ops architecture
 
+## Phase 8: public SDK and external MCP adapter
+
+Three small npm workspaces add independently packable SDK/proxy/example packages without moving the app. External Node clients use official MCP initialization/discovery/calls via direct loopback HTTP or a tools-only stdio proxy; both route through the existing runtime gateway/handlers. No additional executor, arbitrary telemetry endpoint, network listener or upstream MCP connection. Server-filtered discovery is advisory; each call checks current authority. External integration metadata is a defaulted additive agent column, while existing event/session/memory/case/export models remain authoritative.
+
+Operator-only bounded enrollment and audited credential replacement use private exclusive files; runtime clients cannot administer grants. Developer integrations reuses existing snapshot, Runtime sessions, controls and investigation navigation; historical activity is not an online assertion. A verified current-session guard prevents revoked historical critical sessions from re-containing restored identities while preserving evidence linkage and new-session automatic containment. Details: [Phase 8 architecture](PHASE8_ARCHITECTURE.md), [SDK](DEVELOPER_SDK.md), [MCP proxy](MCP_PROXY.md), [trust boundaries](PHASE8_SECURITY_MODEL.md).
+
 ## Phase 7: evaluation and evidence layer
 
 Security Lab adds versioned A–H configuration snapshots, exact expiring provider approval, transport-backed provenance, actor/probe benchmark comparisons and scoped forensic packages. No security-engine or MCP-handler replacement occurs. The additive migration never promotes old SDK-only successes to genuine inference. CLI execution requires interactive live confirmation; CI cannot dispatch the default provider transport. Exports use existing administrative authorization, redaction before hashing and a bounded fixed-file ZIP authenticated with the private local integrity key.

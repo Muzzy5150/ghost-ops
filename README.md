@@ -4,6 +4,29 @@ Detect the rogue. Trace the behavior. Protect the memory.
 
 Ghost Ops monitors isolated local agents through an authenticated MCP tool gateway. Four engines correlate identity, behavioral deviation, signed memory and synthetic deception into evidence-backed investigations. The dashboard uses SQLite records; permissions, quarantine and revocation are enforced before bounded local tools run. The original synthetic demonstration remains available.
 
+## Phase 8: developer SDK and protected external agents
+
+`@ghostops/sdk` and `@ghostops/mcp` **0.1.0** are installable local TypeScript/ESM packages with declarations. A separate Node agent and genuine stdio MCP proxy use the existing authenticated loopback gateway—no private server imports, database access, alternate handlers or paid inference. Tool discovery reflects current grants; every execution checks identity/session, permissions, quarantine and revocation server-side. Developer integrations appear inside Runtime sessions with actual activity, capabilities, controls and investigation links; registration is not an online assertion.
+
+```sh
+# After activating the new server build (instructions below):
+npm run sdk:build
+npm run external:manage -- --action provision --id live-external-demo --name ExternalResearch
+npm run external:run -- --credential-file .ghostops/external/live-external-demo-provision.json --action normal
+npm run external:run -- --credential-file .ghostops/external/live-external-demo-provision.json --action probe
+npm run external:manage -- --action inspect --id live-external-demo
+```
+
+Credentials go only to private exclusive CLI files; the dashboard never displays them. Restricted role/capability subsets, revocation, new-token rotation/restoration, exact replay and cross-agent memory isolation are supported. `npm run sdk:pack` builds local tarballs without publication. `npm run test:external` independently installs them outside the source tree and tests separate agent/proxy/production-server processes, actual effects/denials, all four engines, containment/restart, credential replacement and authenticated forensic ZIP export.
+
+**260 tests across 20 files** pass, alongside typecheck, zero-warning lint, production build, package installation, existing A–H Lab/MCP/HTTP demos, quarantine/memory/guided restart checks and additive migration preservation. Production audit: zero vulnerabilities; five existing development-only lint-chain advisory entries remain. Verified implementation milestones: `1f183e9`, `6459d58`. A reproduced revoked-old-session recontainment defect is fixed at the shared automatic-response boundary; old evidence remains inspectable while restored authority stays usable.
+
+**Only routed supported tools are protected**—not unrelated filesystem, browser, shell, network, Codex/Cursor or deliberately unguarded agent connections. MCP support is tools-only stdio → existing JSON HTTP, not arbitrary upstream MCP/OAuth. No genuine model inference ran; the optional explicitly confirmed external SDK model path is unverified and cannot assert server-verified provider provenance. Browser visual QA remains pending and was not attempted.
+
+See the [ten-minute developer quickstart](docs/EXTERNAL_AGENT_INTEGRATION.md), [SDK API](docs/DEVELOPER_SDK.md), [MCP adapter](docs/MCP_PROXY.md), [security model](docs/PHASE8_SECURITY_MODEL.md), [architecture](docs/PHASE8_ARCHITECTURE.md), [verification](docs/PHASE8_VERIFICATION.md), and [three-minute external-agent demo](docs/PHASE8_DEMO_SCRIPT.md).
+
+The retained **3210 presenter still runs its previous build**; its original data, signing key and process were preserved. When ready, stop it normally, back up SQLite consistently with its matching key, then run `npm ci`, `npm run db:migrate`, `npm run sdk:build`, `npm run build`, `npm start -- --port 3210`. Do not run setup/reset against retained evidence. Fresh checkout uses `npm run setup` before building. Three npm workspaces link the public packages without moving the existing app or requiring another package manager.
+
 ## Phase 7: evaluations, model approval and forensic evidence
 
 Security Lab now supports **versioned A–H evaluations**, evidence-backed benchmark denominators, historical comparison and downloadable investigation/experiment reports. New multi-step trust-boundary and benign unusual workflows use the same authenticated MCP gateway. Actual actor choices, independent enforcement probes and model resistance remain separate.

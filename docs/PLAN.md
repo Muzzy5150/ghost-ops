@@ -3,11 +3,14 @@
 ## Phase 8 — public packages and protected external integrations
 
 - [x] Audit existing stack and official MCP stdio/HTTP/tools documentation; independently rerun 217 baseline tests, typecheck and lint.
-- [ ] Build/pack installable SDK and tools-only stdio adapter with no alternate handler path.
-- [ ] External identity metadata, explicit capabilities and audited rotation/restoration; preserve existing enrollments/data/key.
-- [ ] Separate-process example, developer CLI/console and real MCP/gateway evidence.
-- [ ] Cross-process security lifecycle/export/restart/package installation, full regression/clean build/migration checks.
-- [ ] Final guides, actual results, limitations and verified commits; no paid inference or browser permission work.
+- [x] Build/pack installable SDK and tools-only stdio adapter with no alternate handler path; three npm workspaces link public exports, tarballs install independently.
+- [x] External identity metadata, explicit capabilities and audited rotation/restoration; read-only clone verifies old tables/key remain preserved.
+- [x] Separate-process example, developer CLI/console and actual MCP/gateway evidence, no private server imports.
+- [x] Cross-process lifecycle/export/restart/package installation and full immutable `6459d58` clean install/setup/build; **260 tests / 20 files**, typecheck/lint, Lab/runtime/HTTP/guided demos, memory/containment, migration pass. Production audit zero.
+- [x] Fix reproduced stale-session recontainment and legacy filtered-discovery regression; fresh/replay old tokens denied, current restored session usable, new critical session still contained; independent security boundary/bypass review completed.
+- [x] Final SDK/proxy/lifecycle/trust/verification/demo guides; milestones `1f183e9`, `6459d58`, documentation checkpoint follows. No paid inference, publication/deployment or browser permission work.
+- [ ] Visual sign-off and genuine-provider execution remain pending; optional external SDK receipts do not claim server verification.
+- [ ] Activate new presenter only through normal operator shutdown/consistent database+key backup/migration/build. Retained PID/data/build unchanged (41 requests); five existing development-only advisory entries remain.
 
 ## Phase 7 — forensic evaluations and exact model approval
 

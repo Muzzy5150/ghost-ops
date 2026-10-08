@@ -1,5 +1,9 @@
 # Two-minute Ghost Ops demonstration
 
+## Phase 8 external-agent demonstration (current)
+
+Use [PHASE8_DEMO_SCRIPT.md](PHASE8_DEMO_SCRIPT.md): separate Node agent → real stdio MCP → gateway → actual authorized effect / policy denial → persisted post-quarantine denial → incident/export/verification. It uses a fresh integration and never resets retained history or runs paid inference. `npm run test:external` reproduces the complete cross-process lifecycle in disposable state, including package installation and restart. Existing Security Lab and guided demonstrations below are preserved. Activate the new build only after normal presenter shutdown and consistent database/key backup.
+
 ## Phase 7 evidence-driven demonstration (current)
 
 Use [PHASE7_DEMO_SCRIPT.md](PHASE7_DEMO_SCRIPT.md) for the three-minute Security Lab → policy block → containment → report → tamper-detection flow. `GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:evaluate -- --mode local --show-tamper` runs eight versioned scenarios with actual MCP handlers and scripted decisions, never paid inference. It preserves existing history and creates new isolated identities. Existing windowed/node-editor and guided demos remain available.
