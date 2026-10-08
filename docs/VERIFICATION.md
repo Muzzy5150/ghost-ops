@@ -13,6 +13,9 @@ Verified in Node v24.10.0 / npm 11.19.0 on macOS, 2026-10-07.
 - HTTP negatives: no administrative session, missing CSRF, hostile Origin, hostile Host, forged proxy headers, forged internal transport attestation, strict-schema rejection, and oversized bodies all rejected.
 - Old agent credentials remain rejected after authorized restoration. Invalid credentials rejected over HTTP. Exact command retry does not duplicate containment.
 - `npm audit --omit=dev`: zero vulnerabilities after tested transitive overrides.
+- Clean checkout exported from the committed repository: `npm ci`, `npm run setup`, `npm run build`, `npm start -- --port 3211`, and the complete HTTP verifier all passed with a fresh database and separately generated private key.
+
+Final commands passed: `npm run typecheck`, `npm run lint`, `npm test` (26 tests), `npm run build`, and `GHOSTOPS_TEST_URL=http://127.0.0.1:3210 npm run test:api`. The targeted unit (18 tests) and integration (7 tests) suites are included in the final run; targeted earlier runs also passed. Verification leaves the main server running on port 3210 in the completed demonstration state.
 
 ## Fixed during verification
 
