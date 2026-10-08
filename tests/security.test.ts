@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { NextRequest } from "next/server";
 import { db } from "../src/server/db";
 import { command, ingest } from "../src/server/service";
-import { credentialFor, adminSession, csrfToken } from "../src/server/config";
+import { credentialFor, adminSession, csrfToken, transportToken } from "../src/server/config";
 import { hash, verifySignature } from "../src/server/memory";
 import { behavioralSignals } from "../src/server/policy";
 import { actionSchema } from "../src/lib/schemas";
@@ -78,6 +78,18 @@ describe("identity and enforcing gateway", () => {
     const session = await db.session.findFirstOrThrow({ where: { agentId: "research", active: true } });
     expect((await ingest({ ...researchAction(), sessionId: session.id }, credentialFor(session.credentialId))).allowed).toBe(true);
   });
+  it("allows a fresh audit action after restore and a later quarantine", async () => {
+    await command({ commandId: randomUUID(), action: "quarantine", targetId: "research" });
+    await command({ commandId: randomUUID(), action: "restore-agent", targetId: "research" });
+    await command({ commandId: randomUUID(), action: "quarantine", targetId: "research" });
+    expect(await db.containmentAction.count({ where: { action: "quarantine" } })).toBe(2);
+  });
+  it("serializes concurrent duplicate requests to one decision", async () => {
+    const action = researchAction();
+    const results = await Promise.all([ingest(action, secret()), ingest(action, secret())]);
+    expect(results.filter(r => r.replayed)).toHaveLength(1);
+    expect(await db.toolRequest.count()).toBe(1);
+  });
 });
 describe("behavior and memory integrity", () => {
   it("explains baseline deviations, untrusted ingestion, sequences, and frequency", () => {
@@ -102,11 +114,18 @@ describe("behavior and memory integrity", () => {
     await db.memoryVersion.update({ where: { id: memory.id }, data: { sourceTrust: "untrusted" } });
     expect((await ingest({ ...researchAction(), tool: "memory", resource: "memory/research-policy" }, secret())).reason).toBe("MEMORY_INTEGRITY_FAILURE");
   });
+  it("refuses agent restoration while its latest protected memory is tampered", async () => {
+    await command({ commandId: randomUUID(), action: "quarantine", targetId: "research" });
+    const memory = await db.memoryVersion.findFirstOrThrow({ orderBy: { version: "desc" } });
+    await db.memoryVersion.update({ where: { id: memory.id }, data: { authorization: "forged-administrator" } });
+    await expect(command({ commandId: randomUUID(), action: "restore-agent", targetId: "research" })).rejects.toThrow("Verify and restore memory");
+    expect((await db.agent.findUniqueOrThrow({ where: { id: "research" } })).status).toBe("quarantined");
+  });
 });
 describe("HTTP trust boundary", () => {
-  const request = (headers: Record<string, string>, body = "{}") => new NextRequest("http://127.0.0.1:3000/api/control", { method: "POST", headers: { host: "127.0.0.1:3000", ...headers }, body });
-  it("rejects remote, proxy, and cross-site management access", () => {
-    const variants: Record<string, string>[] = [{ host: "evil.invalid" }, { "x-forwarded-for": "127.0.0.1" }, { origin: "https://evil.invalid" }, { "sec-fetch-site": "cross-site" }];
+  const request = (headers: Record<string, string>, body = "{}") => new NextRequest("http://127.0.0.1:3000/api/control", { method: "POST", headers: { host: "127.0.0.1:3000", "x-ghostops-transport": transportToken(), ...headers }, body });
+  it("rejects remote, unverified transport, and cross-site management access", () => {
+    const variants: Record<string, string>[] = [{ host: "evil.invalid" }, { "x-ghostops-transport": "forged" }, { origin: "https://evil.invalid" }, { "sec-fetch-site": "cross-site" }];
     for (const headers of variants) {
       expect(() => localOnly(request(headers))).toThrow();
     }

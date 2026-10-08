@@ -8,6 +8,7 @@ import { behavioralSignals, permissionDecision, resources } from "./policy";
 import { correlate, recordEvent } from "./investigation";
 
 export class ConflictError extends Error {}
+export class CapacityError extends Error {}
 export type GatewayResult = { requestId: string; allowed: boolean; reason: string; output: string | null; incidentId: string | null; replayed: boolean };
 
 export async function gateway(tx: Prisma.TransactionClient, rawAction: AgentAction, credential: string, runId?: string): Promise<GatewayResult> {
@@ -18,6 +19,7 @@ export async function gateway(tx: Prisma.TransactionClient, rawAction: AgentActi
     if (previous.fingerprint !== fingerprint) throw new ConflictError("Request ID already used for a different request or credential");
     return { ...(previous.result as Omit<GatewayResult, "replayed">), replayed: true };
   }
+  if (await tx.toolRequest.count() >= 2000) throw new CapacityError("Local demo capacity reached (2,000 requests); reset the synthetic environment");
   const agent = await tx.agent.findUnique({ where: { id: action.actorId }, include: { profile: true } });
   const session = await tx.session.findUnique({ where: { id: action.sessionId } });
   const storedCredential = await tx.credential.findUnique({ where: { digest: credentialDigest(credential) } });
@@ -43,6 +45,7 @@ export async function gateway(tx: Prisma.TransactionClient, rawAction: AgentActi
   // Only the bounded synthetic catalogue can produce a result. There is no filesystem,
   // command interpreter, arbitrary-code evaluator, MCP runtime, or outbound HTTP executor.
   let output: string | null = allowed ? resources[action.resource].content : null;
+  if (allowed && source) output = source.content;
   if (allowed && action.tool === "memory") output = (await tx.memoryVersion.findFirst({ where: { ownerId: action.actorId }, orderBy: { version: "desc" } }))!.content;
   await tx.toolRequest.create({ data: { id: action.requestId, fingerprint, actorId: action.actorId, sessionId: action.sessionId, tool: action.tool, operation: action.operation, resource: action.resource, destination: action.destination, sourceId: action.sourceId ?? session?.sourceId, runId, allowed, reason: effectiveReason, result: {} } });
   await tx.policyDecision.create({ data: { id: randomUUID(), requestId: action.requestId, allowed, rule: effectiveReason, reasons: [effectiveReason] } });

@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
+  turbopack: { root: process.cwd() },
+  outputFileTracingRoot: process.cwd(),
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-better-sqlite3", "better-sqlite3"],
   async headers() {
     return [{ source: "/:path*", headers: [

@@ -1,5 +1,5 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 function loadSecret() {
@@ -14,7 +14,10 @@ function loadSecret() {
     try { writeFileSync(file, randomBytes(48).toString("hex"), { mode: 0o600, flag: "wx" }); }
     catch (error) { if (!existsSync(file)) throw error; }
   }
-  return readFileSync(file, "utf8").trim();
+  chmodSync(file, 0o600);
+  const persisted = readFileSync(file, "utf8").trim();
+  if (persisted.length < 32) throw new Error("Persisted integrity key is invalid; recover the original key or reinitialize the disposable demo");
+  return persisted;
 }
 const secret = loadSecret();
 export function mac(value: string) { return createHmac("sha256", secret).update(value).digest("hex"); }
@@ -26,3 +29,4 @@ export function credentialFor(id: string) { return mac(`agent-credential:${id}`)
 export function credentialDigest(value: string) { return mac(`credential-digest:${value}`); }
 export function adminSession() { return mac("local-admin-session:v1"); }
 export function csrfToken() { return mac("local-admin-csrf:v1"); }
+export function transportToken() { return mac("loopback-transport:v1"); }

@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { adminSession, csrfToken, secureEqual } from "./config";
-import { ConflictError } from "./gateway";
+import { adminSession, csrfToken, secureEqual, transportToken } from "./config";
+import { CapacityError, ConflictError } from "./gateway";
 
 export class HttpError extends Error { constructor(public status: number, message: string) { super(message); } }
 export function localOnly(request: NextRequest) {
   const host = request.headers.get("host") ?? "";
   if (!/^(localhost|127\.0\.0\.1|\[::1\])(?::\d{1,5})?$/.test(host)) throw new HttpError(403, "Management is restricted to loopback hosts");
-  if (request.headers.has("x-forwarded-host") || request.headers.has("x-forwarded-for") || request.headers.has("forwarded")) throw new HttpError(403, "Proxy access is disabled");
+  // The Node transport checks the actual socket and rejects client proxy headers
+  // before Next.js adds its own forwarded headers. Direct next start fails closed.
+  if (!secureEqual(request.headers.get("x-ghostops-transport") ?? "", transportToken())) throw new HttpError(403, "Verified loopback transport required; use npm run dev or npm start");
   const origin = request.headers.get("origin");
   if (origin && origin !== `http://${host}`) throw new HttpError(403, "Cross-origin request rejected");
   if (["cross-site", "same-site"].includes(request.headers.get("sec-fetch-site") ?? "")) throw new HttpError(403, "Cross-site request rejected");
@@ -38,6 +40,7 @@ export function failure(error: unknown) {
   if (error instanceof HttpError) return NextResponse.json({ error: error.message }, { status: error.status });
   if (error instanceof ZodError) return NextResponse.json({ error: "Invalid input", issues: error.issues.map(i => ({ path: i.path, message: i.message })) }, { status: 400 });
   if (error instanceof ConflictError) return NextResponse.json({ error: error.message }, { status: 409 });
+  if (error instanceof CapacityError) return NextResponse.json({ error: error.message }, { status: 429 });
   // Domain errors intentionally contain no user-supplied content or secret values.
   const safe = error instanceof Error && /contained|restore|restor|active agent credential|unverified snapshot|Agent or incident not found/i.test(error.message);
   return NextResponse.json({ error: safe ? (error as Error).message : "Operation failed; confirm the local database is initialized and the target exists." }, { status: 400 });

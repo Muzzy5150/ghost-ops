@@ -3,7 +3,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { commandSchema, type ManagementCommand, type AgentAction } from "@/lib/schemas";
 import { db, serialized } from "./db";
 import { credentialDigest, credentialFor } from "./config";
-import { ConflictError, gateway } from "./gateway";
+import { CapacityError, ConflictError, gateway } from "./gateway";
 import { contain, recordEvent } from "./investigation";
 import { hash, verifySignature } from "./memory";
 import { reset, seed } from "./registry";
@@ -21,6 +21,8 @@ export function command(raw: ManagementCommand) {
       if (prior.fingerprint !== fingerprint) throw new ConflictError("Command ID already used with different arguments");
       return { result: prior.result, replayed: true };
     }
+    if (await tx.command.count() >= 10000) throw new CapacityError("Local command receipt capacity reached (10,000). Archive the local database before creating a new environment.");
+    if (input.action === "restore-memory" && await tx.memoryVersion.count() >= 1000) throw new CapacityError("Memory history capacity reached (1,000 versions); reset the synthetic environment");
     let result: Prisma.InputJsonValue;
     if (input.action === "reset") result = await reset(tx);
     else if (input.action === "initialize") result = await seed(tx);
@@ -60,7 +62,7 @@ export function command(raw: ManagementCommand) {
 }
 export async function snapshot() {
   return db.$transaction(async tx => {
-    const [agents, events, incidents, memories, traps, interactions, runs, actions, sources, requestCount, blockedCount, anomalyCount, memoryEvents, trapCount, unknownActors, sessions] = await Promise.all([
+    const [agents, events, incidents, memories, traps, interactions, runs, actions, sources, requestCount, blockedCount, anomalyCount, memoryEvents, trapCount, unknownActors, sessions, incidentCount, activeIncidentCount] = await Promise.all([
       tx.agent.findMany({ include: { profile: true }, orderBy: { id: "asc" } }),
       tx.securityEvent.findMany({ orderBy: { createdAt: "desc" }, take: 180, include: { findings: true } }),
       tx.incident.findMany({ orderBy: { updatedAt: "desc" }, take: 50, include: { events: { orderBy: { createdAt: "asc" } }, evidence: true, actions: true } }),
@@ -75,12 +77,13 @@ export async function snapshot() {
       tx.securityEvent.count({ where: { module: "MemoryGuard", kind: { in: ["PROTECTED_MEMORY_WRITE_BLOCKED", "INTEGRITY_TAMPER"] } } }),
       tx.trapInteraction.count(),
       tx.securityEvent.findMany({ where: { kind: "UNKNOWN_IDENTITY" }, distinct: ["actorId"], select: { actorId: true } }),
-      tx.session.findMany({ orderBy: { createdAt: "desc" }, take: 30, select: { id: true, agentId: true, active: true, sourceId: true, sourceTrust: true, createdAt: true } })
+      tx.session.findMany({ orderBy: { createdAt: "desc" }, take: 30, select: { id: true, agentId: true, active: true, sourceId: true, sourceTrust: true, createdAt: true } }),
+      tx.incident.count(), tx.incident.count({ where: { status: "investigating" } })
     ]);
     // Never expose credential hashes or signatures, admin secrets, or signing material.
     const safeMemories = memories.map(({ signature: _signature, ...m }) => ({ ...m, integrity: verifySignature({ ...m, signature: _signature }) ? "verified" : "tampered" }));
     return { agents, events, incidents, memories: safeMemories, traps, interactions, runs, actions, sources, sessions,
-      stats: { registered: agents.length, authorized: agents.filter(a => a.status === "active").length, unknown: unknownActors.length, activeIncidents: incidents.filter(i => i.status === "investigating").length, incidents: incidents.length, anomalies: anomalyCount, memoryEvents, trapTriggers: trapCount, quarantined: agents.filter(a => a.status === "quarantined").length, requests: requestCount, blocked: blockedCount },
+      stats: { registered: agents.length, authorized: agents.filter(a => a.status === "active").length, unknown: unknownActors.length, activeIncidents: activeIncidentCount, incidents: incidentCount, anomalies: anomalyCount, memoryEvents, trapTriggers: trapCount, quarantined: agents.filter(a => a.status === "quarantined").length, requests: requestCount, blocked: blockedCount },
       generatedAt: new Date().toISOString(), mode: "isolated-simulation" as const };
   });
 }
