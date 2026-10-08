@@ -1,5 +1,11 @@
 # Ghost Ops architecture
 
+## Phase 7: evaluation and evidence layer
+
+Security Lab adds versioned A–H configuration snapshots, exact expiring provider approval, transport-backed provenance, actor/probe benchmark comparisons and scoped forensic packages. No security-engine or MCP-handler replacement occurs. The additive migration never promotes old SDK-only successes to genuine inference. CLI execution requires interactive live confirmation; CI cannot dispatch the default provider transport. Exports use existing administrative authorization, redaction before hashing and a bounded fixed-file ZIP authenticated with the private local integrity key.
+
+See [PHASE7_ARCHITECTURE.md](PHASE7_ARCHITECTURE.md), [benchmark definitions](SECURITY_BENCHMARKS.md) and [evidence trust model](FORENSIC_EVIDENCE.md). Genuine inference and visual QA remain pending. The running presenter/database/build were preserved; verification used disposable production instances.
+
 ## Phase 6 Security Lab
 
 The existing authenticated gateway remains the only runtime tool execution path. A bounded official Agents SDK adapter adds configurable OpenAI model, call/tool/time/token limits, disabled retries/tracing and minimized invocation receipts. No actual remote inference has been verified. Local scripted execution and SDK provider fixtures are distinguished from genuine model responses.

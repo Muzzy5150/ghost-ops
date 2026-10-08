@@ -1,6 +1,12 @@
 # Two-minute Ghost Ops demonstration
 
-## Phase 5 node-editor walkthrough (current)
+## Phase 7 evidence-driven demonstration (current)
+
+Use [PHASE7_DEMO_SCRIPT.md](PHASE7_DEMO_SCRIPT.md) for the three-minute Security Lab → policy block → containment → report → tamper-detection flow. `GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:evaluate -- --mode local --show-tamper` runs eight versioned scenarios with actual MCP handlers and scripted decisions, never paid inference. It preserves existing history and creates new isolated identities. Existing windowed/node-editor and guided demos remain available.
+
+Activate the new build only after normally stopping the old presenter and backing up SQLite with its matching key. The user's presenter was not rebuilt or restarted by this phase. Physical browser presentation/visual timing remains pending.
+
+## Phase 5 node-editor walkthrough (retained)
 
 Prepare with `npm run build` then `npm start -- --port 3210`. Open http://127.0.0.1:3210 at 100% browser zoom. **Reset layout** changes UI only. If deliberately resetting disposable simulated history, open Demo Control → New guided demo → Reset & start; runtime evidence is preserved. Do not run this reset if retaining the current simulation evidence.
 

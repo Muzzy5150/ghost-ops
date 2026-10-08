@@ -1,5 +1,11 @@
 # Verification record
 
+## Phase 7 forensic evaluations
+
+Implementation `4047f00` passes **217 tests across 17 files**, typecheck, zero-warning lint, clean-checkout install/setup/production build, 16 A–H local/offline HTTP experiments, actual MCP/agent demos, restart quarantine/revocation/replay, signed restoration and guided resumption. Actual ZIP downloads, standard unzip validation, independent CLI verification, intentionally altered evidence and eight-stage local presentation pass without inference. A read-only clone preserves all 17 original table payloads. Production dependency audit is clean; five development-only advisories remain.
+
+**No real-provider request was executed.** SDK fixtures are mocks. Browser inspection was excluded and remains pending. Main PID 68163 and existing data/build were preserved. See [PHASE7_VERIFICATION.md](PHASE7_VERIFICATION.md) and [review artifacts](../artifacts/phase7-evidence/README.md).
+
 ## Phase 6 Security Lab
 
 The independently checked 140-test baseline expands to **175 passing tests across 13 files**. Typecheck, zero-warning lint, immutable `2eb5b03` clean installation/setup/build, A–F local/offline lab HTTP/MCP scenarios, prior runtime/HTTP demos and fresh-process quarantine/memory/guided restart verifiers pass. A read-only clone proves all 17 existing table payloads survive the additive migration. Production audit remains clean; the same five development-only lint-chain entries remain.

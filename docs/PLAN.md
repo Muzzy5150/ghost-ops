@@ -7,8 +7,11 @@
 - [x] Add exact-run dry preflight, expiring configuration/credential-bound approval, CLI interactive confirmation, transport-backed provenance and CI network guard.
 - [x] Additive version/configuration/provenance migration; A–H versioned definitions and separate actor/probe benchmark denominators.
 - [x] Persisted scoped forensic projection, deterministic HTML, bounded ZIP, redaction-before-hashing, SHA-256/local HMAC and verification/export CLI.
-- [ ] Regression tests, Security Lab controls/comparison/export, actual HTTP offline hackathon, clean-checkout build and restart verification.
-- [ ] Final Phase 7 docs and verified commits.
+- [x] Regression tests, exact Lab confirmation/comparison/export and actual HTTP/local eight-stage hackathon; final **217 tests / 17 files**, typecheck and zero-warning lint.
+- [x] Immutable `4047f00` clean install/setup/production build; 16 A–H local/offline experiments, actual MCP, restart quarantine, signed restoration, original guided demos, export/CLI/tamper checks; production audit zero.
+- [x] Read-only consistent presenter clone preserves 17 table payloads; populated historical Phase 6 fixture preserves 20 table payloads. Main process/build/database/key unchanged.
+- [x] Architecture, exact model approval/proof, metric denominators, evidence trust model, demo and verification docs; sanitized actual disposable-run evidence samples without signing key.
+- [x] Implementation milestones `f698588`, `230953c`, `4047f00`: explicit approval/provenance/exports; evidence-specific containment and false-positive attribution; sensitive SDK logging suppression and recorded report explanations.
 - [ ] Real inference pending configured credentials and fresh operator authorization; no automatic paid experiment.
 - [ ] Visual QA remains pending and explicitly excluded. Presenter/process/database remain unchanged.
 

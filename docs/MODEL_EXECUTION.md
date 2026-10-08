@@ -2,7 +2,7 @@
 
 ## Verification status
 
-The official Agents SDK path is implemented and tested through its actual Agent/Runner/tool loop with a mocked provider. Actual MCP handlers were verified independently. **No real provider inference ran in Phase 6:** the project environment lacked enabled model configuration and credentials. Test fixtures are not evidence of genuine inference. The opt-in smoke test remains pending an operator-approved configured run.
+The official Agents SDK path is implemented and tested through its actual Agent/Runner/tool loop with a mocked provider. Actual MCP handlers were verified independently. **No real provider inference ran in Phase 6 or 7:** configuration and credentials were unavailable. Fixtures are not evidence of genuine inference. The opt-in smoke test remains pending. Phase 7 adds exact configuration/credential-bound preflight, interactive approval and transport-backed provenance; see [REAL_MODEL_VERIFICATION.md](REAL_MODEL_VERIFICATION.md).
 
 ## Explicit configuration
 
@@ -21,16 +21,17 @@ npm start -- --port 3210
 The server must be stopped/relaunched by the operator to adopt different environment configuration. A key alone does not enable inference. Security Lab also requires explicit per-run cost consent:
 
 ```sh
-GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario normal --mode model --allow-model-cost
+GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario normal --mode model --allow-model-cost --dry-run
+GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario normal --mode model --allow-model-cost --live
 ```
 
-Use UI budgets before Start or the validated API `budgets` object. Model mode cannot silently fall back to scripted decisions. Unsupported provider, missing enablement/model/credentials or missing cost consent fails closed.
+Review preflight before the live command, which requires interactive `EXECUTE <command-UUID>` confirmation. UI model execution requires **Review model preflight**, then **Confirm exact provider execution**. Approval expires after 120 seconds and binds UUID, scenario/version, budgets, permissions, provider/model and credential. Use UI budgets before approval or the validated API `budgets` object. Model mode never silently falls back to scripted choices. Missing configuration, cost consent or valid approval fails closed. CI/default test transport cannot contact the provider.
 
 For natural-language tasks the existing provisioned-agent CLI remains supported:
 
 ```sh
 npm run agent:provision
-npm run agent:run -- --model --task "Read docs/research and write a summary using the approved local tools."
+npm run agent:run -- --model --live --task "Read docs/research and write a summary using the approved local tools."
 ```
 
 That standalone client requires its own process configuration and returns invocation metadata, but is not a persisted Lab experiment. Use the lab when persistent experiment/invocation evidence is required. The lab accepts fixed synthetic scenario tasks, not arbitrary prompts from its API.
@@ -47,10 +48,12 @@ Requests disable response storage where supported and use no tracing exports. Sy
 
 ## Opt-in smoke test
 
+Receipts distinguish SCRIPTED, MOCK PROVIDER, VERIFIED PROVIDER and FAILED/UNVERIFIED. Only a successful default official transport response with matching SDK response ID and reported model counts as genuine-provider evidence. Old SDK-only counters are not promoted. Sensitive SDK model/tool logging is disabled programmatically, even under debug settings. The default transport rejects test/CI network dispatch and redirects. These are trusted-host controls, not external attestation.
+
 After deliberately enabling the server and authorizing one bounded paid run:
 
 ```sh
-GHOSTOPS_RUN_MODEL_SMOKE=1 GHOSTOPS_URL=http://127.0.0.1:3210 npm run test:model
+GHOSTOPS_RUN_MODEL_SMOKE=1 GHOSTOPS_URL=http://127.0.0.1:3210 npm run test:model -- --live
 ```
 
 This submits exactly one normal experiment (up to 3 inference calls, 16,000 reported tokens, 600 output/call, 4 tools and 60 seconds), with no automatic second run. It checks successful invocation receipts, authorized tool workflow and absence of inconclusive completion. It was **not executed** during this implementation. An SDK/provider failure or token restriction is reported as failed/inconclusive, never live-model success.

@@ -4,7 +4,26 @@ Detect the rogue. Trace the behavior. Protect the memory.
 
 Ghost Ops monitors isolated local agents through an authenticated MCP tool gateway. Four engines correlate identity, behavioral deviation, signed memory and synthetic deception into evidence-backed investigations. The dashboard uses SQLite records; permissions, quarantine and revocation are enforced before bounded local tools run. The original synthetic demonstration remains available.
 
-## Phase 6: Security Lab and bounded model execution
+## Phase 7: evaluations, model approval and forensic evidence
+
+Security Lab now supports **versioned A–H evaluations**, evidence-backed benchmark denominators, historical comparison and downloadable investigation/experiment reports. New multi-step trust-boundary and benign unusual workflows use the same authenticated MCP gateway. Actual actor choices, independent enforcement probes and model resistance remain separate.
+
+Model execution requires dry preflight and a **fresh exact-run confirmation**, bound to configuration, budgets, current permissions and configured credential. CLI additionally requires `--live` and interactive confirmation. Successful SDK fixtures are explicitly **MOCK PROVIDER**, not genuine inference. Transport-backed receipts record requested/reported model, response ID, status, timing, usage and linked gateway requests. **No genuine provider inference ran**: credentials/enablement were unavailable and no paid call was authorized.
+
+Forensic ZIPs contain minimized persisted evidence, deterministic HTML, SHA-256 content hashes and a locally authenticated manifest. The verifier detects altered/missing evidence and invalid authentication. Hashes alone do not establish origin; local HMAC is not external attestation or protection against host/key compromise.
+
+```sh
+GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:evaluate -- --mode local --show-tamper
+npm run evidence:verify -- /absolute/path/to/exported-report.zip
+```
+
+The eight-stage presentation uses new isolated identities, actual bounded local tools and scripted decisions; it does not reset history or run inference. `--mode offline` uses synthetic effects. Security Lab and investigation controls also download reports. See [three-minute demonstration](docs/PHASE7_DEMO_SCRIPT.md), [model approval/proof](docs/REAL_MODEL_VERIFICATION.md), [metric definitions](docs/SECURITY_BENCHMARKS.md), [forensic trust model](docs/FORENSIC_EVIDENCE.md), [architecture](docs/PHASE7_ARCHITECTURE.md), and [verification](docs/PHASE7_VERIFICATION.md). Actual sanitized disposable-run [review evidence](artifacts/phase7-evidence/README.md) is included; no signing key is exported.
+
+Verified implementation `4047f00`: **217 passing tests in 17 files**, typecheck, zero-warning lint, fresh-checkout installation/setup/production build, 16 A–H local/offline production experiments, actual MCP/CLI, restart quarantine, signed restoration, original demos, forensic downloads/independent verifier/tamper rejection and eight-stage local presentation. Production dependency audit: zero; five existing development-only advisories remain. Visual QA remains pending and was intentionally not attempted.
+
+**The existing 3210 presenter, its database, signing key and build were preserved; Phase 7 is not activated in that old running process.** Stop it normally when ready, back up the database with its matching key, then run `npm ci`, `npm run db:migrate`, `npm run build`, `npm start -- --port 3210`. Do not reset data or use `test:api` against retained presenter evidence. Fresh checkout uses `npm run setup` before build.
+
+## Phase 6: Security Lab and bounded model execution (historical)
 
 Security Lab adds a fourteenth workspace tool and dedicated preset (Alt+3), with six persisted experiments: normal research, prompt injection, protected-memory manipulation, impersonation, synthetic honeypots and quarantine verification. Runs expose actual decisions, ordered evidence, incident links, cancellation, read-only comparison and restart interruption without replaying effects. Original Operations/Incident Room layouts, graph, thirteen tools and demos remain available.
 
@@ -75,7 +94,7 @@ Optional **official OpenAI Agents SDK** model execution requires deliberate conf
 export GHOSTOPS_MODEL_ENABLED=1
 export GHOSTOPS_MODEL=your-approved-model-id
 # Set OPENAI_API_KEY securely in this terminal; never commit or print it.
-npm run agent:run -- --model --task "Read docs/research and summarize it using the local tools."
+npm run agent:run -- --model --live --task "Read docs/research and summarize it using the local tools."
 ```
 
 Model mode contacts only the configured official OpenAI provider endpoint and disables tracing exports. Use synthetic inputs only; costs and provider retention apply. A key alone does not enable inference. **No real-model call was performed during verification.** Model integration is implemented/typechecked, not live-provider verified. See [REAL_AGENT_INTEGRATION.md](docs/REAL_AGENT_INTEGRATION.md), [MCP_GATEWAY.md](docs/MCP_GATEWAY.md), [LIVE_DEMO_SCRIPT.md](docs/LIVE_DEMO_SCRIPT.md), and [PHASE3_VERIFICATION.md](docs/PHASE3_VERIFICATION.md).

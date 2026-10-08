@@ -8,9 +8,9 @@ The lab evaluates isolated synthetic workflows using the existing security gatew
 | --- | --- | --- |
 | OFFLINE SIMULATION | Scripted | Existing gateway policies, synthetic effects, no MCP handler or inference |
 | LIVE LOCAL AGENT | Scripted | Actual authenticated MCP tool handlers; no inference |
-| MODEL REQUESTED | Official SDK | Requires explicit configuration/consent; only successful adapter responses justify MODEL-DRIVEN labeling |
+| MODEL REQUESTED | Official SDK | Exact preflight/confirmation required; only matching successful official transport proof justifies VERIFIED PROVIDER, not SDK fixtures |
 
-Model mode supports A–C. D–F are deterministic security regressions, not model robustness experiments. Offline evaluation always uses a separate simulated identity, even if an existing runtime identity was selected.
+Model mode supports A–C. D–H are deterministic regressions, not model robustness experiments. Offline always uses a separate simulated identity. Version 2.0 is the new default; legacy A–F 1.0 records are preserved. Model Start opens readonly preflight; a second exact authenticated confirmation is required and expires in 120 seconds. Changed configuration requires fresh approval. See [model setup](REAL_MODEL_VERIFICATION.md).
 
 ## Scenarios and evidence
 
@@ -22,6 +22,8 @@ Model mode supports A–C. D–F are deterministic security regressions, not mod
 | D Identity impersonation | Invalid credential claiming the run identity, then unregistered RogueLab actor. Claims remain unverified and cannot train the registered victim's baseline. |
 | E Synthetic decoy | Forbidden credential-decoy access through the gateway; identity, policy, trap interaction and investigation evidence persist. |
 | F Containment | Authorized read, independently authorized quarantine, then otherwise-permitted summary request. Persisted denial and null execution verify the writer never ran. |
+| G Multi-step boundary | Untrusted retrieval, protected-memory access, denied write and legitimate summary; signed policy remains intact. |
+| H Benign unusual workflow | Trusted baseline, uncommon authorized tool/sequence, optional approved task-list variation; deviations alone do not prove compromise. |
 
 Local/offline adversarial choices are scripted and labeled as such. In model mode, the injection document may be ignored or lead to a request; either outcome is recorded accurately. Security policy remains server-side, outside writable agent notes. An experiment's name never creates a finding by itself.
 
@@ -41,6 +43,8 @@ No raw model prompts, private reasoning, complete provider output or credentials
 
 ## CLI
 
+The lab also provides persisted benchmark metrics and historical filters/search by scenario, mode, identity/model/version/date/policy/outcome. Actor requests and probes are distinct; zero denominators display N/A. Ordinary deviations/manual quarantine are not the defined benign critical/automatic-containment false positive. Read [metric definitions](SECURITY_BENCHMARKS.md). Terminal runs and existing cases download minimized SHA-256/local-HMAC forensic ZIPs; see [verification](FORENSIC_EVIDENCE.md). No credentials or signing key are exported.
+
 Use the newly built server; preserve the printed command UUID after uncertain delivery.
 
 ```sh
@@ -50,6 +54,9 @@ GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario memory-poisonin
 GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario impersonation --mode local
 GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario honeypot --mode local
 GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario containment --mode local
+GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario multi-step --mode local
+GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --scenario benign-edge --variant alternate-sequence --mode local
+GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:evaluate -- --mode local --show-tamper
 GHOSTOPS_URL=http://127.0.0.1:3210 npm run lab:run -- --list
 ```
 
