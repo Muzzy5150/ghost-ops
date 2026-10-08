@@ -1,0 +1,17 @@
+{
+  "original": {
+    "valid": true,
+    "hashesVerified": true,
+    "authenticated": true,
+    "packageId": "da85b360-d09a-43d9-bb17-d281dd9b527d",
+    "scope": "incident",
+    "subjectId": "79bb609d-282f-4516-b0d5-c2ac1549a30a",
+    "files": 6,
+    "trust": "Local key authenticated; host/key compromise is not excluded"
+  },
+  "tamperRejected": true,
+  "agentId": "live-external-e2e",
+  "incidentId": "79bb609d-282f-4516-b0d5-c2ac1549a30a",
+  "modelCalls": 0,
+  "limitation": "Disposable verification key is not exported; future reviewers can check hashes but not reauthenticate origin without that key."
+}

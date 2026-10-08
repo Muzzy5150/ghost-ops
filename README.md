@@ -4,6 +4,38 @@ Detect the rogue. Trace the behavior. Protect the memory.
 
 Ghost Ops monitors isolated local agents through an authenticated MCP tool gateway. Four engines correlate identity, behavioral deviation, signed memory and synthetic deception into evidence-backed investigations. The dashboard uses SQLite records; permissions, quarantine and revocation are enforced before bounded local tools run. The original synthetic demonstration remains available.
 
+## Release candidate: Phase 9
+
+Target **`v1.0.0-rc.1`** freezes the existing engines, public SDK/MCP packages and workbench. Release additions are a protected readiness probe, version-aware preflight, consistent private database/key backup and an evidence-driven external-process demo. **268 tests / 21 files** pass; clean-checkout package installation, production build, MCP/HTTP/guided workflows, cloned-presenter migration/restart and authenticated original/tampered evidence checks pass. Production audit has zero advisories; five existing development-only lint-chain entries remain. No paid inference or browser inspection occurred.
+
+Fresh disposable checkout only:
+
+```sh
+# Select one Node version consistently for install/build/start (verified: Node 24.10).
+npm ci
+npm run setup
+npm run sdk:build
+npm run build
+npm start -- --port 3210
+```
+
+In another terminal, after starting the RC:
+
+```sh
+export GHOSTOPS_URL=http://127.0.0.1:3210
+npm run release:preflight -- --server-only
+npm run release:demo -- --prepare
+# Use the private filename printed by prepare; never print its contents:
+npm run release:preflight -- --credential-file /absolute/printed/private/identity.json
+npm run release:demo -- --execute --credential-file /absolute/printed/private/identity.json --interactive
+```
+
+**The retained port 3210 presenter is still its older build.** Preflight correctly refuses it as an unverified release; this is not a reason to reset its database or replace its key. Do not run the fresh-checkout setup/build sequence in its live directory. A consistent private backup and cloned additive upgrade are verified; actual activation requires approval and normal shutdown. Follow the [release checklist and safe activation/recovery sequence](docs/RELEASE_CHECKLIST.md).
+
+Use port **3211** and `GHOSTOPS_URL=http://127.0.0.1:3211` for an isolated RC while 3210 is retained. Keep the same Node version in every terminal: native SQLite installed under Node 24 cannot run under Node 26 without reinstalling in that separate checkout. Do not rebuild the retained presenter's dependencies to fix another checkout.
+
+See [release verification](docs/RELEASE_VERIFICATION.md), [three-minute presentation](docs/HACKATHON_DEMO_3_MIN.md), [90-second fallback](docs/HACKATHON_DEMO_90_SEC.md), [submission and judge Q&A](docs/HACKATHON_SUBMISSION.md), [limits](docs/RELEASE_LIMITATIONS.md), and [actual sanitized evidence](artifacts/phase9-release/README.md). Enforcement covers only supported routed tools. Actor decisions in this no-model presentation are scripted; MCP traffic, bounded handlers, denials, containment and evidence are real.
+
 ## Phase 8: developer SDK and protected external agents
 
 `@ghostops/sdk` and `@ghostops/mcp` **0.1.0** are installable local TypeScript/ESM packages with declarations. A separate Node agent and genuine stdio MCP proxy use the existing authenticated loopback gateway—no private server imports, database access, alternate handlers or paid inference. Tool discovery reflects current grants; every execution checks identity/session, permissions, quarantine and revocation server-side. Developer integrations appear inside Runtime sessions with actual activity, capabilities, controls and investigation links; registration is not an online assertion.

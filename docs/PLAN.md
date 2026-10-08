@@ -1,5 +1,21 @@
 # Implementation plan and verification log
 
+## Phase 9 — frozen release candidate and hackathon proof
+
+- [x] Inspect Phase 8 history, dependencies, migration state and retained presenter; preserve PID 68163, original database, matching key and old build.
+- [x] Independently verify the historical-session fix; retain old evidence, reject revoked authority, permit a fresh restored session and contain new qualifying critical activity.
+- [x] Add guarded compiled RC readiness, version-aware non-mutating preflight, private consistent SQLite/key backup and exact external MCP demo commands. No new subsystem or UI redesign.
+- [x] Verify actual private backup: current signatures valid, intentionally altered historical versions retained; clone migration preserves all 17 original table payloads.
+- [x] Add eight regressions; **268 tests / 21 files**, typecheck and zero-warning lint pass. Code checkpoints `3064f51`, `857a81f`.
+- [x] Clean archive installation/setup/SDK build/production build, tarball independent installation, cross-process MCP, all four engines, lifecycle/restart, original Lab/guided workflows, authenticated forensic export and tampered-copy rejection.
+- [x] Actual backup clone boots the RC with matching key; normal restart, original row counts/current signatures and containment remain preserved. No migration or restart of retained presenter.
+- [x] Failure checks: invalid/revoked authority, forged identity, cross-owner memory, replay, disconnected stdio, unavailable gateway, client timeout and interrupted export. Uncertain authorized dispatch is not promised to roll back.
+- [x] Submission/Q&A, three-minute/90-second demo, secure activation/recovery and actual sanitized review artifacts. Production audit zero; five development-only entries remain.
+- [ ] Activate the retained presenter only after fresh operator approval and normal shutdown. Its old release probe correctly fails RC preflight.
+- [ ] Genuine-provider inference and visual sign-off remain unverified; explicitly outside this release verification. No paid calls, screenshots, deployment, publication or remote push.
+
+The RC is verified on isolated production servers and matching backup clones, not claimed to be serving port 3210 yet. Final verification/tag status: [RELEASE_VERIFICATION.md](RELEASE_VERIFICATION.md). Never attach `.ghostops/` private identities/backups to submission material.
+
 ## Phase 8 — public packages and protected external integrations
 
 - [x] Audit existing stack and official MCP stdio/HTTP/tools documentation; independently rerun 217 baseline tests, typecheck and lint.

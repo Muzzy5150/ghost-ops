@@ -1,5 +1,13 @@
 # Verification record
 
+## Phase 9 release candidate
+
+**268 tests / 21 files**, typecheck, zero-warning lint and clean-checkout production build pass. The independent public-package consumer executes real stdio MCP calls against the isolated production gateway; allowed effects, forbidden null handler receipts, identity/resource isolation, revocation/replay, quarantine/restart, restored authority after historical critical sessions and fresh critical containment all pass. The exact release demo prepare/preflight/execute workflow passes without inference.
+
+The retained presenter's consistent private database/key backup verifies current memory signatures and preserves three deliberately altered historical snapshots. Additive migration preserves all 17 original table payloads; the matching-key clone passes RC readiness and normal restart with unchanged original row counts. Original investigation ZIP authenticates locally; separately altered HTML with a valid ZIP checksum fails verification and original bytes remain unchanged. Public artifacts omit keys and permit later hash-only checking, not independent origin authentication.
+
+Original Lab, runtime/HTTP, guided restart and signed restoration checks pass. Production audit is zero; five existing development-only lint-chain entries remain. Readiness, failure-mode test boundaries, activation/backup paths and full commands: [RELEASE_VERIFICATION.md](RELEASE_VERIFICATION.md). The original 3210 process/build/database/key remain unchanged; no paid inference or browser inspection was performed.
+
 ## Phase 8 external process integration
 
 Immutable code `6459d58` passes **260 tests / 20 files**, clean install/setup/SDK build/production build, typecheck and zero-warning lint. Actual local tarballs installed in an unrelated consumer run a separate agent + stdio proxy against a disposable production server. Discovery, real permitted effects, forbidden handlers, forged claims, owned memory, exact replay, quarantine/restart, signed restoration, new credential/revocation and scoped ZIP/HMAC pass. Existing 16 A–H Lab evaluations, original HTTP/runtime demos and guided restart/tamper checks pass. Read-only migration clone preserves all 17 original table payloads. Production audit zero; five development-only entries remain. No paid inference/visual inspection.
