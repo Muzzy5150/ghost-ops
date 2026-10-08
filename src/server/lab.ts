@@ -188,8 +188,21 @@ export async function executeExperiment(runId: string, base: string, testCall?: 
       await call("read_document", "docs/research");
       await boundary();
       const action = await serialized(() => db.$transaction(tx => contain(tx, run.actorId, "quarantine", undefined, "Explicit isolated Security Lab containment experiment", "local-administrator")));
-      await observe("CONTAINMENT", "response", { actionId: action.id, action: action.action });
-      await call("write_summary", "research/summary", "Containment probe must never reach the writer", "containment-verification");
+      await observe("CONTAINMENT_APPLIED", "response", { actionId: action.id, action: action.action });
+      const blocked = await call("write_summary", "research/summary", "Containment probe must never reach the writer", "containment-verification");
+      const verified = await serialized(() => db.$transaction(async tx => {
+        const receipt = await tx.toolRequest.findUniqueOrThrow({ where: { id: blocked.requestId } });
+        const passed = receipt.identityVerified && !receipt.allowed && receipt.reason === "AGENT_QUARANTINED" && receipt.execution === null;
+        if (passed && blocked.incidentId) {
+          const incident = await tx.incident.findUniqueOrThrow({ where: { id: blocked.incidentId } });
+          if (incident.identityVerified && incident.actorId === run.actorId && incident.sessionId === run.sessionId) {
+            await tx.containmentAction.update({ where: { id: action.id }, data: { incidentId: incident.id } });
+            await tx.incident.update({ where: { id: incident.id }, data: { status: "contained" } });
+          }
+        }
+        return passed;
+      }));
+      await observe(verified ? "CONTAINMENT" : "INCONCLUSIVE", "verification", { actionId: action.id, enforcementVerified: verified, handlerNeverExecuted: verified }, blocked.requestId);
     }
     await boundary();
   } catch {

@@ -75,6 +75,8 @@ it("containment blocks the writer before execution and keeps the denial in the t
   expect(run.results).toMatchObject({ requests: 2, allowed: 1, denied: 1, handlerExecutions: 1, outcomes: expect.arrayContaining(["CONTAINMENT", "POLICY_BLOCK"]) });
   expect((await db.agent.findUniqueOrThrow({ where: { id: run.actorId } })).status).toBe("quarantined");
   expect((await db.toolRequest.findFirstOrThrow({ where: { actorId: run.actorId, allowed: false } })).execution).toBeNull();
+  const incident = await db.incident.findFirstOrThrow({ where: { actorId: run.actorId, identityVerified: true }, include: { actions: true } });
+  expect(incident.status).toBe("contained"); expect(incident.actions.some(a => a.action === "quarantine")).toBe(true);
 });
 it("duplicate experiment delivery and historical reads never re-execute tool effects", async () => {
   const options = input();

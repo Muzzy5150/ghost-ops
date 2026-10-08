@@ -47,7 +47,12 @@ try {
     else assert(run.results.denied >= 1);
     if (scenario === "memory-poisoning") assert(run.observations.find((o: { kind: string }) => o.kind === "MEMORY_VERIFICATION").details.originalIntact);
     if (scenario === "impersonation") { assert(run.events.some((e: { kind: string; identityVerified: boolean }) => e.kind === "INVALID_CREDENTIAL" && !e.identityVerified)); assert(run.events.some((e: { kind: string }) => e.kind === "UNKNOWN_IDENTITY")); }
-    if (scenario === "containment" && mode === "local") contained = run;
+    if (scenario === "containment") {
+      const incident = (await get("/api/state")).incidents.find((i: { actorId: string }) => i.actorId === run.actorId);
+      assert.equal(incident.status, "contained"); assert(incident.actions.some((a: { action: string }) => a.action === "quarantine"));
+      assert(run.observations.find((o: { kind: string }) => o.kind === "CONTAINMENT").details.handlerNeverExecuted);
+      if (mode === "local") contained = run;
+    }
     const before = (await get("/api/state")).stats.requests;
     assert.equal((await post("/api/lab", options)).replayed, true); await get(); assert.equal((await get("/api/state")).stats.requests, before);
   }
