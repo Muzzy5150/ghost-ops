@@ -43,6 +43,8 @@ try {
   operator("--action", "provision", "--id", "live-external-e2e", "--output", path);
   operator("--action", "provision", "--id", "live-external-observer", "--role", "observer", "--output", otherPath);
   const identity = JSON.parse(await readFile(path, "utf8")), other = JSON.parse(await readFile(otherPath, "utf8"));
+  const rootCheck = JSON.parse(execFileSync("npm", ["run", "external:run", "--silent", "--", "--credential-file", path, "--action", "check"], { env: agentEnv, encoding: "utf8", timeout: 30000 }));
+  assert.equal(rootCheck.agentId, identity.actorId); assert.equal(rootCheck.modelCalls, 0);
   const normal = JSON.parse(execFileSync(process.execPath, [example, "--credential-file", path, "--action", "normal", "--transport", "direct"], { cwd: consumer, env: agentEnv, encoding: "utf8", timeout: 30000 })); assert(normal.decisions.every((d: { allowed: boolean }) => d.allowed)); assert.equal(normal.modelCalls, 0); await control("freeze-runtime-baseline", identity.actorId);
   const ready = await connect(path), listed = (ready.capabilities as { tools: { name: string }[] }).tools; assert(listed.some(t => t.name === "read_document")); assert(!listed.some(t => t.name === "restricted_admin"));
   const replay = randomUUID(); assert((await call("write_summary", "research/summary", "Actual external idempotent summary", replay)).allowed); assert((await call("write_summary", "research/summary", "Actual external idempotent summary", replay)).replayed); assert.equal((await readdir(env.GHOSTOPS_RUNTIME_WORKSPACE)).length, 2);

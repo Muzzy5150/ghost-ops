@@ -48,7 +48,16 @@ export async function correlate(tx: Tx, actorId: string, sessionId: string, iden
     await tx.evidence.upsert({ where: { eventId: event.id }, create: { id: randomUUID(), eventId: event.id, incidentId: incident.id, summary: event.message }, update: {} });
   }
   await tx.trapInteraction.updateMany({ where: { eventId: { in: timeline.map(e => e.id) } }, data: { incidentId: incident.id } });
-  if (critical) await contain(tx, actorId, "quarantine", incident.id, "Automatic deterministic correlation: behavior + memory + decoy", "correlation-engine");
+  if (critical) {
+    // Historical identity binding is evidence, not present response authority.
+    // A revoked old session must not recontain an operator-restored identity.
+    const session = await tx.session.findUnique({ where: { id: sessionId } });
+    const credential = session ? await tx.credential.findUnique({ where: { id: session.credentialId } }) : null;
+    const agent = await tx.agent.findUnique({ where: { id: actorId } });
+    if (agent?.status === "active" && session?.active && session.agentId === actorId && credential?.agentId === actorId && !credential.revoked) {
+      await contain(tx, actorId, "quarantine", incident.id, "Automatic deterministic correlation: behavior + memory + decoy", "correlation-engine");
+    }
+  }
   return incident;
 }
 export async function contain(tx: Tx, actorId: string, action: "quarantine" | "revoke", incidentId?: string, reason = "Local administrator response", operator = "local-administrator") {

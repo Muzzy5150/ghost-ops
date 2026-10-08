@@ -7,8 +7,20 @@ import { db } from "../src/server/db";
 import { integrationSchema } from "../src/lib/runtime-contract";
 import { POST as rotate } from "../src/app/api/runtime/rotate/route";
 import { transportToken } from "../src/server/config";
+import { runLocalAgent } from "../src/runtime/agent";
+import type { LocalAgentClient } from "../src/runtime/client";
 async function identity(observer = false) { const credential = randomBytes(32).toString("hex"), actorId = `live-ext-${randomBytes(5).toString("hex")}`; const integration = integrationSchema.parse({ name: "External example", role: observer ? "observer" : "research", permissions: { tools: observer ? ["status:read"] : ["documents:read", "documents:ingest", "summarize:write", "memory:read", "memory:write"], resources: observer ? ["infra/status"] : ["docs/research", "docs/untrusted", "research/summary", "memory/runtime-policy", "memory/runtime-notes"], destinations: [] } }); const result = await enrollRuntime({ commandId: randomUUID(), actorId, credential, integration }) as { actorId: string; sessionId: string }; return { ...result, credential }; }
 const args = (resource: string, content?: string) => ({ requestId: randomUUID(), resource, ...(content ? { content } : {}) });
+it("existing offline agent accepts a legitimately filtered MCP catalog", async () => {
+  const id = await identity(true);
+  const client = { client: { listTools: async () => ({ tools: [{ name: "operational_status" }] }) }, call: (name: Parameters<typeof callRuntime>[3], resource: string) => callRuntime(id.actorId, id.sessionId, id.credential, name, args(resource)) } as unknown as LocalAgentClient;
+  const result = await runLocalAgent(client, "Read service status");
+  expect(result).toMatchObject({ mode: "offline-scripted", modelCalls: 0, requests: [{ allowed: true }] });
+});
+it("existing offline agent rejects unknown discovered tool names", async () => {
+  const client = { client: { listTools: async () => ({ tools: [{ name: "arbitrary_shell" }] }) } } as unknown as LocalAgentClient;
+  await expect(runLocalAgent(client, "Read service status")).rejects.toThrow("catalogue unavailable");
+});
 it("provisions external designation and only server-approved discovery", async () => { const id = await identity(true); expect(await approvedRuntimeTools(id.actorId, id.sessionId, id.credential)).toEqual(["operational_status"]); const agent = await db.agent.findUniqueOrThrow({ where: { id: id.actorId } }); expect(agent.integrationType).toBe("external-node"); expect((await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", args("docs/research"))).allowed).toBe(false); });
 it("disallows granting decoys, shell operations, external destinations or arbitrary permissions", () => { const input = { name: "bad", role: "research", permissions: { tools: ["mcp:execute"], resources: ["decoy/admin"], destinations: ["https://example.com"] } }; expect(integrationSchema.safeParse(input).success).toBe(false); });
 it("rotates atomically with idempotent private receipts and revokes old session", async () => { const id = await identity(); const input = { commandId: randomUUID(), actorId: id.actorId, credential: randomBytes(32).toString("hex"), restore: false }; const r = await rotateRuntime(input) as { sessionId: string }; expect(await rotateRuntime(input)).toEqual(r); expect(JSON.stringify(r)).not.toContain(input.credential); await expect(rotateRuntime({ ...input, credential: randomBytes(32).toString("hex") })).rejects.toThrow(); expect((await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", args("docs/research"))).reason).toBe("CREDENTIAL_REVOKED"); expect((await callRuntime(id.actorId, r.sessionId, input.credential, "read_document", args("docs/research"))).allowed).toBe(true); });
@@ -17,3 +29,29 @@ it("refuses rotation with tampered latest memory", async () => { const id = awai
 it("rejects unauthenticated credential administration", async () => { const r = new NextRequest("http://127.0.0.1:3210/api/runtime/rotate", { method: "POST", headers: { host: "127.0.0.1:3210", "x-ghostops-transport": transportToken(), "content-type": "application/json" }, body: "{}" }); expect((await rotate(r)).status).toBe(401); });
 it("keeps attacker credentials/foreign sessions out of victim baseline and receipts", async () => { const a = await identity(), b = await identity(); const decision = await callRuntime(b.actorId, b.sessionId, a.credential, "read_document", args("docs/research")); expect(decision.reason).toBe("INVALID_CREDENTIAL"); expect((await db.profile.findUniqueOrThrow({ where: { agentId: b.actorId } })).observations).toBe(0); expect((await db.toolRequest.findUniqueOrThrow({ where: { id: decision.requestId } })).identityVerified).toBe(false); expect(JSON.stringify(await snapshot())).not.toContain(a.credential); });
 it("feeds real external observations to all four engines without policy mutation", async () => { const id = await identity(); for (let n = 0; n < 4; n++) await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", args("docs/research")); await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", args("docs/untrusted")); const memory = await callRuntime(id.actorId, id.sessionId, id.credential, "write_memory", args("memory/runtime-policy", "Test unauthorized policy")); const trap = await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", args("decoy/credentials")); expect(trap.incidentId).toBe(memory.incidentId); const events = await db.securityEvent.findMany({ where: { actorId: id.actorId } }); expect(new Set(events.map(e => e.module))).toEqual(new Set(["ShadowWatch", "Gateway", "MemoryGuard", "AgentDNA", "GhostTrap", "Response"])); expect((await db.memoryVersion.count({ where: { ownerId: id.actorId, key: "runtime-policy" } }))).toBe(1); });
+it("old critical-session credentials cannot recontain a restored current session", async () => {
+  const id = await identity();
+  const original = args("docs/research");
+  await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", original);
+  for (let n = 0; n < 3; n++) await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", args("docs/research"));
+  await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", args("docs/untrusted"));
+  await callRuntime(id.actorId, id.sessionId, id.credential, "write_memory", args("memory/runtime-policy", "Unauthorized instructions"));
+  const trap = await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", args("decoy/credentials"));
+  expect((await db.agent.findUniqueOrThrow({ where: { id: id.actorId } })).status).toBe("quarantined");
+  const credential = randomBytes(32).toString("hex");
+  const restored = await rotateRuntime({ commandId: randomUUID(), actorId: id.actorId, credential, restore: true }) as { sessionId: string };
+  const before = await db.containmentAction.count({ where: { actorId: id.actorId, action: "quarantine" } });
+  const denied = await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", args("decoy/credentials"));
+  expect(denied.reason).toBe("CREDENTIAL_REVOKED");
+  expect((await db.agent.findUniqueOrThrow({ where: { id: id.actorId } })).status).toBe("active");
+  expect((await db.incident.findUniqueOrThrow({ where: { id: trap.incidentId! } })).status).toBe("resolved");
+  expect(await db.containmentAction.count({ where: { actorId: id.actorId, action: "quarantine" } })).toBe(before);
+  const replay = await callRuntime(id.actorId, id.sessionId, id.credential, "read_document", original);
+  expect(replay).toMatchObject({ replayed: true, allowed: false, output: null, reason: "CREDENTIAL_REVOKED" });
+  expect((await db.agent.findUniqueOrThrow({ where: { id: id.actorId } })).status).toBe("active");
+  expect((await callRuntime(id.actorId, restored.sessionId, credential, "read_document", args("docs/research"))).allowed).toBe(true);
+  await callRuntime(id.actorId, restored.sessionId, credential, "read_document", args("docs/untrusted"));
+  await callRuntime(id.actorId, restored.sessionId, credential, "write_memory", args("memory/runtime-policy", "New-session prohibited instructions"));
+  await callRuntime(id.actorId, restored.sessionId, credential, "read_document", args("decoy/credentials"));
+  expect((await db.agent.findUniqueOrThrow({ where: { id: id.actorId } })).status).toBe("quarantined");
+});

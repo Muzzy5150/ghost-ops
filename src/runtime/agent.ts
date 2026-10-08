@@ -7,7 +7,9 @@ export async function runLocalAgent(client: LocalAgentClient, rawTask: string, i
   const task = z.string().min(1).max(4000).parse(rawTask);
   const discovery = await client.client.listTools();
   const available = new Set(discovery.tools.map(t => t.name));
-  if (!runtimeToolNames.every(name => available.has(name))) throw new Error("Approved MCP tool catalogue unavailable");
+  // Discovery reflects this identity's grants, not the entire validation catalog.
+  // Explicit requests still receive authoritative gateway decisions below.
+  if (!available.size || [...available].some(name => !runtimeToolNames.includes(name as typeof runtimeToolNames[number]))) throw new Error("Approved MCP tool catalogue unavailable");
   if (!inference) {
     // Deliberately small deterministic task dispatcher, NOT a language model.
     if (/untrusted|poison/i.test(task)) {

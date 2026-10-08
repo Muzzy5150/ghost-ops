@@ -2,6 +2,7 @@
   "name": "ghost-ops",
   "version": "1.0.0",
   "private": true,
+  "workspaces": ["packages/ghostops-sdk", "packages/ghostops-mcp", "examples/external-agent"],
   "type": "module",
   "engines": {
     "node": ">=22.12.0"
