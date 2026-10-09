@@ -8,6 +8,8 @@ AgentDNA compares observed behavior with a baseline. ShadowWatch separates verif
 
 The public website is an interactive recorded sample case. Actual enforcement runs in the authenticated local runtime. Say “local runtime” for that screen and “recorded session” for the public terminal.
 
-The intended sponsor roles are Guild.ai for real agent execution, ClickHouse for sanitized telemetry analytics, and Akash for persistent compute. Count each only after its actual execution and receipt are verified. Pi is excluded from this submission. A prepared adapter is not a successful integration.
+Three sponsors actually executed in one investigation. Guild.ai's The Smith completed the security task and requested a read-only policy check, which an authenticated local broker performed. ClickHouse stored 47 sanitized events and returned matching event IDs and 30 analytics groups. A Python worker on the existing Akash lease verified their public receipt-summary digest and rejected an altered summary. Pi is excluded.
+
+The model initially misidentified an advisory. Source checking rejected that answer; corrected facts were verified. Agent output is evidence to review, never permission to execute a tool. Akash checks digest consistency; Ghost Ops separately authenticates forensic packages using the trusted local key.
 
 Ghost Ops controls gateway-routed tools. It cannot automatically observe or stop arbitrary operating-system operations outside those integrations. A valid signature depends on retaining and trusting the signing key; it is not independent third-party attestation.

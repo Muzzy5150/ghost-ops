@@ -1,0 +1,9 @@
+{
+  "label": "Recorded sponsor execution receipts — no connected public runtime",
+  "investigationId": "4dab14dd-0a73-4c76-9305-6c34ad86f74d",
+  "receipts": [
+    {"sponsor":"Guild.ai","at":"2026-10-09T22:50:03.068Z","receiptId":"5b01a6e1-fabe-45a4-9513-81bf7537def2","reference":"Session 01a122d9-1384-351a-0000-5f4cefefda20","result":"The Smith completed security intelligence; its read-only policy request was authorized by the authenticated local MCP broker.","limitation":"Operator-mediated bridge. Source checking rejected the initial advisory error; corrected advisory facts were verified. No direct remote gateway access."},
+    {"sponsor":"ClickHouse","at":"2026-10-09T22:50:25.293Z","receiptId":"b377e963-e01c-425f-ac3b-e8dc061e4b49","reference":"Server 26.6.1.2326 / 47 events / 30 aggregate groups","result":"Actual Cloud insert and queries reconciled all sanitized event IDs to SQLite, including the Guild-requested operation.","limitation":"Minimized persisted telemetry only. Analytics never authorizes tool execution."},
+    {"sponsor":"Akash","at":"2026-10-09T22:53:50.146Z","receiptId":"b44e4e14-bc44-4880-b234-2c6eacb74b00","reference":"Deployment 1791585638189 / verification e48898f9-466e-4297-aac2-ff4abc96f438","result":"Provider-hosted Python worker verified the public receipt-summary digest and rejected an intentionally changed summary.","limitation":"Stateless digest consistency only, not signer authentication. No private payload, credential or privileged backend was deployed."}
+  ]
+}

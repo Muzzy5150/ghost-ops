@@ -7,7 +7,7 @@ Use a 1440-pixel browser window. Hide notifications, bookmarks, credentials and 
 | 0–10 | Open https://ghost-ops-pi.vercel.app; scroll one section. | “AI agents can use powerful tools. How do you know when one has been compromised? Ghost Ops checks the tools they are allowed to use.” |
 | 10–25 | Open the genuine local runtime at http://127.0.0.1:3215. Open Runtime sessions and select the submission agent. Show a completed allowed request. | “This is the local runtime. Each request carries a verified agent identity and session. Policy is checked before a bounded tool executes.” |
 | 25–40 | Select the persisted denied request; open its incident and evidence. | “This controlled forbidden request was denied before its handler ran. It is an explicit security test, not an invented model failure.” |
-| 40–55 | Show actual sponsor receipts only if present. Otherwise show actual advisory and inference receipts. | With receipts: name the sponsor and its actual result. Without receipts: “This investigation has recorded source and runtime evidence. Sponsor connections still require account access.” |
+| 40–55 | Open Sponsor Integrations → Submission execution evidence. Open the three receipts briefly. | “Guild ran the investigator. ClickHouse reconciled 47 real events. Our Akash worker checked the shared evidence summary and rejected a changed copy.” |
 | 55–70 | Show the investigation graph, chronological evidence, quarantine receipt and blocked follow-up. | “Ghost Ops links the investigation to its authenticated requests. Scoped containment blocks the next guarded action.” |
 | 70–85 | Show evidence verification output: original authenticated; modified copy rejected. | “The evidence package verifies successfully. An intentionally altered copy fails verification.” |
 | 85–90 | Return to homepage or terminal branding. | “Ghost Ops: autonomous AI counterintelligence. Enforcement applies to tools connected through our gateway.” |
@@ -30,6 +30,17 @@ node --import tsx scripts/submission-control.ts --step export --run 4dab14dd-0a7
 Expected output: `AUTHORIZED`; then `PROTECTED_MEMORY_WRITE_REQUIRES_ADMIN` and `TOOL_NOT_PERMITTED`; then `AGENT_QUARANTINED`; finally `authenticated: true` and `tamperRejected: true`. Never display the identity file itself.
 
 In the browser, choose **Operations → Arrange**, select ResearchAgent in the inspector, and filter the timeline to Local runtime. After the denied command, choose the new incident from **Focus network investigation**, then **Incident Room**. Click a timeline event and **Inspect persisted evidence** to show the authorization decision. Use **Open Web Sentinel** to inspect actual source and invocation receipts. Keep only the necessary panel open for each beat.
+
+All three sponsor receipts are persisted. Guild trace: `https://app.guild.ai/sessions/01a122d9-1384-351a-0000-5f4cefefda20`. Akash health: `https://5gbbs34frdf1f63hdvol7ldjnc.ingress.cpu.dal.aes.akash.pub/health`. Say “completed execution receipt” for these records. The Guild bridge is operator-mediated and read-only; Akash verifies public digests, not private signatures.
+
+To refresh real analytics and worker evidence after recording new policy decisions, run these explicit operator commands before the final export:
+
+```sh
+node --import tsx scripts/submission-analytics.ts --run 4dab14dd-0a73-4c76-9305-6c34ad86f74d
+node --import tsx scripts/submission-akash.ts --run 4dab14dd-0a73-4c76-9305-6c34ad86f74d
+```
+
+The count may increase as actual events accumulate. The 47-event receipt is an exact completed result, not a live counter. No Docker download or new lease is needed.
 
 For another take after quarantine, rotate the owned actor into a new private file, then use that new filename in the commands:
 

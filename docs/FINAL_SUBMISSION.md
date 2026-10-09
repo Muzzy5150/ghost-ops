@@ -9,13 +9,15 @@
 
 ## Sponsor verification
 
-| Sponsor | Status | Minimum unblock action |
+| Sponsor | Verified result | Scope |
 |---|---|---|
-| Guild.ai | ACCESS REQUIRED; CLI 0.27.1 reports not authenticated | Sign in; provide an approved workspace and installed agent. CLI OAuth or scoped API access must be authorized. |
-| ClickHouse | SERVICE REQUIRED; no local server or configured Cloud connection found | Provide an approved server URL and restricted CREATE/INSERT/SELECT credentials privately. No database image or VM was started. |
-| Akash | ACCESS / CREDIT REQUIRED; console requires sign-in and human verification | Complete sign-in and CAPTCHA; identify approved credits and spending limit before any lease. |
+| Guild.ai | The Smith, session `01a122d9-1384-351a-0000-5f4cefefda20`; completed security task | Operator-mediated broker; authenticated policy read `bf537cc8-6539-47e9-816b-c131caa6a779` allowed. No remote gateway credential. |
+| ClickHouse | Cloud version `26.6.1.2326`; 47 events, 30 aggregate groups | Every returned event ID matched SQLite; receipt `b377e963-e01c-425f-ac3b-e8dc061e4b49`. |
+| Akash | Deployment `1791585638189`; verification `e48898f9-466e-4297-aac2-ff4abc96f438` | Public digest verified; altered summary rejected. Existing lease retained; displayed $2.06/month trial rate unchanged. |
 
-Pi Security is excluded by the operator. No sponsor success may be claimed from a logo, template, mock or unused package. Current sponsor access is not sufficient to claim three verified technologies.
+Pi Security is excluded. All three receipts share investigation `4dab14dd-0a73-4c76-9305-6c34ad86f74d`. Source checking rejected Guild's incorrect initial advisory summary; corrected facts were checked against the actual GitHub source. Model output never authorizes actions.
+
+Guild trace: https://app.guild.ai/sessions/01a122d9-1384-351a-0000-5f4cefefda20 (operator authentication required). Akash worker: https://5gbbs34frdf1f63hdvol7ldjnc.ingress.cpu.dal.aes.akash.pub/health. Akash checks digest consistency, not signer authenticity. Ghost Ops forensic authentication remains local.
 
 ## Evidence and release
 
@@ -23,7 +25,11 @@ Verified local investigation: `4dab14dd-0a73-4c76-9305-6c34ad86f74d`. Research i
 
 The recorded enforcement proof rejected protected memory changes, denied the admin decoy, quarantined the scoped actor and denied its next request with **zero denied handlers executed**. Original incident: `5d1ba955-fe70-411d-bd70-ed44c00944d5`. The second actual presentation rehearsal created incident `2bcc191e-7098-48bc-a96d-c574e6ff2ba9` and forensic package `d324156a-7057-48d4-9cfa-a75b7db30831`; original authenticated, altered copy rejected. Credential rotation and a subsequent authorized policy read were verified separately.
 
-Private evidence stays in `.ghostops/submission-proof/` and `.ghostops/presentation/`. The rehearsal's authenticated ZIP is `.ghostops/presentation/2026-10-09T22-34-47.910Z-export-103cb569/evidence.zip`. No private database, key, identity or evidence payload is committed or uploaded to Vercel. The public deployment contains no privileged backend. The previous verified Vercel production remains available until a new Preview passes checks.
+Private evidence stays in `.ghostops/submission-proof/` and `.ghostops/presentation/`. The final authenticated ZIP, including sponsor observations, is `.ghostops/presentation/2026-10-09T22-56-57.881Z-export-a24c2198/evidence.zip`, package `b5a9914f-550d-43b4-bb55-077a84388140`; original authenticated and altered copy rejected. No private database, key, identity or forensic payload is committed or uploaded to Vercel or Akash. The public deployment contains the recorded workstation and minimized sponsor receipt summaries; no privileged backend.
+
+Verified frontend milestone: `db9e7702381855790707f1b57416d3c07b12cfb1`; Preview https://ghost-qy5x6g00f-muzzy5150s-projects.vercel.app; Production https://ghost-ops-pi.vercel.app. Both GitHub CI jobs passed. Sponsor evidence follows as a normal verified commit; no history rewrite.
+
+Checks executed: website typecheck/lint/static production build, 10 artifact checks and 10 browser regressions; root typecheck/lint and 87 affected tests; real MCP allow/deny/quarantine/restore; forensic authentication/tamper rejection; genuine Guild execution and strict broker request; ClickHouse reconciliation; Akash valid/altered digest checks. No historical security audit was repeated.
 
 Read [the founder explanation](FOUNDER_EXPLANATION.md) and [the recording script](VIDEO_SCRIPT_90_SECONDS.md). Record the genuine local workflow; distinguish current execution from persisted evidence and the public recorded sample.
 

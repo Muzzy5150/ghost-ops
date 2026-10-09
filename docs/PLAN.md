@@ -3,7 +3,7 @@
 ## Final submission sprint
 
 - Base `submission/live-security` on the verified Production frontend; keep normal history and existing worktrees intact.
-- Verify real Guild.ai execution, ClickHouse insert/query and Akash compute only when approved account access is available. Pi is excluded. Missing access remains an explicit blocker.
+- Verified Guild.ai session plus bounded MCP broker, ClickHouse Cloud insert/query reconciliation, and digest verification on the existing Akash lease. Pi is excluded. See [submission receipts](FINAL_SUBMISSION.md).
 - Reuse the authenticated local runtime in an isolated submission database for genuine inference, policy decisions, containment and evidence verification. Do not expose administration on Vercel.
 - Simplify Operations to network, security timeline and contextual inspector; retain saved layouts and all other tools. Add scroll-responsive mascot secondary motion.
 - Run affected frontend/security regressions, then Preview before Production. Keep recording instructions and sponsor status honest.
