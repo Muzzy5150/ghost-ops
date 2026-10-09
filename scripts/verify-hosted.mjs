@@ -18,7 +18,7 @@ assert.equal(deployment.meta?.sourceCommit ?? deployment.meta?.githubCommitSha ?
 assert.equal(deployment.readyState, 'READY');
 function request(path, method = 'GET', canonical = false) {
   // Do not follow a protection redirect into a login page or disable protection.
-  const options = ['--silent', '--show-error', '--include', '--max-time', '30', '--request', method];
+  const options = ['--silent', '--show-error', '--include', '--max-time', '30', ...(method === 'HEAD' ? ['--head'] : ['--request', method])];
   const raw = mode === 'protected'
     ? vc(['curl', path, '--deployment', url.origin, '--scope', 'muzzy5150s-projects', '--yes', '--', ...options])
     : execFileSync('curl', [...options, `${url.origin}${path}`], {encoding:'utf8',timeout:45000,maxBuffer:8*1024*1024,stdio:['ignore','pipe','pipe']});
