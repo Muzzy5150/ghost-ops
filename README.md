@@ -17,7 +17,7 @@ Ghost Ops is a security workstation for investigating AI agent behavior, identit
 
 ## Live Demo
 
-[Open the Ghost Ops workstation](https://ghost-ops-pi.vercel.app).
+[Explore Ghost Ops](https://ghost-ops-pi.vercel.app) or [enter the workstation](https://ghost-ops-pi.vercel.app/terminal/).
 
 The publicly hosted workstation is an interactive recorded-data demonstration. Explore the React Flow network, move and resize windows, switch between Operations and Incident Room, inspect evidence, and play back a sanitized synthetic investigation. Illustrative profiles and recorded events are explicitly labeled. Layout preferences persist in your browser.
 

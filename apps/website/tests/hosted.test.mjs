@@ -7,7 +7,7 @@ const read = p => readFileSync(p, 'utf8');
 const walk = p => readdirSync(p,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(join(p,e.name)):[join(p,e.name)]);
 test('hosted entrypoint is statically exported, not the local runtime',()=>{
   assert.match(read('next.config.ts'), /output: 'export'/);
-  const sources=walk('app').concat(walk('components'),walk('generated/components'),walk('generated/lib'));
+  const sources=walk('app').concat(walk('components'),walk('lib'),walk('generated/components'),walk('generated/lib'));
   assert(sources.every(p=>!p.includes('/api/') && !p.endsWith('route.ts') && !p.includes('proxy.')));
   for(const p of sources){ const text=read(p); assert(!/use server|from\s+['"][^'"]*(?:src\/server|prisma|node:child_process)|fetch\(/.test(text),p); }
 });
@@ -18,7 +18,7 @@ test('public case is an exact minimized projection of recorded synthetic evidenc
   assert.match(record.label,/scripted/); assert(!/credential|sessionId|contentHash|actorId/.test(JSON.stringify(record)));
 });
 test('no fake live provider, sponsor success or control-plane actions',()=>{
-  assert.match(read('app/page.tsx'),/HostedWorkstation/);
+  assert.match(read('app/page.tsx'),/StoryShell/);assert.match(read('app/terminal/page.tsx'),/HostedWorkstation/);
   assert.match(read('components/hosted-panels.tsx'),/live verification pending/);
   assert.match(read('app/console/page.tsx'),/no gateway, database, administrative session/);
   assert.match(read('components/recorded-network.tsx'),/VIEW ONLY/);
@@ -34,7 +34,7 @@ test('deployment headers restrict browser capabilities and destinations',()=>{
 test('built artifact contains public pages but no backend API/functions/private material',()=>{
   assert(existsSync('out/index.html'),'Build first');
   const files=walk('out');
-  for(const route of ['demo','about','docs','developers','console']) assert(existsSync(`out/${route}/index.html`));
+  for(const route of ['terminal','demo','about','docs','developers','console']) assert(existsSync(`out/${route}/index.html`));
   assert(!files.some(f=>/\/api\/|\.db(?:-|$)|\.key$|\.env|\.zip$|\.map$/.test(f)));
   const content=files.filter(f=>/\.(?:js|html|txt|json)$/.test(f)).map(read).join('\n');
   assert(!/ghostops-admin|x-ghostops-csrf|GHOSTOPS_SIGNING_SECRET|OPENAI_API_KEY|\.ghostops\/integrity\.key|\/Users\/muzzy5150/.test(content));
@@ -43,7 +43,7 @@ test('built artifact contains public pages but no backend API/functions/private 
 });
 test('shared graph, windows and styles are exported unchanged from the authoritative frontend',()=>{
   for(const path of ['components/workspace/network.tsx','components/workspace/security-node.tsx','components/workspace/window.tsx','components/workspace/workspace.tsx','lib/graph-explorer.ts','lib/workspace-model.ts','lib/workspace-graph.ts']) assert.equal(read(`generated/${path}`),read(`../../src/${path}`),path);
-  for(const name of ['globals','workspace','phase5']) assert.equal(read(`generated/styles/${name}.css`),read(`../../src/app/${name}.css`));
+  for(const name of ['globals','workspace','phase5','brand']) assert.equal(read(`generated/styles/${name}.css`),read(`../../src/app/${name}.css`));
   assert(!existsSync('generated/server'));assert(!existsSync('generated/runtime'));
 });
 test('no hardcoded fabricated recency in source, repository prose or public output',()=>{

@@ -47,20 +47,22 @@ function verifyPublicContent(body) {
   assert(!/GHOSTOPS_SIGNING_SECRET|ghostops-admin|\/Users\/muzzy5150|gh[pousr]_[A-Za-z0-9]{30,}|sk-proj-[A-Za-z0-9_-]{32,}/.test(body), 'Private material in deployed content');
 }
 let html = '';
-for (const path of ['/', '/demo/', '/about/', '/docs/', '/developers/', '/console/']) {
+for (const path of ['/', '/terminal/', '/demo/', '/about/', '/docs/', '/developers/', '/console/']) {
   const r = request(path); assert.equal(r.status, 200, path);
   assert(/x-content-type-options: nosniff/i.test(r.headers), 'Missing nosniff');
   assert(/x-frame-options: DENY/i.test(r.headers), 'Missing frame protection');
   assert(/content-security-policy:.*connect-src 'self'/i.test(r.headers), 'Missing site CSP');
   assert(/GHOST OPS|Ghost Ops/.test(r.body), 'Unexpected page, possibly an authentication interstitial');
   verifyPublicContent(r.body);
-  if (path === '/') assert(/ops-workbench/.test(r.body), 'Homepage does not serve the actual workstation');
+  if (path === '/') assert(/YOUR AGENTS/.test(r.body), 'Homepage story missing');
+  if (path === '/terminal/') assert(/ops-workbench/.test(r.body), 'Terminal workstation missing');
   assert(!/GHOSTOPS_SIGNING_SECRET|ghostops-admin|\/Users\/muzzy5150/.test(r.body));
   html += r.body; results.push({path,status:r.status});
 }
 const assets = [...new Set([...html.matchAll(/(?:src|href)="([^"?#]+\.(?:js|css))"/g)].map(m=>m[1]))];
 assert(assets.length >= 2, 'Missing static application assets');
 for (const path of assets) { assert(path.startsWith('/_next/')); const r=request(path);assert.equal(r.status,200,path);verifyPublicContent(r.body); }
+for (const path of ['/brand/ghost-icon.svg','/brand/ghostops-mascot.webp','/brand/ghostops-mascot.png']) { const r=request(path,'HEAD');assert.equal(r.status,200,path);assert(/content-type: image\//i.test(r.headers),path);results.push({path,method:'HEAD',status:r.status}); }
 for (const path of ['/api/bootstrap','/api/state','/api/control','/api/mcp','/api/ingest','/api/evidence','/.env','/.ghostops/integrity.key','/prisma/dev.db']) {
   const r=request(path);assert([404,405].includes(r.status),`Unexpected exposure ${path}: ${r.status}`);results.push({path,status:r.status});
 }

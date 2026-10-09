@@ -22,3 +22,5 @@ apps/website/generated/
 *.sqlite*
 *.pem
 *.key
+apps/website/public/brand/ghostops-mascot.png
+apps/website/public/brand/ghostops-mascot.webp

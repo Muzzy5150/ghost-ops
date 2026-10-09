@@ -34,6 +34,8 @@
 | `deploy/` | Optional deployment examples; no hosted backend claim |
 | `.github/` | Pinned, least-privilege CI workflows |
 
+[Phase 13 design reference](DESIGN_REFERENCE.md) records the verified local Shopipad patterns and approved mascot implementation.
+
 ## Historical records
 
 Superseded phase logs, release checklists, and visual-review reports were removed from the active snapshot. Complete original history is retained in a verified private offline Git bundle, never in the public website or repository. Historical references in older technical guides describe that archived work, not current release status. Reproducible forensic packages remain under `artifacts/`; original evidence timestamps and bytes are unchanged.

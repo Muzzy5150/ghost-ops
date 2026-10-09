@@ -1,14 +1,15 @@
 # Current plan
 
-## Repository cleanup and release
+## Phase 13 — Shopipad visual system
 
-- Preserve the verified public workstation and all local development worktrees/services.
-- Back up all existing refs in a secure verified offline Git bundle before any rewrite.
-- Replace chronological repository content with concise current documentation; retain source, fixtures, tests, and reproducible forensic evidence.
-- Check the complete candidate snapshot for private material and run targeted website regressions.
-- Verify a Git-connected Preview and exact-commit CI before replacing `main` with a genuine single-root snapshot.
-- Set GitHub default and Vercel Production to `main`; verify actual remote history, GitHub file timestamps, and the public production revision.
-- Remove obsolete remote deployment branches only after checking dependencies and recoverability.
+- Work on `design/ghostops-shopipad`; preserve the clean initial release and normal Git ancestry.
+- Use the local, read-only Shopipad frontend as the verified design reference. See [design reference](DESIGN_REFERENCE.md).
+- Share black/forest/lime tokens and pixel branding with the authoritative workstation presentation.
+- Serve the editorial product story at `/` and the existing interactive recorded workstation at `/terminal`.
+- Preserve the approved transparent mascot; independently animate its clipped layers, pixel hem, hands, expressions, panels and sparkles along one measured scroll path.
+- Verify responsive spacing, reduced motion, navigation, assets, graph, window persistence, playback and hosted restrictions.
+- Push a verified design Preview, inspect its rendered interface, and fast-forward Production through the existing `main` connection. Retain the previous Production deployment for rollback.
+- Preserve all other worktrees, services, databases, signing keys, forensic timestamps and the read-only Shopipad source.
 
 ## Future work
 

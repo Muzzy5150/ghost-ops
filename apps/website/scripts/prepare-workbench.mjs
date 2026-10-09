@@ -3,7 +3,7 @@ import { readFileSync, mkdirSync, copyFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '../../..');
 const destination = resolve(import.meta.dirname, '../generated');
-const components = ['ui', 'memory-diff', 'overview', 'sections', 'investigations', 'demo-story', 'live-sessions', 'developer-integrations', 'workspace/workspace', 'workspace/window', 'workspace/network', 'workspace/security-node', 'workspace/inspectors', 'workspace/behavior', 'workspace/event-terminal', 'workspace/incident-desk'];
+const components = ['ui', 'brand/ghost-icon', 'memory-diff', 'overview', 'sections', 'investigations', 'demo-story', 'live-sessions', 'developer-integrations', 'workspace/workspace', 'workspace/window', 'workspace/network', 'workspace/security-node', 'workspace/inspectors', 'workspace/behavior', 'workspace/event-terminal', 'workspace/incident-desk'];
 const libraries = ['workspace-model', 'workspace-graph', 'graph-explorer', 'memory-diff', 'schemas'];
 function emit(path, content) { const file = resolve(destination, path); mkdirSync(dirname(file), {recursive:true}); writeFileSync(file, content); }
 for (const name of components) {
@@ -20,4 +20,10 @@ export type SectionProps = {state: State; control: RunControl; busy: boolean; re
 for (const [name, component] of Object.entries({'security-lab':'RecordedLab', 'threat-hunt':'RecordedHunt', 'sponsor-integrations':'RecordedSponsors', 'web-sentinel':'RecordedSentinel'})) emit(`components/workspace/${name}.tsx`, `import { ${component} } from '../../../components/hosted-panels';
 export default function HostedPanel(props: Record<string, unknown>${component==='RecordedHunt'?` & {navigate: (name: string, id?: string) => void}`:''}) { ${component==='RecordedHunt'?`return <RecordedHunt navigate={props.navigate}/>;`:`void props; return <${component}/>;`} }`);
 emit('components/workspace/lab-benchmarks.tsx', `export async function downloadEvidence(kind: string, id: string) { void kind; void id; throw Error('Authenticated forensic exports require the local backend. See /docs/.'); }`);
-for (const name of ['globals', 'workspace', 'phase5']) { mkdirSync(resolve(destination, 'styles'), {recursive:true}); copyFileSync(resolve(root, `src/app/${name}.css`), resolve(destination, `styles/${name}.css`)); }
+for (const name of ['globals', 'workspace', 'phase5', 'brand']) { mkdirSync(resolve(destination, 'styles'), {recursive:true}); copyFileSync(resolve(root, `src/app/${name}.css`), resolve(destination, `styles/${name}.css`)); }
+const assetDirectory=resolve(destination,'../public/brand');
+mkdirSync(assetDirectory,{recursive:true});
+const original=readFileSync(resolve(root,'design-reference/ghostops-mascot.png'));
+copyFileSync(resolve(root,'design-reference/ghostops-mascot.png'),resolve(assetDirectory,'ghostops-mascot.png'));
+const {default:sharp}=await import('sharp');
+await sharp(original).webp({lossless:true,effort:6}).toFile(resolve(assetDirectory,'ghostops-mascot.webp'));

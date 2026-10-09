@@ -1,6 +1,6 @@
 # Public workstation parity
 
-The previous apps/website app was a separate marketing/showcase frontend. The public homepage now renders the real src/components/workspace/workspace.tsx through a presentation-only export, with no local Console transport or backend.
+The previous apps/website app was a separate marketing/showcase frontend. The public terminal now renders the real src/components/workspace/workspace.tsx through a presentation-only export, with no local Console transport or backend.
 
 ## Parity checklist
 
@@ -8,7 +8,7 @@ The previous apps/website app was a separate marketing/showcase frontend. The pu
 - Same window manager, presets, launcher, rail, inspectors, event terminal, drag/resize, minimize/maximize and versioned browser layout preferences.
 - Same AgentDNA, ShadowWatch, MemoryGuard, GhostTrap and Incident Room components. Operational buttons are disabled.
 - Ghost Hunt / Ghost Response, Security Lab, Web Sentinel, sponsor and developer panels use recorded-only adapters instead of privileged clients.
-- Homepage workstation; /about product overview; /docs and /developers local setup; /demo guided recording.
+- Homepage editorial story; /terminal workstation; /about product overview; /docs and /developers local setup; /demo guided recording.
 - Playback reveals the recorded timeline; illustrative graph identities/profiles/memory remain a fixed snapshot, not a reconstruction of private runtime data.
 - No fabricated recency. The minimized recording's original precise UTC timestamps are preserved. Illustrative metadata references that recording, never new activity.
 

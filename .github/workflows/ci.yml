@@ -1,7 +1,7 @@
 name: Ghost Ops verification
 on:
   push:
-    branches: [main, 'deploy/**', 'phase*/**']
+    branches: [main, 'deploy/**', 'design/**', 'phase*/**']
   pull_request:
 permissions:
   contents: read
