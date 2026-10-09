@@ -28,6 +28,9 @@ test('persistent character travels through scenes with independent parts and cha
 test('reduced motion is static, preference changes clean up motion, navigation remounts one character',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/');await expect(page.locator('.ghost-fallback')).toBeVisible();await expect(page.locator('.ghost-layered')).toBeHidden();
  await expect(page.locator('.ghost-story')).toHaveAttribute('data-motion','reduced');
+ await page.setViewportSize({width:390,height:844});
+ await expect.poll(async()=>{const ghost=await page.locator('.ghost-fallback').boundingBox(),copy=await page.locator('.story-intro').boundingBox();return ghost!.y+ghost!.height<=copy!.y;}).toBe(true);
+ await page.setViewportSize({width:1440,height:1000});
  await page.emulateMedia({reducedMotion:'no-preference'});await expect(page.locator('.ghost-story')).toHaveAttribute('data-motion','scroll');
  await page.emulateMedia({reducedMotion:'reduce'});await expect(page.locator('.ghost-story')).toHaveAttribute('data-motion','reduced');
  await page.getByRole('link',{name:'ENTER GHOST OPS',exact:false}).last().click();await expect(page).toHaveURL(/\/terminal\/$/);
