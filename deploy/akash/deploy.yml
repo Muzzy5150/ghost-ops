@@ -1,0 +1,31 @@
+version: "2.0"
+services:
+  synthetic-worker:
+    # Operator must build/publish their own image AFTER explicit deployment approval.
+    image: replace-with-approved-registry/ghostops-synthetic-worker:phase11
+    expose:
+      - port: 8080
+        as: 80
+        to:
+          - global: true
+profiles:
+  compute:
+    synthetic-worker:
+      resources:
+        cpu:
+          units: 0.1
+        memory:
+          size: 128Mi
+        storage:
+          - size: 256Mi
+  placement:
+    approved-provider:
+      pricing:
+        synthetic-worker:
+          denom: uakt
+          amount: 100
+deployment:
+  synthetic-worker:
+    approved-provider:
+      profile: synthetic-worker
+      count: 1

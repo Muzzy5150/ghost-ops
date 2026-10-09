@@ -1,0 +1,9 @@
+# Optional ClickHouse telemetry
+
+Official `@clickhouse/client@1.24.0` performs table command, JSONEachRow insert and fixed aggregate query. SQLite remains authoritative. The actual client executed those operations against an owned mock HTTP server in a wire test. No actual ClickHouse service was contacted; this is a configuration-required connector, not a live observability deployment.
+
+Configure `GHOSTOPS_SPONSOR_EGRESS=1`, `GHOSTOPS_CLICKHOUSE_ENABLED=1`, `GHOSTOPS_CLICKHOUSE_URL`, matching `GHOSTOPS_CLICKHOUSE_APPROVED_ORIGIN`, username (`GHOSTOPS_CLICKHOUSE_USER`, default default) and private `GHOSTOPS_CLICKHOUSE_PASSWORD`. Only HTTPS or plain loopback HTTP endpoints without embedded credentials/query/fragment qualify. Provision a restricted principal for the fixed ghostops_events table, not an administrator.
+
+Sponsor Integrations → telemetry → inspect minimized batch/destination → confirm. After successful delivery, an SQLite cursor advances; failures do not advance it. Batches contain at most 200 newly persisted records. There is no automatic remote-transfer timer or retry. Uncertain delivery requires operator review and a fresh approval; source-instance/event-ID keys plus ReplacingMergeTree and FINAL queries tolerate duplicated batches. Configuration changes produce a new cursor; prior receipts remain historical.
+
+Projection includes IDs, ordinal/time, engine/type, trusted request-bound tool/operation/decision, incident reference and simulated/local-runtime origin. No contents, prompts, tokens/keys or raw responses. Durations are null when unavailable, never invented. Queries are namespace-scoped fixed minute/engine/type/outcome/tool/agent aggregates, 200-row maximum; no arbitrary SQL. Schema/insert effects require configured credentials and explicit approval. ClickHouse downtime never changes gateway policy. Existing event reassociation may lag the append-only export; this is analytics, not an authoritative forensic replica.

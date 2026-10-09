@@ -1,0 +1,11 @@
+rules:
+  - id: ghostops.dynamic-eval
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: Dynamic eval can execute untrusted input. This code pattern alone does not prove exploitation or agent compromise.
+    pattern: eval($INPUT)
+  - id: ghostops.dynamic-function
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: Dynamic Function construction requires review; no execution was observed by this scan.
+    pattern: new Function(...)

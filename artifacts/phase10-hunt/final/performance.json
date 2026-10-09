@@ -1,0 +1,10 @@
+{
+  "requests": 60,
+  "totalMs": 971,
+  "p50Ms": 16,
+  "p95Ms": 21,
+  "maxMs": 21,
+  "verifierHeapMiB": 27,
+  "provenance": "60 sequential authenticated mock-status handlers; local wall-clock includes HTTP/hunt/SQLite; verifier heap is NOT server/UI memory",
+  "modelCalls": 0
+}

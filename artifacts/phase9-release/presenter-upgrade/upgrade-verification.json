@@ -1,0 +1,30 @@
+{
+  "release": "v1.0.0-rc.1",
+  "migratedCloneReady": true,
+  "normalRestartReady": true,
+  "originalRowCountsPreserved": true,
+  "currentMemorySignaturesVerified": true,
+  "alteredHistoricalSnapshotsPreserved": 3,
+  "originalTables": {
+    "_prisma_migrations": 3,
+    "Agent": 4,
+    "Credential": 4,
+    "Session": 9,
+    "Profile": 4,
+    "ToolRequest": 41,
+    "PolicyDecision": 41,
+    "SecurityEvent": 121,
+    "Finding": 59,
+    "Incident": 5,
+    "Evidence": 103,
+    "MemoryVersion": 10,
+    "Honeypot": 5,
+    "TrapInteraction": 5,
+    "ContainmentAction": 3,
+    "SimulationRun": 4,
+    "Command": 55,
+    "SourceDocument": 1
+  },
+  "sourceDatabaseModified": false,
+  "modelCalls": 0
+}

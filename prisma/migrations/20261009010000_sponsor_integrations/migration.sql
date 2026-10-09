@@ -1,0 +1,4 @@
+CREATE TABLE "IntegrationRun" ("id" TEXT NOT NULL PRIMARY KEY, "fingerprint" TEXT NOT NULL, "sponsor" TEXT NOT NULL, "action" TEXT NOT NULL, "mode" TEXT NOT NULL, "status" TEXT NOT NULL, "configurationHash" TEXT NOT NULL, "result" JSONB NOT NULL, "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, "finishedAt" DATETIME);
+CREATE INDEX "IntegrationRun_sponsor_createdAt_idx" ON "IntegrationRun"("sponsor", "createdAt");
+CREATE TABLE "CodeScan" ("id" TEXT NOT NULL PRIMARY KEY, "target" TEXT NOT NULL, "scannerVersion" TEXT NOT NULL, "ruleHash" TEXT NOT NULL, "files" JSONB NOT NULL, "findings" JSONB NOT NULL, "comparison" JSONB NOT NULL, "requestId" TEXT, "commit" TEXT, "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE "TelemetryCursor" ("id" TEXT NOT NULL PRIMARY KEY, "ordinal" INTEGER NOT NULL DEFAULT 0, "namespace" TEXT NOT NULL, "updatedAt" DATETIME NOT NULL);

@@ -1,0 +1,83 @@
+{
+  "verifiedAt": "2026-10-09T20:42:21.144Z",
+  "origin": "https://ghost-ops-pi.vercel.app",
+  "deploymentId": "dpl_7WQwe6iGLbZqFwCzsKH7wf1hVWpB",
+  "projectId": "prj_gmQjSKR9igKAXUFdwMgFsEcZdTBI",
+  "sourceCommit": "c430056ab62d3df2ae5bfe1f9e5b28026ab1586c",
+  "target": "production",
+  "mode": "public",
+  "staticAssetsChecked": 12,
+  "results": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/demo/",
+      "status": 200
+    },
+    {
+      "path": "/about/",
+      "status": 200
+    },
+    {
+      "path": "/docs/",
+      "status": 200
+    },
+    {
+      "path": "/developers/",
+      "status": 200
+    },
+    {
+      "path": "/console/",
+      "status": 200
+    },
+    {
+      "path": "/api/bootstrap",
+      "status": 404
+    },
+    {
+      "path": "/api/state",
+      "status": 404
+    },
+    {
+      "path": "/api/control",
+      "status": 404
+    },
+    {
+      "path": "/api/mcp",
+      "status": 404
+    },
+    {
+      "path": "/api/ingest",
+      "status": 404
+    },
+    {
+      "path": "/api/evidence",
+      "status": 404
+    },
+    {
+      "path": "/.env",
+      "status": 404
+    },
+    {
+      "path": "/.ghostops/integrity.key",
+      "status": 404
+    },
+    {
+      "path": "/prisma/dev.db",
+      "status": 404
+    },
+    {
+      "path": "/api/control",
+      "method": "POST",
+      "status": 404
+    },
+    {
+      "path": "/api/mcp",
+      "method": "POST",
+      "status": 404
+    }
+  ],
+  "visualInspection": false
+}

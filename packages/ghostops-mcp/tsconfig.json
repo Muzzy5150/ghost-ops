@@ -1,0 +1,1 @@
+{"compilerOptions":{"target":"ES2022","module":"NodeNext","moduleResolution":"NodeNext","strict":true,"declaration":true,"outDir":"dist","rootDir":"src","skipLibCheck":true,"paths":{"@ghostops/sdk":["../ghostops-sdk/dist/index.d.ts"]}},"include":["src/**/*.ts"]}

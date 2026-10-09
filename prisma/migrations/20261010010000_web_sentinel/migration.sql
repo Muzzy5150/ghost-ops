@@ -1,0 +1,8 @@
+CREATE TABLE "SentinelRun" ("id" TEXT NOT NULL PRIMARY KEY,"fingerprint" TEXT NOT NULL,"configuration" JSONB NOT NULL,"configurationHash" TEXT NOT NULL,"status" TEXT NOT NULL,"agentIds" JSONB NOT NULL DEFAULT '[]',"result" JSONB NOT NULL DEFAULT '{}',"createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"finishedAt" DATETIME);
+CREATE TABLE "SentinelObservation" ("id" TEXT NOT NULL PRIMARY KEY,"runId" TEXT NOT NULL,"requestId" TEXT,"kind" TEXT NOT NULL,"data" JSONB NOT NULL,"createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,CONSTRAINT "SentinelObservation_runId_fkey" FOREIGN KEY ("runId") REFERENCES "SentinelRun" ("id") ON DELETE CASCADE ON UPDATE CASCADE);
+CREATE UNIQUE INDEX "SentinelObservation_requestId_key" ON "SentinelObservation"("requestId");
+CREATE INDEX "SentinelObservation_runId_createdAt_idx" ON "SentinelObservation"("runId","createdAt");
+CREATE TABLE "SentinelPublication" ("id" TEXT NOT NULL PRIMARY KEY,"runId" TEXT NOT NULL,"target" TEXT NOT NULL,"digest" TEXT NOT NULL,"title" TEXT NOT NULL,"body" TEXT NOT NULL,"configurationHash" TEXT NOT NULL,"status" TEXT NOT NULL,"approvalId" TEXT,"expiresAt" DATETIME,"requestId" TEXT,"result" JSONB NOT NULL DEFAULT '{}',"createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"updatedAt" DATETIME NOT NULL);
+CREATE UNIQUE INDEX "SentinelPublication_runId_key" ON "SentinelPublication"("runId");
+CREATE TABLE "SentinelMonitor" ("id" TEXT NOT NULL PRIMARY KEY,"runId" TEXT NOT NULL,"status" TEXT NOT NULL,"intervalMinutes" INTEGER NOT NULL,"remaining" INTEGER NOT NULL,"nextCheck" DATETIME NOT NULL,"lastSuccess" DATETIME,"result" JSONB NOT NULL DEFAULT '{}');
+CREATE UNIQUE INDEX "SentinelMonitor_runId_key" ON "SentinelMonitor"("runId");

@@ -1,0 +1,2 @@
+import { defineConfig } from '@playwright/test';
+export default defineConfig({testDir:'tests/browser',workers:1,timeout:30000,use:{baseURL:process.env.GHOSTOPS_WEBSITE_URL ?? 'http://127.0.0.1:3220',viewport:{width:1440,height:1000},trace:'off'},reporter:'list',webServer:process.env.GHOSTOPS_WEBSITE_URL?undefined:{command:'python3 -m http.server 3220 --bind 127.0.0.1 --directory out',url:'http://127.0.0.1:3220',reuseExistingServer:!process.env.CI}});

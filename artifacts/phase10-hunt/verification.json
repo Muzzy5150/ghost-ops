@@ -1,0 +1,34 @@
+{
+  "complete": true,
+  "caseId": "5fdeccea-ab6a-456e-9852-fcf0ef0ae766",
+  "scopeId": "c6b9ef8a-7e63-452f-8233-766c78752369",
+  "planId": "0a0be3a8-c621-4096-b205-7fe341592a2c",
+  "agentIds": [
+    "live-hunt-ResearchAgent-315b741e",
+    "live-hunt-CoordinatorAgent-6d5e7dcd",
+    "live-hunt-OperationsAgent-568b35bc"
+  ],
+  "coordinatorId": "live-hunt-CoordinatorAgent-6d5e7dcd",
+  "original": "hunt-original.zip",
+  "tampered": "hunt-tampered.zip",
+  "rootRequestId": "f9372a1a-b6a4-48af-a375-1630d7f8edfd",
+  "enforcementVerified": true,
+  "memoryPolicyIntact": true,
+  "authenticated": true,
+  "tamperRejected": true,
+  "restoredAccess": true,
+  "modelCalls": 0,
+  "limitation": "Scripted choices, real tools; source/submission is not proof of influence. Local HMAC is not external attestation.",
+  "performance": {
+    "requests": 60,
+    "totalMs": 981,
+    "p50Ms": 17,
+    "p95Ms": 21,
+    "maxMs": 21,
+    "verifierHeapMiB": 22,
+    "provenance": "60 sequential authenticated mock-status handlers; local wall-clock includes HTTP/hunt/SQLite; verifier heap is NOT server/UI memory",
+    "modelCalls": 0
+  },
+  "automaticRestartVerified": true,
+  "verificationKeyExported": false
+}

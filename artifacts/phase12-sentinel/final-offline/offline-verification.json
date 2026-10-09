@@ -1,0 +1,63 @@
+{
+  "runId": "69011b6f-744f-4a6b-90bb-d8348dc5ed52",
+  "status": "completed",
+  "scannerVersion": "1.180.0",
+  "findings": 1,
+  "independentStdioMcp": true,
+  "deniedBeforeHandler": true,
+  "protectedMemoryIntact": true,
+  "quarantineAfterRestart": true,
+  "original": {
+    "valid": true,
+    "hashesVerified": true,
+    "authenticated": true,
+    "packageId": "c7faf872-40be-4ad6-8ef9-9dc42c80657c",
+    "scope": "sentinel",
+    "subjectId": "69011b6f-744f-4a6b-90bb-d8348dc5ed52",
+    "files": 6,
+    "trust": "Local key authenticated; host/key compromise is not excluded"
+  },
+  "tamperRejected": true,
+  "missingRejected": true,
+  "modelCalls": 0,
+  "publicSourceCalls": 0,
+  "published": false,
+  "assessment": {
+    "status": "PENDING",
+    "verifiedSponsors": [
+      "Semgrep"
+    ],
+    "checks": [
+      {
+        "requirement": "Autonomous Model",
+        "status": "PENDING",
+        "detail": "Verified real inference and a model-selected guarded tool are both required; scripts/mocks do not qualify."
+      },
+      {
+        "requirement": "Open Web",
+        "status": "PENDING",
+        "detail": "Actual successful approved public-source retrieval, not cache/fixture."
+      },
+      {
+        "requirement": "Real Action",
+        "status": "PENDING",
+        "detail": "Exact-approved external publication and read-back verification required."
+      },
+      {
+        "requirement": "Sponsor Technology",
+        "status": "PENDING",
+        "detail": "1 genuinely executed sponsor technologies: Semgrep. Local model inference is not OpenAI-hosted execution."
+      },
+      {
+        "requirement": "Source Grounding",
+        "status": "PASS",
+        "detail": "Report is built from persisted source/scan references; scanner patterns are not exploitability."
+      },
+      {
+        "requirement": "Security Enforcement",
+        "status": "PASS",
+        "detail": "15 persisted guarded requests; 0 denied requests with completed handlers."
+      }
+    ]
+  }
+}

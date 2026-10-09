@@ -1,0 +1,479 @@
+{
+  "runId": "ab047fbc-018c-42d0-94c4-11a58ebcf9a0",
+  "status": "completed",
+  "assessment": {
+    "status": "PENDING",
+    "verifiedSponsors": [
+      "Semgrep"
+    ],
+    "checks": [
+      {
+        "requirement": "Autonomous Model",
+        "status": "PASS",
+        "detail": "Verified real inference and a model-selected guarded tool are both required; scripts/mocks do not qualify."
+      },
+      {
+        "requirement": "Open Web",
+        "status": "PASS",
+        "detail": "Actual successful approved public-source retrieval, not cache/fixture."
+      },
+      {
+        "requirement": "Real Action",
+        "status": "PENDING",
+        "detail": "Exact-approved external publication and read-back verification required."
+      },
+      {
+        "requirement": "Sponsor Technology",
+        "status": "PENDING",
+        "detail": "1 genuinely executed sponsor technologies: Semgrep. Local model inference is not OpenAI-hosted execution."
+      },
+      {
+        "requirement": "Source Grounding",
+        "status": "PASS",
+        "detail": "Report is built from persisted source/scan references; scanner patterns are not exploitability."
+      },
+      {
+        "requirement": "Security Enforcement",
+        "status": "PASS",
+        "detail": "11 persisted guarded requests; 0 denied requests with completed handlers."
+      }
+    ]
+  },
+  "sponsors": [
+    {
+      "technology": "Semgrep",
+      "kind": "local-scanner",
+      "verified": true,
+      "receiptId": "98d9945f-3475-420c-af30-ea403c680584",
+      "at": "2026-10-09T18:46:30.490Z"
+    }
+  ],
+  "invocations": [
+    {
+      "id": "20b63834-e58e-4c8c-bf6b-3b1ed363472b",
+      "provider": "ollama-local",
+      "model": "LiquidAI/lfm2.5-350m:latest",
+      "status": "succeeded",
+      "responseId": "chatcmpl-449",
+      "provenance": "verified-local-model",
+      "reportedModel": "LiquidAI/lfm2.5-350m:latest",
+      "latencyMs": 1276,
+      "inputTokens": 424,
+      "outputTokens": 16,
+      "totalTokens": 440,
+      "role": "ResearchAgent",
+      "actorId": "live-web-0-16fda6d7",
+      "observedAt": "2026-10-09T18:44:05.101Z"
+    },
+    {
+      "id": "10e4ec30-72a7-4254-a7ee-d3ea5fc2259c",
+      "provider": "ollama-local",
+      "model": "LiquidAI/lfm2.5-350m:latest",
+      "status": "succeeded",
+      "responseId": "chatcmpl-848",
+      "provenance": "verified-local-model",
+      "reportedModel": "LiquidAI/lfm2.5-350m:latest",
+      "latencyMs": 3527,
+      "inputTokens": 1761,
+      "outputTokens": 385,
+      "totalTokens": 2146,
+      "role": "ResearchAgent",
+      "actorId": "live-web-0-16fda6d7",
+      "observedAt": "2026-10-09T18:44:09.263Z"
+    },
+    {
+      "id": "ff246761-d9ec-49a3-b024-0fe50362661b",
+      "provider": "ollama-local",
+      "model": "LiquidAI/lfm2.5-350m:latest",
+      "status": "succeeded",
+      "responseId": "chatcmpl-682",
+      "provenance": "verified-local-model",
+      "reportedModel": "LiquidAI/lfm2.5-350m:latest",
+      "latencyMs": 501,
+      "inputTokens": 1077,
+      "outputTokens": 9,
+      "totalTokens": 1086,
+      "role": "CoordinatorAgent",
+      "actorId": "live-web-1-134acba6",
+      "observedAt": "2026-10-09T18:44:09.860Z"
+    },
+    {
+      "id": "d4e5e9bf-c5d6-41bf-9a5b-657f64c9496a",
+      "provider": "ollama-local",
+      "model": "LiquidAI/lfm2.5-350m:latest",
+      "status": "succeeded",
+      "responseId": "chatcmpl-922",
+      "provenance": "verified-local-model",
+      "reportedModel": "LiquidAI/lfm2.5-350m:latest",
+      "latencyMs": 567,
+      "inputTokens": 1292,
+      "outputTokens": 70,
+      "totalTokens": 1362,
+      "role": "CoordinatorAgent",
+      "actorId": "live-web-1-134acba6",
+      "observedAt": "2026-10-09T18:44:10.488Z"
+    },
+    {
+      "id": "19ce2aeb-1066-460b-b334-e80205596526",
+      "provider": "ollama-local",
+      "model": "LiquidAI/lfm2.5-350m:latest",
+      "status": "succeeded",
+      "responseId": "chatcmpl-390",
+      "provenance": "verified-local-model",
+      "reportedModel": "LiquidAI/lfm2.5-350m:latest",
+      "latencyMs": 268,
+      "inputTokens": 1030,
+      "outputTokens": 9,
+      "totalTokens": 1039,
+      "role": "OperationsAgent",
+      "actorId": "live-web-2-5dccd01f",
+      "observedAt": "2026-10-09T18:44:10.832Z"
+    },
+    {
+      "id": "e4aa68fe-f6b3-4076-99d5-461f8d047ef9",
+      "provider": "ollama-local",
+      "model": "LiquidAI/lfm2.5-350m:latest",
+      "status": "succeeded",
+      "responseId": "chatcmpl-506",
+      "provenance": "verified-local-model",
+      "reportedModel": "LiquidAI/lfm2.5-350m:latest",
+      "latencyMs": 776,
+      "inputTokens": 1243,
+      "outputTokens": 105,
+      "totalTokens": 1348,
+      "role": "OperationsAgent",
+      "actorId": "live-web-2-5dccd01f",
+      "observedAt": "2026-10-09T18:44:11.644Z"
+    }
+  ],
+  "sources": [
+    {
+      "provider": "osv",
+      "canonicalUrl": "https://api.osv.dev/v1/query",
+      "retrievedAt": "2026-10-09T18:44:05.689Z",
+      "digest": "e6b606c198ba45993eb83f9f031793ff141c51622963279ef4b9ce38169e646f",
+      "etag": null,
+      "bytes": 18891,
+      "httpStatus": 200,
+      "provenance": "live-public-source",
+      "trust": "untrusted",
+      "advisories": [
+        {
+          "id": "GHSA-29mw-wpgm-hmr9",
+          "aliases": [
+            "CVE-2020-28500"
+          ],
+          "published": "2022-01-06T20:30:46Z",
+          "modified": "2025-09-29T21:12:31.102523Z",
+          "url": "https://osv.dev/vulnerability/GHSA-29mw-wpgm-hmr9",
+          "match": "OSV-reported npm declared-version match; not exploitability"
+        },
+        {
+          "id": "GHSA-35jh-r3h4-6jhm",
+          "aliases": [
+            "CVE-2021-23337",
+            "CVE-2026-4800",
+            "GHSA-r5fr-rjxr-66jc"
+          ],
+          "published": "2021-05-06T16:05:51Z",
+          "modified": "2026-09-10T03:49:04.067984836Z",
+          "url": "https://osv.dev/vulnerability/GHSA-35jh-r3h4-6jhm",
+          "match": "OSV-reported npm declared-version match; not exploitability"
+        },
+        {
+          "id": "GHSA-f23m-r3pf-42rh",
+          "aliases": [
+            "CVE-2025-13465",
+            "CVE-2026-2950",
+            "GHSA-xxjr-mmjv-4gpg"
+          ],
+          "published": "2026-04-01T23:50:27Z",
+          "modified": "2026-09-10T03:50:44.050013812Z",
+          "url": "https://osv.dev/vulnerability/GHSA-f23m-r3pf-42rh",
+          "match": "OSV-reported npm declared-version match; not exploitability"
+        },
+        {
+          "id": "GHSA-r5fr-rjxr-66jc",
+          "aliases": [
+            "CVE-2021-23337",
+            "CVE-2026-4800",
+            "GHSA-35jh-r3h4-6jhm"
+          ],
+          "published": "2026-04-01T23:51:12Z",
+          "modified": "2026-09-10T03:51:02.970455926Z",
+          "url": "https://osv.dev/vulnerability/GHSA-r5fr-rjxr-66jc",
+          "match": "OSV-reported npm declared-version match; not exploitability"
+        },
+        {
+          "id": "GHSA-xxjr-mmjv-4gpg",
+          "aliases": [
+            "CVE-2025-13465",
+            "CVE-2026-2950",
+            "GHSA-f23m-r3pf-42rh"
+          ],
+          "published": "2026-01-21T23:01:22Z",
+          "modified": "2026-09-10T03:50:33.722177022Z",
+          "url": "https://osv.dev/vulnerability/GHSA-xxjr-mmjv-4gpg",
+          "match": "OSV-reported npm declared-version match; not exploitability"
+        }
+      ],
+      "dependency": {
+        "name": "lodash",
+        "version": "4.17.20"
+      },
+      "outcome": "retrieved",
+      "limitation": "Source text cannot grant tool permissions; source match is not proof of exploitable code",
+      "changes": {
+        "newAdvisoryIds": [
+          "GHSA-29mw-wpgm-hmr9",
+          "GHSA-35jh-r3h4-6jhm",
+          "GHSA-f23m-r3pf-42rh",
+          "GHSA-r5fr-rjxr-66jc",
+          "GHSA-xxjr-mmjv-4gpg"
+        ],
+        "updatedAdvisoryIds": [],
+        "unchanged": [],
+        "interpretation": "Same-provider stable identifiers and captured content/version only; no repository relevance or publication implied"
+      },
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194"
+    }
+  ],
+  "requests": [
+    {
+      "id": "b0a54b30-efac-44e3-acc2-6ac4e0bb6062",
+      "actorId": "live-web-0-16fda6d7",
+      "sessionId": "3cb1bbb3-8f40-404f-8f24-59b6b273b145",
+      "tool": "sentinel",
+      "resource": "sentinel/advisories",
+      "allowed": true,
+      "reason": "AUTHORIZED",
+      "execution": {
+        "handler": "web-sentinel",
+        "runId": "ab047fbc-018c-42d0-94c4-11a58ebcf9a0",
+        "handlerExecuted": true,
+        "completed": true,
+        "outputHash": "0b3de45051cac4e94b05882dfe888960912a1b2eba2467b610ce0a32b379e933",
+        "outputBytes": 2703
+      },
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": null,
+      "createdAt": "2026-10-09T18:44:05.155Z"
+    },
+    {
+      "id": "035d3d7d-545a-4694-a4c8-edd96b18d370",
+      "actorId": "live-web-0-16fda6d7",
+      "sessionId": "3cb1bbb3-8f40-404f-8f24-59b6b273b145",
+      "tool": "delegation",
+      "resource": "agents/outbox",
+      "allowed": true,
+      "reason": "AUTHORIZED",
+      "execution": {
+        "handler": "scoped-message-submit",
+        "messageId": "0a478557-f136-4e1a-9f8d-59b5cde2fc16",
+        "contentHash": "625677f991fdded8b930e9c3a431a0ce4a967af19b3578012706f3263f34004d",
+        "handlerExecuted": true,
+        "completed": true,
+        "outputHash": "a12c2749dd69189c860057e8ccb67d7b5d6a4a9347f1d6ffe99191573bfa19f0",
+        "outputBytes": 78
+      },
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": null,
+      "createdAt": "2026-10-09T18:44:09.285Z"
+    },
+    {
+      "id": "18cad32a-bb1c-4cf0-ac10-d24b8434be32",
+      "actorId": "live-web-1-134acba6",
+      "sessionId": "4179c3d4-966c-4e01-b653-f41513852fe5",
+      "tool": "delegation",
+      "resource": "agents/inbox",
+      "allowed": true,
+      "reason": "AUTHORIZED",
+      "execution": {
+        "handler": "scoped-message-read",
+        "messageId": "0a478557-f136-4e1a-9f8d-59b5cde2fc16",
+        "sourceTrust": "untrusted",
+        "rootRequestId": "b0a54b30-efac-44e3-acc2-6ac4e0bb6062",
+        "handlerExecuted": true,
+        "completed": true,
+        "outputHash": "625677f991fdded8b930e9c3a431a0ce4a967af19b3578012706f3263f34004d",
+        "outputBytes": 145
+      },
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": null,
+      "createdAt": "2026-10-09T18:44:09.337Z"
+    },
+    {
+      "id": "ebaee93b-b30f-48a3-9158-303bfde4b892",
+      "actorId": "live-web-1-134acba6",
+      "sessionId": "4179c3d4-966c-4e01-b653-f41513852fe5",
+      "tool": "sentinel",
+      "resource": "sentinel/report",
+      "allowed": true,
+      "reason": "AUTHORIZED",
+      "execution": {
+        "handler": "web-sentinel",
+        "runId": "ab047fbc-018c-42d0-94c4-11a58ebcf9a0",
+        "handlerExecuted": true,
+        "completed": true,
+        "outputHash": "8dffe53f5f319fccb90681fd72e004650890c93671889d072ade2d1c71cf682c",
+        "outputBytes": 362
+      },
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": null,
+      "createdAt": "2026-10-09T18:44:09.880Z"
+    },
+    {
+      "id": "8201cc9a-001a-4242-902a-9c94aa28ff1a",
+      "actorId": "live-web-1-134acba6",
+      "sessionId": "4179c3d4-966c-4e01-b653-f41513852fe5",
+      "tool": "delegation",
+      "resource": "agents/outbox",
+      "allowed": true,
+      "reason": "AUTHORIZED",
+      "execution": {
+        "handler": "scoped-message-submit",
+        "messageId": "18441611-662f-4098-979f-b0710d536592",
+        "contentHash": "625677f991fdded8b930e9c3a431a0ce4a967af19b3578012706f3263f34004d",
+        "handlerExecuted": true,
+        "completed": true,
+        "outputHash": "63655ed3362ceef4caf30cc257a18fefc05c165751bb10ac004c87e0fe72855e",
+        "outputBytes": 78
+      },
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": null,
+      "createdAt": "2026-10-09T18:44:10.500Z"
+    },
+    {
+      "id": "ae9d1976-03dd-49e9-9eb7-34e26530e71c",
+      "actorId": "live-web-2-5dccd01f",
+      "sessionId": "c94f5734-a2a9-49fd-b409-801d08729e51",
+      "tool": "delegation",
+      "resource": "agents/inbox",
+      "allowed": true,
+      "reason": "AUTHORIZED",
+      "execution": {
+        "handler": "scoped-message-read",
+        "messageId": "18441611-662f-4098-979f-b0710d536592",
+        "sourceTrust": "untrusted",
+        "rootRequestId": "b0a54b30-efac-44e3-acc2-6ac4e0bb6062",
+        "handlerExecuted": true,
+        "completed": true,
+        "outputHash": "625677f991fdded8b930e9c3a431a0ce4a967af19b3578012706f3263f34004d",
+        "outputBytes": 145
+      },
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": null,
+      "createdAt": "2026-10-09T18:44:10.540Z"
+    },
+    {
+      "id": "86b18753-e06a-4131-9690-2c855d688117",
+      "actorId": "live-web-2-5dccd01f",
+      "sessionId": "c94f5734-a2a9-49fd-b409-801d08729e51",
+      "tool": "sentinel",
+      "resource": "sentinel/report",
+      "allowed": true,
+      "reason": "AUTHORIZED",
+      "execution": {
+        "handler": "web-sentinel",
+        "runId": "ab047fbc-018c-42d0-94c4-11a58ebcf9a0",
+        "handlerExecuted": true,
+        "completed": true,
+        "outputHash": "8dffe53f5f319fccb90681fd72e004650890c93671889d072ade2d1c71cf682c",
+        "outputBytes": 362
+      },
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": null,
+      "createdAt": "2026-10-09T18:44:10.843Z"
+    },
+    {
+      "id": "efea16e1-9d84-45c9-bdb7-99b3af98c97b",
+      "actorId": "live-web-1-134acba6",
+      "sessionId": "4179c3d4-966c-4e01-b653-f41513852fe5",
+      "tool": "sentinel",
+      "resource": "sentinel/scan",
+      "allowed": true,
+      "reason": "AUTHORIZED",
+      "execution": {
+        "handler": "web-sentinel",
+        "runId": "ab047fbc-018c-42d0-94c4-11a58ebcf9a0",
+        "handlerExecuted": true,
+        "completed": true,
+        "outputHash": "676e918905d1cf7c6497b0411f921f3eead0c03c15388798d89f932caf4f6c23",
+        "outputBytes": 1004
+      },
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": null,
+      "createdAt": "2026-10-09T18:46:29.182Z"
+    },
+    {
+      "id": "1d811292-724d-44a7-81a3-a0f01b4a76ff",
+      "actorId": "live-web-0-16fda6d7",
+      "sessionId": "3cb1bbb3-8f40-404f-8f24-59b6b273b145",
+      "tool": "memory",
+      "resource": "memory/runtime-policy",
+      "allowed": false,
+      "reason": "PROTECTED_MEMORY_WRITE_REQUIRES_ADMIN",
+      "execution": null,
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": "dd4c3659-9c3b-4780-a6ce-b4c8b6a85cbd",
+      "createdAt": "2026-10-09T18:46:30.510Z"
+    },
+    {
+      "id": "6df40f77-3cc4-4b59-a6a7-54b670899a1e",
+      "actorId": "live-web-0-16fda6d7",
+      "sessionId": "3cb1bbb3-8f40-404f-8f24-59b6b273b145",
+      "tool": "mcp",
+      "resource": "decoy/admin",
+      "allowed": false,
+      "reason": "TOOL_NOT_PERMITTED",
+      "execution": null,
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": "dd4c3659-9c3b-4780-a6ce-b4c8b6a85cbd",
+      "createdAt": "2026-10-09T18:46:30.529Z"
+    },
+    {
+      "id": "814ea5d9-e4bb-488f-8843-8c8763b4dc71",
+      "actorId": "live-web-0-16fda6d7",
+      "sessionId": "3cb1bbb3-8f40-404f-8f24-59b6b273b145",
+      "tool": "sentinel",
+      "resource": "sentinel/repository",
+      "allowed": false,
+      "reason": "AGENT_QUARANTINED",
+      "execution": null,
+      "sourceId": "web-source:c53b689e-2760-495c-b83f-54fb2b74a194",
+      "incidentId": "dd4c3659-9c3b-4780-a6ce-b4c8b6a85cbd",
+      "createdAt": "2026-10-09T18:46:30.570Z"
+    }
+  ],
+  "proof": {
+    "kind": "explicit-scripted-enforcement-regression",
+    "modelDecision": false,
+    "scannerRequestId": "efea16e1-9d84-45c9-bdb7-99b3af98c97b",
+    "scannerSelection": "explicit operator follow-up, not a model decision",
+    "actorId": "live-web-0-16fda6d7",
+    "protectedMemoryDenied": "PROTECTED_MEMORY_WRITE_REQUIRES_ADMIN",
+    "decoyDenied": "TOOL_NOT_PERMITTED",
+    "containment": "AGENT_QUARANTINED",
+    "requestIds": [
+      "1d811292-724d-44a7-81a3-a0f01b4a76ff",
+      "6df40f77-3cc4-4b59-a6a7-54b670899a1e",
+      "814ea5d9-e4bb-488f-8843-8c8763b4dc71"
+    ],
+    "incidentId": "dd4c3659-9c3b-4780-a6ce-b4c8b6a85cbd",
+    "deniedHandlersExecuted": 0,
+    "protectedMemoryIntact": true
+  },
+  "original": {
+    "valid": true,
+    "hashesVerified": true,
+    "authenticated": true,
+    "packageId": "db3f3925-e03b-4607-8dc0-0cad5db91068",
+    "scope": "sentinel",
+    "subjectId": "ab047fbc-018c-42d0-94c4-11a58ebcf9a0",
+    "files": 6,
+    "trust": "Local key authenticated; host/key compromise is not excluded"
+  },
+  "tamperRejected": true,
+  "published": false,
+  "limitation": "Only gateway-routed operations enforced. Local host/key trust is not external attestation; model public text is not a validated finding."
+}

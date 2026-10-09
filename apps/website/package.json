@@ -1,0 +1,43 @@
+{
+  "name": "@ghostops/website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "prepare:workbench": "node scripts/prepare-workbench.mjs",
+    "predev": "npm run prepare:workbench",
+    "dev": "NEXT_TELEMETRY_DISABLED=1 next dev --hostname 127.0.0.1 --port 3220",
+    "prebuild": "npm run prepare:workbench",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
+    "pretypecheck": "npm run prepare:workbench",
+    "typecheck": "tsc --noEmit",
+    "prelint": "npm run prepare:workbench",
+    "lint": "eslint .",
+    "pretest": "npm run prepare:workbench",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "playwright test"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "3.1.1",
+    "@xyflow/react": "12.12.0",
+    "lucide-react": "1.52.0",
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "16.4.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5.9.0"
+  }
+}
