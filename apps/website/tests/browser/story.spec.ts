@@ -9,7 +9,8 @@ test('story routes, all sections and accessible terminal entry',async({page})=>{
  await page.getByRole('link',{name:'EXPLORE THE SYSTEM',exact:false}).click();await expect(page).toHaveURL(/#problem$/);
  await expect(page.locator('#problem')).toBeInViewport();
  await page.getByRole('link',{name:'Ghost Ops home',exact:true}).click();
- await page.getByRole('link',{name:'ENTER GHOST OPS',exact:false}).last().click();await expect(page).toHaveURL(/\/terminal\/$/);
+ const entering=page.waitForFunction(()=>document.querySelector('.ghost-story')?.getAttribute('data-entering')==='true');
+ await page.getByRole('link',{name:'ENTER GHOST OPS',exact:false}).last().click();await entering;await expect(page).toHaveURL(/\/terminal\/$/);
  await expect(page.locator('.react-flow__node').first()).toBeVisible();expect(errors).toEqual([]);
  await page.goto('/#memoryguard');await expect(page.locator('#memoryguard')).toBeInViewport();
 });

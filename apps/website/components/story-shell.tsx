@@ -13,7 +13,7 @@ export function StoryShell({children}:{children:React.ReactNode}){
  const changed=()=>{cleanup?.();cleanup=undefined;load();};preference.addEventListener('change',changed);load();
  return()=>{disposed=true;cleanup?.();preference.removeEventListener('change',changed);clearTimeout(timer.current);};
  },[]);
- return <div ref={root} className="ghost-story" data-motion="stable" data-scene="hero" onClick={event=>{
+ return <div ref={root} className="ghost-story" data-motion="stable" data-scene="hero" onClickCapture={event=>{
  const target=(event.target as Element).closest<HTMLAnchorElement>('a[data-enter-terminal]');
  if(!target||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
  event.preventDefault();if(root.current!.dataset.entering==='true')return;root.current!.dataset.entering='true';timer.current=setTimeout(()=>router.push('/terminal/'),280);
