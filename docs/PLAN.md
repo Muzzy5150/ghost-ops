@@ -1,6 +1,15 @@
 # Current plan
 
-## Phase 13 — Shopipad visual system
+## Final submission sprint
+
+- Base `submission/live-security` on the verified Production frontend; keep normal history and existing worktrees intact.
+- Verify real Guild.ai execution, ClickHouse insert/query and Akash compute only when approved account access is available. Pi is excluded. Missing access remains an explicit blocker.
+- Reuse the authenticated local runtime in an isolated submission database for genuine inference, policy decisions, containment and evidence verification. Do not expose administration on Vercel.
+- Simplify Operations to network, security timeline and contextual inspector; retain saved layouts and all other tools. Add scroll-responsive mascot secondary motion.
+- Run affected frontend/security regressions, then Preview before Production. Keep recording instructions and sponsor status honest.
+- Reserve 4:10–4:30 PM Pacific for rehearsal, recording and submission; stop optional engineering at 4:10.
+
+## Verified design foundation
 
 - Work on `design/ghostops-shopipad`; preserve the clean initial release and normal Git ancestry.
 - Use the local, read-only Shopipad frontend as the verified design reference. See [design reference](DESIGN_REFERENCE.md).

@@ -19,7 +19,10 @@ test('public case is an exact minimized projection of recorded synthetic evidenc
 });
 test('no fake live provider, sponsor success or control-plane actions',()=>{
   assert.match(read('app/page.tsx'),/StoryShell/);assert.match(read('app/terminal/page.tsx'),/HostedWorkstation/);
-  assert.match(read('components/hosted-panels.tsx'),/live verification pending/);
+  const panels=read('components/hosted-panels.tsx');
+  assert.match(panels,/AWAITING CONNECTION/);
+  for(const sponsor of ['Guild.ai','ClickHouse','Akash'])assert(panels.includes(sponsor));
+  assert(!panels.includes('VERIFIED LIVE'));
   assert.match(read('app/console/page.tsx'),/no gateway, database, administrative session/);
   assert.match(read('components/recorded-network.tsx'),/VIEW ONLY/);
   assert(!/setInterval|animated: true|https?:\/\/127\.0\.0\.1/.test(read('components/recorded-network.tsx')));

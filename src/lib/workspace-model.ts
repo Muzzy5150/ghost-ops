@@ -10,9 +10,9 @@ export type Preferences = { version: 2; preset: Preset; bounds: Bounds; windows:
 export const storageKey = "ghostops.workspace.v2";
 export const legacyStorageKey = "ghostops.workspace.v1";
 export const titles: Record<WindowId, string> = {
-  network: "Agent network", events: "Live events", inspector: "Agent inspector", evidence: "Evidence inspector",
+  network: "Agent network", events: "Security timeline", inspector: "Agent inspector", evidence: "Evidence inspector",
   overview: "System overview", registry: "Agent Registry", dna: "AgentDNA", shadow: "ShadowWatch", memory: "MemoryGuard",
-  traps: "GhostTrap", investigations: "Investigations", runtime: "Runtime sessions", demo: "Demo Control", lab: "Security Lab", hunt: "Ghost Hunt", sponsors: "Sponsor Integrations",sentinel:"Web Sentinel"
+  traps: "GhostTrap", investigations: "Investigations", runtime: "Runtime sessions", demo: "Recorded playback", lab: "Security Lab", hunt: "Ghost Hunt", sponsors: "Sponsor Integrations",sentinel:"Web Sentinel"
 };
 const finite = z.number().finite();
 const rectSchema = { x: finite.min(0).max(10000), y: finite.min(0).max(10000), width: finite.min(1).max(10000), height: finite.min(1).max(10000) };
@@ -32,8 +32,11 @@ export function constrain(rect: Rect, bounds: Bounds): Rect {
 export function defaultLayout(bounds: Bounds, preset: Preset = "operations"): Preferences {
   const gap = 12, left = Math.floor((bounds.width - gap) * .57), right = bounds.width - gap - left;
   const top = Math.max(220, Math.min(Math.floor((bounds.height - gap) * .72), bounds.height - 220 - gap)), bottom = bounds.height - gap - top;
+  const contextWidth = Math.min(bounds.width, Math.max(340, Math.min(390, bounds.width * .3)));
   const placements: Partial<Record<WindowId, Rect>> = preset === "operations" ? {
-    network: { x: 0, y: 0, width: bounds.width, height: bounds.height < 650 ? bounds.height : top }, events: { x: 0, y: top + gap, width: bounds.width, height: bottom }
+    network: { x: 0, y: 0, width: bounds.width - contextWidth - gap, height: top },
+    events: { x: 0, y: top + gap, width: bounds.width - contextWidth - gap, height: bottom },
+    inspector: { x: bounds.width - contextWidth, y: 0, width: contextWidth, height: bounds.height }
   } : preset === "incident" ? {
     network: { x: 0, y: 0, width: left, height: bounds.height }, investigations: { x: left + gap, y: 0, width: right, height: top },
     memory: { x: left + gap, y: top + gap, width: right, height: bottom }
@@ -45,7 +48,7 @@ export function defaultLayout(bounds: Bounds, preset: Preset = "operations"): Pr
   const contextual = (id: WindowId): Rect => ["inspector", "evidence"].includes(id) ? { x: bounds.width - 450, y: 32, width: 430, height: Math.min(570, bounds.height - 48) } : { x: 45 + iOffset(id), y: 24 + iOffset(id), width: Math.min(1000, bounds.width * .86), height: Math.min(730, bounds.height * .9) };
   return { version: 2, preset, bounds, positions: {}, animations: false, navigationExpanded: false, windows: windowIds.map((id, i) => ({
     id, ...constrain(placements[id] ?? contextual(id), bounds),
-    open: !!placements[id], minimized: preset === "operations" && id === "events" && bounds.height < 650, maximized: false, z: i
+    open: !!placements[id], minimized: false, maximized: false, z: i
   })) };
 }
 export function parsePreferences(raw: string | null, bounds: Bounds): Preferences {

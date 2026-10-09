@@ -61,7 +61,14 @@ function NetworkCanvas({ state, layout, dispatch, incidentId, eventId, select }:
   }, [dispatch]);
   const focusNodes = (ids: string[]) => {
     const targets = nodes.filter(n => ids.includes(n.id));
-    if (targets.length) void flow.fitView({ nodes: targets, padding: .2, minZoom: .75, maxZoom: 1, duration: layout.animations ? 220 : 0 });
+    if (!targets.length) return;
+    const box = surface.current?.getBoundingClientRect();
+    const width = Math.max(...targets.map(n => n.position.x + nodeSize.width)) - Math.min(...targets.map(n => n.position.x));
+    const height = Math.max(...targets.map(n => n.position.y + nodeSize.height)) - Math.min(...targets.map(n => n.position.y));
+    // Keep the contextual actor fully visible when a small window cannot fit its neighborhood readably.
+    const readable = box && Math.min(box.width * .8 / width, box.height * .8 / height) < .75
+      ? [targets.find(n => n.id === ids[0]) ?? targets[0]] : targets;
+    void flow.fitView({ nodes: readable, padding: .2, minZoom: .75, maxZoom: 1, duration: layout.animations ? 220 : 0 });
   };
   const focusNode = (id: string) => {
     const n = nodes.find(n => n.id === id);
@@ -86,11 +93,14 @@ function NetworkCanvas({ state, layout, dispatch, incidentId, eventId, select }:
   }, [nodes, layout.animations]);
   // First-load focus is one readable actor, never fit-all at a tiny zoom.
   const initialFocus = useRef(false);
+  const networkWindow = layout.windows.find(w => w.id === "network");
+  const viewWidth = networkWindow?.maximized ? layout.bounds.width : networkWindow?.width;
+  const viewHeight = networkWindow?.maximized ? layout.bounds.height : networkWindow?.height;
   const centerContext = useEffectEvent(() => {
     const ids = filters.query && selected ? [selected] : eventId && highlight.nodeIds.size ? [...highlight.nodeIds] : filters.agent ? [filters.agent, ...view.edges.filter(e => e.source === filters.agent).map(e => e.target).slice(0, 2)] : view.anchorId ? [view.anchorId, ...view.edges.filter(e => e.source === view.anchorId).map(e => e.target).slice(0, 2)] : [];
     focusNodes(ids);
   });
-  useEffect(() => { const frame = requestAnimationFrame(() => centerContext()); return () => cancelAnimationFrame(frame); }, [incidentId, eventId, filters.agent, filters.query, filters.mode]);
+  useEffect(() => { const frame = requestAnimationFrame(() => centerContext()); return () => cancelAnimationFrame(frame); }, [incidentId, eventId, filters.agent, filters.query, filters.mode, viewWidth, viewHeight]);
   const enterSearch = () => {
     const match = graph.nodes.find(n => `${n.label} ${n.entity.id}`.toLowerCase().includes(search.toLowerCase()));
     if (match) { setSelected(match.id); if (nodes.some(n => n.id === match.id)) focusNode(match.id); else setFilters(f => ({ ...f, expanded: true, agent: "", origin: "all", severity: "all", mode: "all", query: search })); }

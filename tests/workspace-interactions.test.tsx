@@ -152,7 +152,7 @@ describe("workspace navigation and persistence", () => {
     const control = vi.fn(async () => null);
     render(<Workspace state={state} busy={false} connected control={control} result={null} setResult={() => {}} />);
     await waitFor(() => expect(localStorage.getItem(storageKey)).not.toBeNull());
-    expect(screen.queryByLabelText("Agent inspector")).toBeNull();
+    expect(screen.getAllByLabelText("Agent inspector")).toHaveLength(1);
     fireEvent.click(screen.getByLabelText("Expand tool navigation"));
     expect(document.querySelector(".navigation-expanded")).toBeTruthy();
     fireEvent.click(screen.getByText("Inspect graph agent"));

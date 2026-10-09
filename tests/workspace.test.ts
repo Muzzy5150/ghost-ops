@@ -4,9 +4,14 @@ import { constrain, defaultLayout, gestureRect, parsePreferences, resizeLayout, 
 const bounds = { width: 1400, height: 800 };
 describe("validated window management", () => {
   it("defines useful Operations and Incident Room presets", () => {
-    expect(defaultLayout(bounds).windows.filter(w => w.open).map(w => w.id)).toEqual(["network", "events"]);
+    expect(defaultLayout(bounds).windows.filter(w => w.open).map(w => w.id)).toEqual(["network", "events", "inspector"]);
     expect(defaultLayout(bounds, "incident").windows.filter(w => w.open).map(w => w.id)).toEqual(["network", "memory", "investigations"]);
-    expect(defaultLayout(bounds).windows[0].width).toBe(bounds.width);
+    const operations = defaultLayout(bounds).windows;
+    const network = operations.find(w => w.id === "network")!;
+    const inspector = operations.find(w => w.id === "inspector")!;
+    expect(network.x + network.width).toBeLessThan(inspector.x);
+    expect(inspector.height).toBe(bounds.height);
+    expect(operations.find(w => w.id === "events")!.minimized).toBe(false);
     expect(defaultLayout(bounds).windows[0].height / bounds.height).toBeGreaterThan(.65);
   });
   it("keeps all title bars and complete windows inside viewport bounds", () => {
@@ -83,7 +88,8 @@ describe("validated window management", () => {
     const positions = { "n-0123456789abcdef": { x: 50, y: 80 } };
     const migrated = parsePreferences(JSON.stringify({ ...legacy, version: 1, positions }), bounds);
     expect(migrated.version).toBe(2); expect(migrated.positions).toEqual(positions);
-    expect(migrated.windows.find(w => w.id === "inspector")!.open).toBe(false);
+    expect(migrated.windows.find(w => w.id === "inspector")!.open).toBe(true);
+    expect(migrated.windows.find(w => w.id === "inspector")!.width).toBeLessThan(500);
   });
   it("docks, snaps and persists expanded navigation without changing backend data", () => {
     const docked = workspaceReducer(defaultLayout(bounds), { type: "dock", id: "inspector", side: "right" });

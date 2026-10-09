@@ -1,8 +1,11 @@
 import { test, expect } from '@playwright/test';
 test('real graph, readable nodes, selection and network controls',async({page})=>{
  const failures:string[]=[];page.on('pageerror',e=>failures.push(e.message));
- await page.goto('/terminal/');await expect(page.getByText('RECORDED / SIMULATED DEMONSTRATION',{exact:true})).toBeVisible();
+ await page.goto('/terminal/');await expect(page.getByText('RECORDED SESSION',{exact:true})).toBeVisible();
  await expect(page.locator('.react-flow__node').first()).toBeVisible();
+ await expect(page.locator('[data-window="inspector"]')).toBeVisible();
+ await expect(page.locator('[data-window="events"]')).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>{const flow=document.querySelector('.flow-surface')!.getBoundingClientRect();return Array.from(document.querySelectorAll('.react-flow__node')).some(node=>{const n=node.getBoundingClientRect();return n.top>=flow.top-1&&n.bottom<=flow.bottom+1&&n.left>=flow.left-1&&n.right<=flow.right+1;});})).toBe(true);
  const node=page.locator('.react-flow__node').first();await expect(node).toHaveCSS('width','304px');await expect(node).toHaveCSS('height','218px');
  await page.getByLabel('Find network entity').fill('Research');await page.getByLabel('Focus search result').click();
  await page.locator('.react-flow__node').filter({has:page.getByText('Research Agent',{exact:true})}).first().click();await expect(page.locator('[data-window="inspector"]')).toBeVisible();
@@ -32,7 +35,7 @@ test('engine navigation, memory versions, incident evidence and disabled authori
  expect(requests).toEqual([]);
 });
 test('recorded playback steps, seeks and plays without backend requests',async({page})=>{
- await page.goto('/demo/');await expect(page.locator('.react-flow__node').first()).toBeVisible();await page.getByRole('button',{name:'Open Demo Control',exact:true}).click();
+ await page.goto('/demo/');await expect(page.locator('.react-flow__node').first()).toBeVisible();await page.getByRole('button',{name:'Open Recorded playback',exact:true}).click();
  await page.getByRole('button',{name:'Restart recording',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Recorded event 1 / 9'})).toBeVisible();
  await page.getByRole('button',{name:'Next recorded event',exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Recorded event 2 / 9'})).toBeVisible();
  await page.getByLabel('Recording position').fill('4');await expect(page.getByRole('status').filter({hasText:'Recorded event 4 / 9'})).toBeVisible();
